@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { useCompany } from '@/context/CompanyContext';
-import { Plus, Edit2, Trash2, Search, ArrowLeft, Download, Upload, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, ArrowLeft, Download, Upload, X, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import Papa from 'papaparse';
 
@@ -261,9 +261,11 @@ export default function CustomersPage() {
             .eq('company', company);
             
           const existingCodeMap = new Map();
+          const existingNameMap = new Map();
           if (existingCustomers) {
             existingCustomers.forEach(c => {
               if (c.customer_code) existingCodeMap.set(c.customer_code, c.id);
+              if (c.name) existingNameMap.set(c.name.trim(), c.id);
             });
           }
 
@@ -271,9 +273,16 @@ export default function CustomersPage() {
           const recordsToUpdate = [];
 
           for (const item of payloads) {
+            let matchedId = null;
             if (item.customer_code && existingCodeMap.has(item.customer_code)) {
+              matchedId = existingCodeMap.get(item.customer_code);
+            } else if (item.name && existingNameMap.has(item.name)) {
+              matchedId = existingNameMap.get(item.name);
+            }
+
+            if (matchedId) {
               // Update
-              recordsToUpdate.push({ ...item, id: existingCodeMap.get(item.customer_code) });
+              recordsToUpdate.push({ ...item, id: matchedId });
             } else {
               // Insert
               recordsToInsert.push(item);
@@ -306,6 +315,42 @@ export default function CustomersPage() {
         if (csvInputRef.current) csvInputRef.current.value = '';
       }
     });
+  };
+
+  const cleanDuplicates = async () => {
+    if (!confirm('ระบบจะทำการลบรายชื่อลูกค้าที่ชื่อซ้ำกันออกทั้งหมด (เก็บไว้เพียงรายการเดียว) คุณแน่ใจหรือไม่?')) return;
+    
+    setLoading(true);
+    try {
+      const nameMap = new Map();
+      const idsToDelete: string[] = [];
+
+      customers.forEach(c => {
+        if (!c.name) return;
+        const name = c.name.trim();
+        if (nameMap.has(name)) {
+          idsToDelete.push(c.id);
+        } else {
+          nameMap.set(name, true);
+        }
+      });
+
+      if (idsToDelete.length === 0) {
+        alert('ไม่พบข้อมูลที่ซ้ำกัน');
+        setLoading(false);
+        return;
+      }
+
+      for (const id of idsToDelete) {
+        await supabase.from('customers').delete().eq('id', id);
+      }
+
+      alert(`ลบข้อมูลที่ซ้ำกันสำเร็จจำนวน ${idsToDelete.length} รายการ`);
+      fetchCustomers();
+    } catch (error) {
+      alert('เกิดข้อผิดพลาดในการลบข้อมูลที่ซ้ำ');
+      setLoading(false);
+    }
   };
 
   const filteredCustomers = customers.filter(c => 
@@ -341,9 +386,16 @@ export default function CustomersPage() {
           <button className="btn btn-outline" onClick={() => csvInputRef.current?.click()} disabled={importing}>
             <Upload size={18} style={{ marginRight: '0.5rem' }} /> {importing ? 'กำลังนำเข้า...' : 'นำเข้า CSV'}
           </button>
-          <button className="btn btn-outline" onClick={handleExportCSV}>
-            <Download size={18} style={{ marginRight: '0.5rem' }} /> ส่งออก CSV
-          </button>
+          <div className="action-buttons">
+            <button className="btn btn-warning" onClick={cleanDuplicates}>
+              <ShieldAlert size={20} />
+              ลบข้อมูลที่ซ้ำ
+            </button>
+            <button className="btn btn-outline" onClick={handleExportCSV}>
+              <Download size={20} />
+              ส่งออก Excel
+            </button>
+          </div>
           <button className="btn btn-primary" onClick={() => handleOpenModal()}>
             <Plus size={20} style={{ marginRight: '0.5rem' }} /> เพิ่มลูกค้าใหม่
           </button>

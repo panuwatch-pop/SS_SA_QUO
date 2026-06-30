@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase, fetchAllProducts } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
-import { Plus, Edit2, Trash2, Search, ArrowLeft, Image as ImageIcon, Download, Upload, LayoutGrid, List, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, ArrowLeft, Image as ImageIcon, Download, Upload, LayoutGrid, List, X, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import Papa from 'papaparse';
 import Image from 'next/image';
@@ -315,9 +315,11 @@ export default function ProductsPage() {
             .select('id, product_code');
             
           const existingCodeMap = new Map();
+          const existingNameMap = new Map();
           if (existingProducts) {
             existingProducts.forEach(p => {
               if (p.product_code) existingCodeMap.set(p.product_code, p.id);
+              if (p.name) existingNameMap.set(p.name.trim(), p.id);
             });
           }
 
@@ -325,8 +327,15 @@ export default function ProductsPage() {
           const recordsToUpdate = [];
 
           for (const item of payloads) {
+            let matchedId = null;
             if (item.product_code && existingCodeMap.has(item.product_code)) {
-              recordsToUpdate.push({ ...item, id: existingCodeMap.get(item.product_code) });
+              matchedId = existingCodeMap.get(item.product_code);
+            } else if (item.name && existingNameMap.has(item.name)) {
+              matchedId = existingNameMap.get(item.name);
+            }
+
+            if (matchedId) {
+              recordsToUpdate.push({ ...item, id: matchedId });
             } else {
               recordsToInsert.push(item);
             }
@@ -360,6 +369,42 @@ export default function ProductsPage() {
     });
   };
 
+  const cleanDuplicates = async () => {
+    if (!confirm('ระบบจะทำการลบข้อมูลสินค้าที่ชื่อซ้ำกันออกทั้งหมด (เก็บไว้เพียงรายการเดียว) คุณแน่ใจหรือไม่?')) return;
+    
+    setLoading(true);
+    try {
+      const nameMap = new Map();
+      const idsToDelete: string[] = [];
+
+      products.forEach(p => {
+        if (!p.name) return;
+        const name = p.name.trim();
+        if (nameMap.has(name)) {
+          idsToDelete.push(p.id);
+        } else {
+          nameMap.set(name, true);
+        }
+      });
+
+      if (idsToDelete.length === 0) {
+        alert('ไม่พบข้อมูลที่ซ้ำกัน');
+        setLoading(false);
+        return;
+      }
+
+      for (const id of idsToDelete) {
+        await supabase.from('products').delete().eq('id', id);
+      }
+
+      alert(`ลบข้อมูลที่ซ้ำกันสำเร็จจำนวน ${idsToDelete.length} รายการ`);
+      fetchProducts();
+    } catch (error) {
+      alert('เกิดข้อผิดพลาดในการลบข้อมูลที่ซ้ำ');
+      setLoading(false);
+    }
+  };
+
   const filteredProducts = products.filter(p => 
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
     (p.description && p.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -390,6 +435,10 @@ export default function ProductsPage() {
             ref={csvInputRef} 
             onChange={handleImportCSV} 
           />
+          <button className="btn btn-warning" onClick={cleanDuplicates}>
+            <ShieldAlert size={20} />
+            ลบข้อมูลที่ซ้ำ
+          </button>
           <button className="btn btn-outline" onClick={() => csvInputRef.current?.click()} disabled={importing}>
             <Upload size={18} style={{ marginRight: '0.5rem' }} /> {importing ? 'กำลังนำเข้า...' : 'นำเข้า CSV'}
           </button>
