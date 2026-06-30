@@ -363,11 +363,11 @@ export default function QuotationDetailPage() {
             <table className="preview-table">
               <thead>
                 <tr>
-                  <th width="5%">ลำดับ</th>
-                  <th width="45%">รายการสินค้า</th>
-                  <th width="15%">จำนวน</th>
-                  <th width="15%">ราคา/หน่วย</th>
-                  <th width="20%" style={{ textAlign: 'right' }}>จำนวนเงิน</th>
+                  <th style={{ width: '5%' }}>ลำดับ</th>
+                  <th style={{ width: '45%' }}>รายการสินค้า</th>
+                  <th style={{ width: '15%' }}>จำนวน</th>
+                  <th style={{ width: '15%' }}>ราคา/หน่วย</th>
+                  <th style={{ width: '20%', textAlign: 'right' }}>จำนวนเงิน</th>
                 </tr>
               </thead>
               <tbody>

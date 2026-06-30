@@ -301,13 +301,13 @@ export default function EditQuotationPage() {
           <table className="items-table">
             <thead>
               <tr>
-                <th width="5%">ลำดับ</th>
-                <th width="35%">สินค้า</th>
-                <th width="15%">จำนวน</th>
-                <th width="15%">ราคา/หน่วย</th>
-                <th width="15%">ส่วนลด</th>
-                <th width="10%">รวมเงิน</th>
-                <th width="5%"></th>
+                <th style={{ width: '5%' }}>ลำดับ</th>
+                <th style={{ width: '35%' }}>สินค้า</th>
+                <th style={{ width: '15%' }}>จำนวน</th>
+                <th style={{ width: '15%' }}>ราคา/หน่วย</th>
+                <th style={{ width: '15%' }}>ส่วนลด</th>
+                <th style={{ width: '10%' }}>รวมเงิน</th>
+                <th style={{ width: '5%' }}></th>
               </tr>
             </thead>
             <tbody>
