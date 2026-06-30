@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { supabase, fetchAllProducts } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { useCompany } from '@/context/CompanyContext';
@@ -34,7 +34,7 @@ interface QuotationItem {
   total: number;
 }
 
-export default function NewQuotationPage() {
+function NewQuotationContent() {
   const { user, loading: authLoading } = useAuth();
   const { company } = useCompany();
   const router = useRouter();
@@ -530,5 +530,13 @@ export default function NewQuotationPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function NewQuotationPage() {
+  return (
+    <Suspense fallback={<div className="loading-screen">กำลังโหลด...</div>}>
+      <NewQuotationContent />
+    </Suspense>
   );
 }
