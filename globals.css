@@ -1,0 +1,157 @@
+:root {
+  /* Default Theme (SST - Blue/White) */
+  --primary-color: #0033a0;
+  --primary-light: #3366cc;
+  --secondary-color: #ffffff;
+  --text-color: #333333;
+  --text-light: #666666;
+  --bg-color: #f4f7fb;
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  --error-color: #ef4444;
+  --success-color: #10b981;
+}
+
+[data-company="Shinwa Anzen"] {
+  /* Shinwa Anzen Theme (Blue/Gold) */
+  --primary-color: #002266;
+  --primary-light: #1a4499;
+  --secondary-color: #d4af37;
+  --text-color: #ffffff;
+  --text-light: #cccccc;
+  --bg-color: #0a1128;
+  --glass-bg: rgba(10, 17, 40, 0.7);
+  --glass-border: rgba(212, 175, 55, 0.3);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  
+  /* Explicitly apply colors so they cascade properly instead of inheriting from root body */
+  color: var(--text-color);
+  background-color: var(--bg-color);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  color: var(--text-color);
+  background: var(--bg-color);
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+/* Base UI Components */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  box-shadow: 0 4px 14px 0 rgba(0, 51, 160, 0.39);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px 0 rgba(0, 51, 160, 0.23);
+}
+
+[data-company="Shinwa Anzen"] .btn-primary {
+  background-color: var(--secondary-color);
+  color: #002266;
+  box-shadow: 0 4px 14px 0 rgba(212, 175, 55, 0.39);
+}
+
+[data-company="Shinwa Anzen"] .btn-primary:hover {
+  background-color: #ebd076;
+  box-shadow: 0 6px 20px 0 rgba(212, 175, 55, 0.23);
+}
+
+.input-field {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: rgba(255,255,255,0.9);
+  color: #333;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+[data-company="Shinwa Anzen"] .input-field {
+  background-color: rgba(255,255,255,0.1);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: #fff;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 51, 160, 0.2);
+}
+
+[data-company="Shinwa Anzen"] .input-field:focus {
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+}
+
+select.input-field option {
+  background-color: #ffffff;
+  color: #333333;
+}
+
+[data-company="Shinwa Anzen"] select.input-field option {
+  background-color: #0a1128;
+  color: #ffffff;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--text-color);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
