@@ -9,10 +9,20 @@ interface SearchableSelectProps {
   className?: string;
 }
 
+import { createPortal } from 'react-dom';
+
 export default function SearchableSelect({ options, value, onChange, placeholder = 'เลือก...', className = '' }: SearchableSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   const selectedOption = options.find(opt => opt.id === value);
   
@@ -24,14 +34,69 @@ export default function SearchableSelect({ options, value, onChange, placeholder
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+        // If we are on mobile, the modal is in a portal, so clicking outside the wrapper might falsely close it
+        // BUT we have the mobile-overlay to handle closing on mobile, so we only need this for desktop
+        if (!isMobile) {
+          setIsOpen(false);
+        }
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [isMobile]);
+
+  const dropdownContent = (
+    <div className={`searchable-dropdown glass-panel ${isMobile ? 'mobile-modal' : ''}`}>
+      <div style={{ padding: '12px', borderBottom: '1px solid rgba(128,128,128,0.2)', flexShrink: 0 }}>
+        <div style={{ position: 'relative' }}>
+          <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
+          <input
+            type="text"
+            placeholder="ค้นหา..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            autoFocus
+            style={{
+              width: '100%',
+              padding: '8px 10px 8px 34px',
+              borderRadius: '8px',
+              border: '1px solid rgba(128,128,128,0.3)',
+              background: 'var(--bg-color)',
+              color: 'var(--text-color)',
+              fontSize: '1rem'
+            }}
+          />
+        </div>
+      </div>
+      <div className="searchable-dropdown-list">
+        {filteredOptions.length > 0 ? (
+          filteredOptions.map(opt => (
+            <div 
+              key={opt.id}
+              onClick={() => {
+                onChange(opt.id);
+                setIsOpen(false);
+                setSearchTerm('');
+              }}
+              className="searchable-option"
+              style={{
+                background: value === opt.id ? 'rgba(0, 51, 160, 0.1)' : 'transparent',
+              }}
+            >
+              <span style={{ fontWeight: value === opt.id ? 'bold' : 'normal', color: 'var(--text-color)', fontSize: '1rem' }}>{opt.label}</span>
+              {opt.subLabel && <span style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginTop: '4px' }}>{opt.subLabel}</span>}
+            </div>
+          ))
+        ) : (
+          <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-light)', fontSize: '1rem' }}>
+            ไม่พบข้อมูล
+          </div>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <div className={`searchable-select-wrapper ${className}`} ref={wrapperRef} style={{ position: 'relative', width: '100%' }}>
@@ -47,65 +112,20 @@ export default function SearchableSelect({ options, value, onChange, placeholder
       </div>
       
       {isOpen && (
-        <>
-          {/* Overlay for mobile/tablet to close on tap outside */}
-          <div 
-            className="mobile-overlay" 
-            onClick={() => setIsOpen(false)}
-            style={{ display: 'none' }}
-          ></div>
-
-          <div 
-            className="searchable-dropdown glass-panel"
-          >
-            <div style={{ padding: '12px', borderBottom: '1px solid rgba(128,128,128,0.2)', flexShrink: 0 }}>
-              <div style={{ position: 'relative' }}>
-                <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
-                <input
-                  type="text"
-                  placeholder="ค้นหา..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  autoFocus
-                  style={{
-                    width: '100%',
-                    padding: '8px 10px 8px 34px',
-                    borderRadius: '8px',
-                    border: '1px solid rgba(128,128,128,0.3)',
-                    background: 'var(--bg-color)',
-                    color: 'var(--text-color)',
-                    fontSize: '1rem'
-                  }}
-                />
-              </div>
-            </div>
-            <div className="searchable-dropdown-list">
-              {filteredOptions.length > 0 ? (
-                filteredOptions.map(opt => (
-                  <div 
-                    key={opt.id}
-                    onClick={() => {
-                      onChange(opt.id);
-                      setIsOpen(false);
-                      setSearchTerm('');
-                    }}
-                    className="searchable-option"
-                    style={{
-                      background: value === opt.id ? 'rgba(0, 51, 160, 0.1)' : 'transparent',
-                    }}
-                  >
-                    <span style={{ fontWeight: value === opt.id ? 'bold' : 'normal', color: 'var(--text-color)', fontSize: '1rem' }}>{opt.label}</span>
-                    {opt.subLabel && <span style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginTop: '4px' }}>{opt.subLabel}</span>}
-                  </div>
-                ))
-              ) : (
-                <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-light)', fontSize: '1rem' }}>
-                  ไม่พบข้อมูล
-                </div>
-              )}
-            </div>
-          </div>
-        </>
+        isMobile ? (
+          typeof document !== 'undefined' ? createPortal(
+            <>
+              <div 
+                className="mobile-overlay" 
+                onClick={() => setIsOpen(false)}
+              ></div>
+              {dropdownContent}
+            </>,
+            document.body
+          ) : null
+        ) : (
+          dropdownContent
+        )
       )}
 
       <style jsx>{`
@@ -144,35 +164,33 @@ export default function SearchableSelect({ options, value, onChange, placeholder
         }
 
         /* Mobile & Tablet Modal Mode */
-        @media (max-width: 1024px) {
-          .mobile-overlay {
-            display: block !important;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.4);
-            z-index: 999;
-            backdrop-filter: blur(2px);
-          }
-          
-          .searchable-dropdown {
-            position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            width: 90vw !important;
-            max-width: 500px;
-            max-height: 70vh !important;
-            z-index: 1000 !important;
-            border-radius: 12px;
-          }
-          
-          .searchable-dropdown-list {
-            max-height: calc(70vh - 60px);
-          }
-          
-          .searchable-option {
-            padding: 16px; /* Larger touch targets for mobile */
-          }
+        .mobile-overlay {
+          position: fixed;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: rgba(0,0,0,0.4);
+          z-index: 9999;
+          backdrop-filter: blur(2px);
+        }
+        
+        .mobile-modal {
+          position: fixed !important;
+          top: 50% !important;
+          left: 50% !important;
+          transform: translate(-50%, -50%) !important;
+          width: 90vw !important;
+          max-width: 500px;
+          max-height: 70vh !important;
+          z-index: 10000 !important;
+          border-radius: 12px;
+          margin-top: 0 !important;
+        }
+        
+        .mobile-modal .searchable-dropdown-list {
+          max-height: calc(70vh - 60px);
+        }
+        
+        .mobile-modal .searchable-option {
+          padding: 16px; /* Larger touch targets for mobile */
         }
       `}</style>
     </div>
