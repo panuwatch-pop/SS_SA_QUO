@@ -318,6 +318,80 @@ export default function SettingsPage() {
           <div style={{ width: '1px', height: '50px', background: 'var(--glass-border)', margin: '0 1rem' }} />
 
           <div>
+            <button 
+              className="btn btn-warning" 
+              onClick={async () => {
+                if (!confirm('ต้องการอัปเดต/นำเข้า ข้อมูลลูกค้าและสินค้าของ Shinwa จากไฟล์ระบบหรือไม่? (ข้อมูลเดิมจะไม่หาย แต่จะถูกอัปเดตให้สมบูรณ์)')) return;
+                
+                try {
+                  setRestoreLoading(true);
+                  // 1. Customers
+                  const custRes = await fetch('/shinwa_customers_import.json');
+                  if (custRes.ok) {
+                    const custData = await custRes.json();
+                    
+                    // Fetch existing to map IDs
+                    const { data: existingCusts } = await supabase.from('customers').select('id, customer_code').eq('company', 'Shinwa Anzen');
+                    const codeMap = new Map();
+                    if (existingCusts) {
+                      existingCusts.forEach((c: any) => {
+                        if (c.customer_code) codeMap.set(c.customer_code, c.id);
+                      });
+                    }
+                    
+                    const toUpsert = custData.map((c: any) => ({
+                      ...c,
+                      id: codeMap.get(c.customer_code) || undefined
+                    }));
+                    
+                    if (toUpsert.length > 0) {
+                      const { error } = await supabase.from('customers').upsert(toUpsert);
+                      if (error) console.error('Customer Error:', error);
+                    }
+                  }
+                  
+                  // 2. Products
+                  const prodRes = await fetch('/shinwa_products_import.json');
+                  if (prodRes.ok) {
+                    const prodData = await prodRes.json();
+                    
+                    const { data: existingProds } = await supabase.from('products').select('id, product_code').eq('company', 'Shinwa Anzen');
+                    const prodMap = new Map();
+                    if (existingProds) {
+                      existingProds.forEach((p: any) => {
+                        if (p.product_code) prodMap.set(p.product_code, p.id);
+                      });
+                    }
+                    
+                    const toUpsert = prodData.map((p: any) => ({
+                      ...p,
+                      id: prodMap.get(p.product_code) || undefined
+                    }));
+                    
+                    if (toUpsert.length > 0) {
+                      const { error } = await supabase.from('products').upsert(toUpsert);
+                      if (error) console.error('Product Error:', error);
+                    }
+                  }
+                  
+                  alert('อัปเดตข้อมูล Shinwa สำเร็จ!');
+                } catch (err: any) {
+                  alert('Error: ' + err.message);
+                } finally {
+                  setRestoreLoading(false);
+                }
+              }}
+              disabled={restoreLoading}
+            >
+              <Database size={18} style={{ marginRight: '0.5rem' }} /> 
+              อัปเดตฐานข้อมูล Shinwa
+            </button>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-light)', marginTop: '0.5rem' }}>* ดึงข้อมูลลูกค้า/สินค้า Shinwa ให้ครบถ้วน</p>
+          </div>
+
+          <div style={{ width: '1px', height: '50px', background: 'var(--glass-border)', margin: '0 1rem' }} />
+
+          <div>
             <input 
               type="file" 
               accept=".json"
