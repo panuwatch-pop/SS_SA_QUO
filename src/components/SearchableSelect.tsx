@@ -47,75 +47,134 @@ export default function SearchableSelect({ options, value, onChange, placeholder
       </div>
       
       {isOpen && (
-        <div 
-          className="searchable-dropdown glass-panel"
-          style={{ 
-            position: 'absolute', 
-            top: '100%', 
-            left: 0, 
-            right: 0, 
-            zIndex: 50, 
-            marginTop: '4px',
-            maxHeight: '300px',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden'
-          }}
-        >
-          <div style={{ padding: '8px', borderBottom: '1px solid rgba(128,128,128,0.2)', flexShrink: 0 }}>
-            <div style={{ position: 'relative' }}>
-              <Search size={14} style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
-              <input
-                type="text"
-                placeholder="ค้นหา..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                autoFocus
-                style={{
-                  width: '100%',
-                  padding: '6px 8px 6px 28px',
-                  borderRadius: '4px',
-                  border: '1px solid rgba(128,128,128,0.3)',
-                  background: 'var(--bg-color)',
-                  color: 'var(--text-color)',
-                  fontSize: '0.9rem'
-                }}
-              />
+        <>
+          {/* Overlay for mobile/tablet to close on tap outside */}
+          <div 
+            className="mobile-overlay" 
+            onClick={() => setIsOpen(false)}
+            style={{ display: 'none' }}
+          ></div>
+
+          <div 
+            className="searchable-dropdown glass-panel"
+          >
+            <div style={{ padding: '12px', borderBottom: '1px solid rgba(128,128,128,0.2)', flexShrink: 0 }}>
+              <div style={{ position: 'relative' }}>
+                <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
+                <input
+                  type="text"
+                  placeholder="ค้นหา..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  autoFocus
+                  style={{
+                    width: '100%',
+                    padding: '8px 10px 8px 34px',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(128,128,128,0.3)',
+                    background: 'var(--bg-color)',
+                    color: 'var(--text-color)',
+                    fontSize: '1rem'
+                  }}
+                />
+              </div>
+            </div>
+            <div className="searchable-dropdown-list">
+              {filteredOptions.length > 0 ? (
+                filteredOptions.map(opt => (
+                  <div 
+                    key={opt.id}
+                    onClick={() => {
+                      onChange(opt.id);
+                      setIsOpen(false);
+                      setSearchTerm('');
+                    }}
+                    className="searchable-option"
+                    style={{
+                      background: value === opt.id ? 'rgba(0, 51, 160, 0.1)' : 'transparent',
+                    }}
+                  >
+                    <span style={{ fontWeight: value === opt.id ? 'bold' : 'normal', color: 'var(--text-color)', fontSize: '1rem' }}>{opt.label}</span>
+                    {opt.subLabel && <span style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginTop: '4px' }}>{opt.subLabel}</span>}
+                  </div>
+                ))
+              ) : (
+                <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-light)', fontSize: '1rem' }}>
+                  ไม่พบข้อมูล
+                </div>
+              )}
             </div>
           </div>
-          <div style={{ overflowY: 'auto', maxHeight: '250px' }}>
-            {filteredOptions.length > 0 ? (
-              filteredOptions.map(opt => (
-                <div 
-                  key={opt.id}
-                  onClick={() => {
-                    onChange(opt.id);
-                    setIsOpen(false);
-                    setSearchTerm('');
-                  }}
-                  style={{
-                    padding: '8px 12px',
-                    cursor: 'pointer',
-                    borderBottom: '1px solid rgba(128,128,128,0.1)',
-                    background: value === opt.id ? 'rgba(0, 51, 160, 0.1)' : 'transparent',
-                    display: 'flex',
-                    flexDirection: 'column'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(128,128,128,0.1)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = value === opt.id ? 'rgba(0, 51, 160, 0.1)' : 'transparent'}
-                >
-                  <span style={{ fontWeight: value === opt.id ? 'bold' : 'normal', color: 'var(--text-color)' }}>{opt.label}</span>
-                  {opt.subLabel && <span style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>{opt.subLabel}</span>}
-                </div>
-              ))
-            ) : (
-              <div style={{ padding: '12px', textAlign: 'center', color: 'var(--text-light)', fontSize: '0.9rem' }}>
-                ไม่พบข้อมูล
-              </div>
-            )}
-          </div>
-        </div>
+        </>
       )}
+
+      <style jsx>{`
+        .searchable-dropdown {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          z-index: 50;
+          margin-top: 4px;
+          max-height: 300px;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          background: var(--glass-bg, #ffffff);
+          box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .searchable-dropdown-list {
+          overflow-y: auto;
+          max-height: 250px;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .searchable-option {
+          padding: 12px 16px;
+          cursor: pointer;
+          border-bottom: 1px solid rgba(128,128,128,0.1);
+          display: flex;
+          flex-direction: column;
+          transition: background 0.2s;
+        }
+        
+        .searchable-option:hover {
+          background: rgba(128,128,128,0.1) !important;
+        }
+
+        /* Mobile & Tablet Modal Mode */
+        @media (max-width: 1024px) {
+          .mobile-overlay {
+            display: block !important;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 999;
+            backdrop-filter: blur(2px);
+          }
+          
+          .searchable-dropdown {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            width: 90vw !important;
+            max-width: 500px;
+            max-height: 70vh !important;
+            z-index: 1000 !important;
+            border-radius: 12px;
+          }
+          
+          .searchable-dropdown-list {
+            max-height: calc(70vh - 60px);
+          }
+          
+          .searchable-option {
+            padding: 16px; /* Larger touch targets for mobile */
+          }
+        }
+      `}</style>
     </div>
   );
 }
