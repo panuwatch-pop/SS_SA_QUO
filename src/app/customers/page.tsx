@@ -254,16 +254,15 @@ export default function CustomersPage() {
           // (หรือเช็คทีละอัน ซึ่งช้า สำหรับความเรียบง่ายจะ insert/update ด้วยการจัดการแยก)
           
           // เพื่อความชัวร์ จะแยก insert โดยตรวจสอบรหัสที่ซ้ำ (เพื่อให้โค้ดรองรับแม้ไม่มี unique constraint บน db)
-          // ดึง customer codes ที่มีอยู่แล้ว
           const { data: existingCustomers } = await supabase
             .from('customers')
-            .select('id, customer_code')
+            .select('id, customer_code, name')
             .eq('company', company);
             
           const existingCodeMap = new Map();
           const existingNameMap = new Map();
           if (existingCustomers) {
-            existingCustomers.forEach(c => {
+            existingCustomers.forEach((c: any) => {
               if (c.customer_code) existingCodeMap.set(c.customer_code, c.id);
               if (c.name) existingNameMap.set(c.name.trim(), c.id);
             });

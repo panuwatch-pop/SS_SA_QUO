@@ -285,12 +285,12 @@ export default function ProductsPage() {
 
           const { data: existingProducts } = await supabase
             .from('products')
-            .select('id, product_code');
+            .select('id, product_code, name');
             
           const existingCodeMap = new Map();
           const existingNameMap = new Map();
           if (existingProducts) {
-            existingProducts.forEach(p => {
+            existingProducts.forEach((p: any) => {
               if (p.product_code) existingCodeMap.set(p.product_code, p.id);
               if (p.name) existingNameMap.set(p.name.trim(), p.id);
             });
