@@ -2,7 +2,7 @@
 -- INSERT SCRIPT FOR SST PRODUCTS
 -- ==========================================
 
-INSERT INTO products (company, product_code, name, price, unit, barcode) VALUES
+INSERT INTO public.products (company, product_code, name, price, unit, barcode) VALUES
 ('SST', '884', 'TS-0884 Memory 8Mb For 4DC, 4LC', 0, 'EACH', ''),
 ('SST', '100310-670006 VP1-3', 'Euro Mortice Lock 60 mm.', 0, 'EACH', ''),
 ('SST', '1084', 'TS-1084 Momory 8Mb For C10', 0, 'EACH', ''),
@@ -104,7 +104,7 @@ INSERT INTO products (company, product_code, name, price, unit, barcode) VALUES
 ('SST', 'ECB04D0', 'NCoder - Proximity Card encoder', 0, 'EACH', ''),
 ('SST', 'ECB-535', 'End Cap big for Barrier arm', 0, 'EACH', '');
 
-INSERT INTO products (company, product_code, name, price, unit, barcode) VALUES
+INSERT INTO public.products (company, product_code, name, price, unit, barcode) VALUES
 ('SST', 'ECD92UI', 'SALTO Energy Saver ESD9000', 0, 'EACH', ''),
 ('SST', 'ECS-535', 'End cap Small for Barrier arm', 0, 'EACH', ''),
 ('SST', 'EL560SET', 'ABloy Mortise Lock', 0, 'EACH', ''),
@@ -206,7 +206,7 @@ INSERT INTO products (company, product_code, name, price, unit, barcode) VALUES
 ('SST', 'MFTAG', 'MIFARE TAG SILICON', 0, 'CARD', ''),
 ('SST', 'MG', 'Magnetic Lock 600lbs with LED', 0, 'EACH', '');
 
-INSERT INTO products (company, product_code, name, price, unit, barcode) VALUES
+INSERT INTO public.products (company, product_code, name, price, unit, barcode) VALUES
 ('SST', 'Mifare-Fob', 'Mifare Fob', 0, 'Pack', ''),
 ('SST', 'Mortise3109', 'YALE Mortise 3109', 0, 'EACH', ''),
 ('SST', 'MortiseLock', 'Mortise Lock', 0, 'Unit', ''),
@@ -308,7 +308,7 @@ INSERT INTO products (company, product_code, name, price, unit, barcode) VALUES
 ('SST', 'VP1-9SET', 'Lockset with Lever handle Stainless', 0, 'ชุด', ''),
 ('SST', 'WD43PURZ', 'HD 4TB for CCTV', 0, 'EACH', '');
 
-INSERT INTO products (company, product_code, name, price, unit, barcode) VALUES
+INSERT INTO public.products (company, product_code, name, price, unit, barcode) VALUES
 ('SST', 'WRD9000', 'SALTO XS4 2.0 Design Wall Reader Pro', 0, 'EACH', ''),
 ('SST', 'WRD90E4ABY', 'SALTO WALL READER Black Finish', 0, 'EACH', ''),
 ('SST', 'WRD90E4BY', 'WR4000 Mifare CLAY Black', 0, 'EACH', ''),
