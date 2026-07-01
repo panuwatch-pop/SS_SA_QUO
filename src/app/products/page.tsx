@@ -56,34 +56,7 @@ export default function ProductsPage() {
   const csvInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    async function doImportShinwaProducts() {
-      if (localStorage.getItem('shinwa_products_imported_v3')) return;
-      try {
-        const res = await fetch('/shinwa_products_import.json');
-        if (!res.ok) {
-          alert(`Fetch failed with status: ${res.status}`);
-          return;
-        }
-        const data = await res.json();
-        if (data && data.length > 0) {
-          const { error } = await supabase.from('products').insert(data);
-          if (error) {
-            alert(`Error importing products: ${error.message || JSON.stringify(error)}`);
-          } else {
-            localStorage.setItem('shinwa_products_imported_v3', 'true');
-            alert(`นำเข้าสินค้า Shinwa อัตโนมัติเรียบร้อยแล้ว (${data.length} รายการ)`);
-            fetchProducts();
-          }
-        } else {
-          alert('Data is empty');
-        }
-      } catch (err: any) {
-        alert(`Catch error: ${err.message}`);
-      }
-    }
-    
     if (user) {
-      doImportShinwaProducts();
       fetchProducts();
     }
   }, [user, company]);

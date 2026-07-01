@@ -62,7 +62,7 @@ export default function SearchableSelect({ options, value, onChange, placeholder
             overflow: 'hidden'
           }}
         >
-          <div style={{ padding: '8px', borderBottom: '1px solid rgba(128,128,128,0.2)' }}>
+          <div style={{ padding: '8px', borderBottom: '1px solid rgba(128,128,128,0.2)', flexShrink: 0 }}>
             <div style={{ position: 'relative' }}>
               <Search size={14} style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
               <input
@@ -83,7 +83,7 @@ export default function SearchableSelect({ options, value, onChange, placeholder
               />
             </div>
           </div>
-          <div style={{ overflowY: 'auto', flex: 1 }}>
+          <div style={{ overflowY: 'auto', maxHeight: '250px' }}>
             {filteredOptions.length > 0 ? (
               filteredOptions.map(opt => (
                 <div 
