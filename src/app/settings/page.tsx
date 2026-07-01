@@ -395,10 +395,34 @@ export default function SettingsPage() {
             <button 
               className="btn btn-warning" 
               onClick={async () => {
-                if (!confirm('ต้องการอัปเดต/นำเข้า ข้อมูลสินค้าของ SST จากไฟล์ระบบหรือไม่? (ข้อมูลเดิมอาจถูกอัปเดต)')) return;
+                if (!confirm('ต้องการอัปเดต/นำเข้า ข้อมูลลูกค้าและสินค้าของ SST จากไฟล์ระบบหรือไม่? (ข้อมูลเดิมอาจถูกอัปเดต)')) return;
                 
                 try {
                   setRestoreLoading(true);
+                  // Load customers
+                  const custRes = await fetch('/sst_customers_import.json');
+                  if (custRes.ok) {
+                    const custData = await custRes.json();
+                    
+                    const { data: existingCusts } = await supabase.from('customers').select('id, customer_code').eq('company', 'SST');
+                    const custMap = new Map();
+                    if (existingCusts) {
+                      existingCusts.forEach((c: any) => {
+                        if (c.customer_code) custMap.set(c.customer_code, c.id);
+                      });
+                    }
+                    
+                    const toUpsert = custData.map((c: any) => ({
+                      ...c,
+                      id: custMap.get(c.customer_code) || undefined
+                    }));
+                    
+                    if (toUpsert.length > 0) {
+                      const { error } = await supabase.from('customers').upsert(toUpsert);
+                      if (error) console.error('Customer Error:', error);
+                    }
+                  }
+
                   // Load products
                   const prodRes = await fetch('/sst_products_import.json');
                   if (prodRes.ok) {
@@ -423,7 +447,7 @@ export default function SettingsPage() {
                     }
                   }
                   
-                  alert('อัปเดตข้อมูลสินค้า SST สำเร็จ!');
+                  alert('อัปเดตข้อมูลลูกค้าและสินค้า SST สำเร็จ!');
                 } catch (err: any) {
                   alert('Error: ' + err.message);
                 } finally {
@@ -435,7 +459,7 @@ export default function SettingsPage() {
               <Database size={18} style={{ marginRight: '0.5rem' }} /> 
               อัปเดตฐานข้อมูล SST
             </button>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-light)', marginTop: '0.5rem' }}>* ดึงข้อมูลสินค้า SST ล่าสุด</p>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-light)', marginTop: '0.5rem' }}>* ดึงข้อมูลลูกค้า/สินค้า SST ล่าสุด</p>
           </div>
 
           <div style={{ width: '1px', height: '50px', background: 'var(--glass-border)', margin: '0 1rem' }} />
