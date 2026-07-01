@@ -60,6 +60,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push('/login');
   };
 
+  // Auto-logout inactivity timer
+  useEffect(() => {
+    if (!user) return; // Only track if logged in
+
+    const INACTIVITY_TIMEOUT = 60 * 60 * 1000; // 60 minutes
+    let timeoutId: NodeJS.Timeout;
+
+    const resetTimer = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        // Auto logout
+        supabase.auth.signOut().then(() => {
+          alert('ระบบได้ทำการออกจากระบบอัตโนมัติ เนื่องจากไม่มีการใช้งานเป็นเวลานาน');
+          router.push('/login');
+        });
+      }, INACTIVITY_TIMEOUT);
+    };
+
+    resetTimer();
+
+    // Events that reset the timer
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+    events.forEach(e => document.addEventListener(e, resetTimer));
+
+    return () => {
+      clearTimeout(timeoutId);
+      events.forEach(e => document.removeEventListener(e, resetTimer));
+    };
+  }, [user, router]);
+
   return (
     <AuthContext.Provider value={{ user, session, loading, signOut }}>
       {children}
