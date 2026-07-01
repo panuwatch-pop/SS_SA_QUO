@@ -500,9 +500,21 @@ export default function EditQuotationPage() {
         .totals-box { display: flex; flex-direction: column; gap: 1rem; background: rgba(0,0,0,0.02); padding: 1.5rem; border-radius: 8px; }
         [data-company="Shinwa Anzen"] .totals-box { background: rgba(255,255,255,0.03); }
         .total-row { display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; }
+        .total-row span:last-child { font-weight: bold; }
         .grand-total { font-weight: bold; font-size: 1.3rem; color: var(--primary-color); border-top: 2px solid rgba(0,0,0,0.1); padding-top: 1rem; margin-top: 0.5rem; }
         [data-company="Shinwa Anzen"] .grand-total { color: var(--secondary-color); border-top-color: rgba(255,255,255,0.1); }
         
+        /* Mobile Responsive Adjustments */
+        @media (max-width: 768px) {
+          .page-container { padding: 1rem; }
+          .page-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+          .header-left { width: 100%; }
+          .quotation-form-grid { grid-template-columns: 1fr; }
+          .summary-section { grid-template-columns: 1fr; gap: 1rem; }
+          .items-table { display: block; overflow-x: auto; white-space: nowrap; }
+          .glass-panel.section-panel:first-child { z-index: 50; position: relative; }
+        }
+
         @media (max-width: 900px) {
           .quotation-form-grid { grid-template-columns: 1fr; }
           .summary-section { grid-template-columns: 1fr; }
