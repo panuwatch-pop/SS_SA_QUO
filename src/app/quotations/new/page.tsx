@@ -28,6 +28,7 @@ interface Product {
 interface QuotationItem {
   product_id: string;
   product_name: string; // for display only
+  description?: string;
   quantity: number;
   unit_price: number;
   discount: number;
