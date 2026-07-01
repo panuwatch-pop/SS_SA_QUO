@@ -376,6 +376,7 @@ export default function QuotationDetailPage() {
                     <td style={{ textAlign: 'center' }}>{index + 1}</td>
                     <td>
                       <div>{item.products?.name}</div>
+                      {item.description && <div style={{ fontSize: '0.85rem', color: '#555', marginTop: '4px', whiteSpace: 'pre-wrap' }}>{item.description}</div>}
                       {item.products?.product_code && <div style={{ fontSize: '0.8rem', color: 'gray' }}>{item.products.product_code}</div>}
                     </td>
                     <td style={{ textAlign: 'center' }}>{item.quantity} {item.products?.unit}</td>

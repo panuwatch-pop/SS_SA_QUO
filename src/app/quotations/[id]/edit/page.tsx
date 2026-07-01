@@ -195,6 +195,7 @@ export default function EditQuotationPage() {
       const itemsToInsert = items.map(item => ({
         quotation_id: id,
         product_id: item.product_id,
+        description: item.description || null,
         quantity: item.quantity,
         unit_price: item.unit_price,
         discount: item.discount,
@@ -324,6 +325,14 @@ export default function EditQuotationPage() {
                       value={item.product_id}
                       onChange={(value) => updateItem(index, 'product_id', value)}
                       placeholder="-- เลือกสินค้า --"
+                    />
+                    <textarea 
+                      className="input-field"
+                      style={{ marginTop: '0.5rem', fontSize: '0.85rem', padding: '0.4rem', minHeight: '40px' }}
+                      rows={2}
+                      placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"
+                      value={item.description || ''}
+                      onChange={(e) => updateItem(index, 'description', e.target.value)}
                     />
                   </td>
                   <td>

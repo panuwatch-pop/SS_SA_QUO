@@ -267,8 +267,11 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
               <Text style={styles.colNo}>{index + 1}</Text>
               <View style={styles.colItem}>
                 <Text>{item.products?.name || 'Unknown Item'}</Text>
+                {item.description && (
+                  <Text style={{fontSize: 9, color: '#444', marginTop: 2}}>{item.description}</Text>
+                )}
                 {item.products?.product_code && (
-                  <Text style={{fontSize: 8, color: '#777'}}>{item.products.product_code}</Text>
+                  <Text style={{fontSize: 8, color: '#777', marginTop: 1}}>{item.products.product_code}</Text>
                 )}
               </View>
               <Text style={styles.colQty}>{item.quantity} {item.products?.unit || ''} </Text>
