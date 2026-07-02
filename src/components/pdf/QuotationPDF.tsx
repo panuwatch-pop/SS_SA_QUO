@@ -210,11 +210,6 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
           <View style={styles.documentTitleBox}>
             <Text style={styles.documentTitle}>ใบเสนอราคา</Text>
             <Text style={{fontSize: 14, color: '#555'}}>QUOTATION</Text>
-            
-            <Text 
-              style={{ fontSize: 10, color: '#555', marginTop: 10 }}
-              render={({ pageNumber, totalPages }) => `หน้า ${pageNumber} / ${totalPages}`} 
-            />
           </View>
         </View>
 
@@ -351,6 +346,13 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
             <Text>ผู้สั่งซื้อ / ยืนยันสั่งซื้อ</Text>
             <Text style={{color: '#777', marginTop: 3}}>วันที่ _____/_____/_____</Text>
           </View>
+        </View>
+
+        <Text 
+          style={{ position: 'absolute', bottom: 15, right: 30, fontSize: 10, color: '#333', fontFamily: 'Sarabun' }} 
+          fixed
+          render={({ pageNumber, totalPages }) => `หน้า ${pageNumber} / ${totalPages}`} 
+        />
       </Page>
     </Document>
   );
