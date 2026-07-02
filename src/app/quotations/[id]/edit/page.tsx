@@ -22,6 +22,7 @@ interface Product {
   id: string;
   product_code: string;
   name: string;
+  description?: string;
   price: number;
   unit: string;
 }
@@ -132,6 +133,7 @@ export default function EditQuotationPage() {
           ...newItems[index],
           product_id: product.id,
           product_name: product.name,
+          description: product.description || '',
           unit_price: product.price,
           total: product.price * newItems[index].quantity - newItems[index].discount
         };
