@@ -4,8 +4,9 @@ import { useState, useEffect, Suspense } from 'react';
 import { supabase, fetchAllProducts } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { useCompany } from '@/context/CompanyContext';
-import { ArrowLeft, Plus, Trash2, Save } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, Save } from 'lucide-react';
 import SearchableSelect from '@/components/SearchableSelect';
+import FormattedNumberInput from '@/components/FormattedNumberInput';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -359,34 +360,27 @@ function NewQuotationContent() {
                     />
                   </td>
                   <td>
-                    <input 
-                      type="number" 
+                    <FormattedNumberInput 
                       className="input-field" 
-                      min="1"
-                      value={item.quantity || ''}
-                      onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value) || 0)}
+                      value={item.quantity || 0}
+                      onChange={(val) => updateItem(index, 'quantity', val)}
+                      allowDecimals={false}
                       style={{ textAlign: 'center' }}
                     />
                   </td>
                   <td>
-                    <input 
-                      type="number" 
+                    <FormattedNumberInput 
                       className="input-field" 
-                      min="0"
-                      step="0.01"
-                      value={item.unit_price || ''}
-                      onChange={(e) => updateItem(index, 'unit_price', parseFloat(e.target.value) || 0)}
+                      value={item.unit_price || 0}
+                      onChange={(val) => updateItem(index, 'unit_price', val)}
                       style={{ textAlign: 'right' }}
                     />
                   </td>
                   <td>
-                    <input 
-                      type="number" 
+                    <FormattedNumberInput 
                       className="input-field" 
-                      min="0"
-                      step="0.01"
-                      value={item.discount || ''}
-                      onChange={(e) => updateItem(index, 'discount', parseFloat(e.target.value) || 0)}
+                      value={item.discount || 0}
+                      onChange={(val) => updateItem(index, 'discount', val)}
                       style={{ textAlign: 'right' }}
                     />
                   </td>
@@ -432,13 +426,11 @@ function NewQuotationContent() {
             <div className="total-row" style={{ alignItems: 'center' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 ส่วนลดท้ายบิล
-                <input 
-                  type="number" 
+                <FormattedNumberInput 
                   className="input-field" 
                   style={{ width: '60px', padding: '0.25rem', textAlign: 'center' }}
-                  min="0" max="100"
-                  value={globalDiscountPercent || ''}
-                  onChange={(e) => setGlobalDiscountPercent(parseFloat(e.target.value) || 0)}
+                  value={globalDiscountPercent || 0}
+                  onChange={(val) => setGlobalDiscountPercent(val > 100 ? 100 : val)}
                 /> %
               </span>
               <span style={{ color: 'var(--error-color)' }}>
