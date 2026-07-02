@@ -346,14 +346,12 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
             <Text>ผู้สั่งซื้อ / ยืนยันสั่งซื้อ</Text>
             <Text style={{color: '#777', marginTop: 3}}>วันที่ _____/_____/_____</Text>
           </View>
+          
+          <Text 
+            style={{ position: 'absolute', bottom: -20, right: 0, fontSize: 10, color: '#333' }} 
+            render={({ pageNumber, totalPages }) => `หน้า ${pageNumber} / ${totalPages}`} 
+          />
         </View>
-
-        {/* Page Number */}
-        <Text 
-          style={{ position: 'absolute', bottom: 15, right: 30, fontSize: 9, color: '#666' }} 
-          fixed
-          render={({ pageNumber, totalPages }) => `หน้า ${pageNumber} / ${totalPages}`} 
-        />
       </Page>
     </Document>
   );
