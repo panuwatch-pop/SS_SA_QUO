@@ -623,6 +623,16 @@ export default function ProductsPage() {
                   onChange={e => setFormData({...formData, name: e.target.value})}
                 />
               </div>
+              <div className="form-group">
+                <label className="label">รายละเอียดสินค้า</label>
+                <textarea 
+                  className="input-field" 
+                  rows={3}
+                  value={formData.description}
+                  onChange={e => setFormData({...formData, description: e.target.value})}
+                  placeholder="รายละเอียดเพิ่มเติมของสินค้า (จะแสดงในใบเสนอราคา)"
+                />
+              </div>
               <div className="form-row" style={{display: 'flex', gap: '1rem'}}>
                 <div className="form-group" style={{flex: 1}}>
                   <label className="label">ราคาสินค้า (บาท) *</label>
