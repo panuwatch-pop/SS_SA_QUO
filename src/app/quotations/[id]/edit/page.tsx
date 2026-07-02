@@ -99,6 +99,7 @@ export default function EditQuotationPage() {
         setItems(iData.map((item: any) => ({
           product_id: item.product_id,
           product_name: item.products?.name || '',
+          description: item.description || '',
           quantity: item.quantity,
           unit_price: item.unit_price,
           discount: item.discount,
