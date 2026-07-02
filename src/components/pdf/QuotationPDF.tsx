@@ -14,6 +14,7 @@ const styles = StyleSheet.create({
   page: {
     fontFamily: 'Sarabun',
     padding: 30,
+    paddingBottom: 100,
     fontSize: 10,
     lineHeight: 1.5,
   },
@@ -253,7 +254,7 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
 
         {/* Table */}
         <View style={styles.table}>
-          <View style={{...styles.tableHeader, backgroundColor: headerBgColor, color: headerTextColor}}>
+          <View style={{...styles.tableHeader, backgroundColor: headerBgColor, color: headerTextColor}} fixed>
             <Text style={styles.colNo}>ลำดับ </Text>
             <Text style={styles.colItem}>รายการสินค้า </Text>
             <Text style={styles.colQty}>จำนวน </Text>
@@ -263,7 +264,7 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
           </View>
           
           {items.map((item, index) => (
-            <View key={index} style={styles.tableRow}>
+            <View key={index} style={styles.tableRow} wrap={false}>
               <Text style={styles.colNo}>{index + 1}</Text>
               <View style={styles.colItem}>
                 <Text>{item.products?.name || 'Unknown Item'}</Text>
@@ -283,7 +284,7 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
         </View>
 
         {/* Summary */}
-        <View style={styles.summaryContainer}>
+        <View style={styles.summaryContainer} wrap={false}>
           <View style={styles.notesBox}>
             <Text style={{fontWeight: 'bold', marginBottom: 5}}>หมายเหตุ / เงื่อนไข:</Text>
             <Text>{quotation.notes || '-'}</Text>
@@ -329,7 +330,7 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
         </View>
 
         {/* Footer Signatures */}
-        <View style={styles.footer}>
+        <View style={styles.footer} fixed>
           <View style={styles.signatureBox}>
             <View style={styles.signatureLine}></View>
             <Text>ผู้เสนอราคา</Text>
