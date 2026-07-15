@@ -219,35 +219,35 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
             <Text style={{fontWeight: 'bold', fontSize: 12, marginBottom: 5}}>ลูกค้า (Customer):</Text>
             <Text>{customer?.name}</Text>
             <Text>{customer?.address || ''}</Text>
-            {customer?.tax_id && <Text>เลขประจำตัวผู้เสียภาษี: {customer.tax_id}</Text>}
+            {customer?.tax_id && <Text>เลขประจำตัวผู้เสียภาษี (Tax ID): {customer.tax_id}</Text>}
             <View style={{marginTop: 5}}>
-              {customer?.contact_name && <Text>เรียน: {customer.contact_name}</Text>}
-              {customer?.contact_phone && <Text>โทร: {customer.contact_phone}</Text>}
+              {customer?.contact_name && <Text>เรียน (Attn): {customer.contact_name}</Text>}
+              {customer?.contact_phone && <Text>โทร (Tel): {customer.contact_phone}</Text>}
             </View>
           </View>
           
           <View style={styles.metaBox}>
             <View style={{flexDirection: 'row', marginBottom: 3}}>
-              <Text style={{width: 60, fontWeight: 'bold'}}>เลขที่เอกสาร:</Text>
-              <Text>{quotation.quotation_number}</Text>
+              <Text style={{width: 80, fontWeight: 'bold'}}>เลขที่ (Doc No.):</Text>
+              <Text style={{flex: 1}}>{quotation.quotation_number}</Text>
             </View>
             <View style={{flexDirection: 'row', marginBottom: 3}}>
-              <Text style={{width: 60, fontWeight: 'bold'}}>วันที่:</Text>
-              <Text>{new Date(quotation.created_at).toLocaleDateString('th-TH')}</Text>
+              <Text style={{width: 80, fontWeight: 'bold'}}>วันที่ (Date):</Text>
+              <Text style={{flex: 1}}>{new Date(quotation.created_at).toLocaleDateString('th-TH')}</Text>
             </View>
             {quotation.project_name && (
               <View style={{flexDirection: 'row', marginBottom: 3}}>
-                <Text style={{width: 60, fontWeight: 'bold'}}>โปรเจกต์:</Text>
-                <Text>{quotation.project_name}</Text>
+                <Text style={{width: 80, fontWeight: 'bold'}}>โปรเจกต์ (Project):</Text>
+                <Text style={{flex: 1}}>{quotation.project_name}</Text>
               </View>
             )}
             <View style={{flexDirection: 'row', marginBottom: 3}}>
-              <Text style={{width: 60, fontWeight: 'bold'}}>เครดิตเทอม:</Text>
-              <Text>{customer?.credit_terms || 'เงินสด'}</Text>
+              <Text style={{width: 80, fontWeight: 'bold'}}>เครดิต (Terms):</Text>
+              <Text style={{flex: 1}}>{customer?.credit_terms || 'เงินสด'}</Text>
             </View>
             <View style={{flexDirection: 'row'}}>
-              <Text style={{width: 60, fontWeight: 'bold'}}>พนักงานขาย:</Text>
-              <Text>ฝ่ายขาย</Text>
+              <Text style={{width: 80, fontWeight: 'bold'}}>ผู้ขาย (Sales):</Text>
+              <Text style={{flex: 1}}>ฝ่ายขาย</Text>
             </View>
           </View>
         </View>
@@ -255,12 +255,30 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
         {/* Table */}
         <View style={styles.table}>
           <View style={{...styles.tableHeader, backgroundColor: headerBgColor, color: headerTextColor}} fixed>
-            <Text style={styles.colNo}>ลำดับ </Text>
-            <Text style={styles.colItem}>รายการสินค้า </Text>
-            <Text style={styles.colQty}>จำนวน </Text>
-            <Text style={styles.colPrice}>ราคา/หน่วย </Text>
-            <Text style={styles.colDiscount}>ส่วนลด </Text>
-            <Text style={styles.colTotal}>จำนวนเงิน </Text>
+            <View style={styles.colNo}>
+              <Text>ลำดับ</Text>
+              <Text style={{ fontSize: 7, fontWeight: 'normal' }}>(No.)</Text>
+            </View>
+            <View style={styles.colItem}>
+              <Text>รายการสินค้า</Text>
+              <Text style={{ fontSize: 7, fontWeight: 'normal' }}>(Description)</Text>
+            </View>
+            <View style={styles.colQty}>
+              <Text>จำนวน</Text>
+              <Text style={{ fontSize: 7, fontWeight: 'normal' }}>(Qty)</Text>
+            </View>
+            <View style={styles.colPrice}>
+              <Text>ราคา/หน่วย</Text>
+              <Text style={{ fontSize: 7, fontWeight: 'normal' }}>(Unit Price)</Text>
+            </View>
+            <View style={styles.colDiscount}>
+              <Text>ส่วนลด</Text>
+              <Text style={{ fontSize: 7, fontWeight: 'normal' }}>(Discount)</Text>
+            </View>
+            <View style={styles.colTotal}>
+              <Text>จำนวนเงิน</Text>
+              <Text style={{ fontSize: 7, fontWeight: 'normal' }}>(Amount)</Text>
+            </View>
           </View>
           
           {items.map((item, index) => (
@@ -286,19 +304,19 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
         {/* Summary */}
         <View style={styles.summaryContainer} wrap={false}>
           <View style={styles.notesBox}>
-            <Text style={{fontWeight: 'bold', marginBottom: 5}}>หมายเหตุ / เงื่อนไข:</Text>
+            <Text style={{fontWeight: 'bold', marginBottom: 5}}>หมายเหตุ / เงื่อนไข (Remarks / Conditions):</Text>
             <Text>{quotation.notes || '-'}</Text>
           </View>
           
           <View style={styles.totalsBox}>
             <View style={styles.totalRow}>
-              <Text> รวมเป็นเงิน </Text>
+              <Text>รวมเป็นเงิน (Subtotal)</Text>
               <Text>{subtotal.toLocaleString('th-TH', {minimumFractionDigits: 2})}</Text>
             </View>
             
             {quotation.global_discount_percent > 0 && (
               <View style={styles.totalRow}>
-                <Text style={{ color: '#d32f2f' }}> หักส่วนลด {quotation.global_discount_percent}% </Text>
+                <Text style={{ color: '#d32f2f' }}>หักส่วนลด (Discount) {quotation.global_discount_percent}% </Text>
                 <Text>- {discountAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})}</Text>
               </View>
             )}
@@ -311,7 +329,7 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
             )}
             
             <View style={{...styles.totalRow, borderTopWidth: 1, borderTopColor: '#eee', marginTop: 4, paddingTop: 4}}>
-              <Text style={styles.boldText}> จำนวนเงินรวม </Text>
+              <Text style={styles.boldText}>จำนวนเงินรวม (Total)</Text>
               <Text style={styles.boldText}>{grandTotal.toLocaleString('th-TH', {minimumFractionDigits: 2})}</Text>
             </View>
 
@@ -323,7 +341,7 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
             )}
             
             <View style={styles.grandTotalRow}>
-              <Text>ยอดชำระสุทธิ </Text>
+              <Text>ยอดชำระสุทธิ (Net Payable)</Text>
               <Text>{Number(netPayable).toLocaleString('th-TH', {minimumFractionDigits: 2})}</Text>
             </View>
           </View>
@@ -334,16 +352,19 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
           <View style={styles.signatureBox}>
             <View style={styles.signatureLine}></View>
             <Text>ผู้เสนอราคา</Text>
+            <Text style={{ fontSize: 8, color: '#777' }}>(Prepared By)</Text>
             <Text style={{color: '#777', marginTop: 3}}>วันที่ _____/_____/_____</Text>
           </View>
           <View style={styles.signatureBox}>
             <View style={styles.signatureLine}></View>
             <Text>ผู้อนุมัติ</Text>
+            <Text style={{ fontSize: 8, color: '#777' }}>(Approved By)</Text>
             <Text style={{color: '#777', marginTop: 3}}>วันที่ _____/_____/_____</Text>
           </View>
           <View style={styles.signatureBox}>
             <View style={styles.signatureLine}></View>
             <Text>ผู้สั่งซื้อ / ยืนยันสั่งซื้อ</Text>
+            <Text style={{ fontSize: 8, color: '#777' }}>(Accepted By)</Text>
             <Text style={{color: '#777', marginTop: 3}}>วันที่ _____/_____/_____</Text>
           </View>
         </View>
