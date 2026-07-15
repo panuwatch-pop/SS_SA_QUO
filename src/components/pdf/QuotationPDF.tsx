@@ -98,12 +98,12 @@ const styles = StyleSheet.create({
     borderBottomColor: '#eeeeee',
     padding: 8,
   },
-  colNo: { width: '8%', textAlign: 'center', paddingHorizontal: 2 },
-  colItem: { width: '35%', paddingRight: 2 },
-  colQty: { width: '12%', textAlign: 'center', paddingHorizontal: 2 },
-  colPrice: { width: '15%', textAlign: 'right', paddingRight: 4 },
-  colDiscount: { width: '13%', textAlign: 'right', paddingRight: 4 },
-  colTotal: { width: '17%', textAlign: 'right', paddingRight: 4 },
+  colNo: { width: '7%', textAlign: 'center', paddingHorizontal: 2 },
+  colItem: { width: '34%', paddingRight: 2 },
+  colQty: { width: '11%', textAlign: 'center', paddingHorizontal: 2 },
+  colPrice: { width: '14%', textAlign: 'right', paddingRight: 4 },
+  colDiscount: { width: '14%', textAlign: 'right', paddingRight: 4 },
+  colTotal: { width: '20%', textAlign: 'right', paddingRight: 4 },
   
   summaryContainer: {
     flexDirection: 'row',
