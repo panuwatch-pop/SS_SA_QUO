@@ -340,10 +340,7 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
               </View>
             )}
             
-            <View style={styles.grandTotalRow}>
-              <Text>ยอดชำระสุทธิ (Total Payment)</Text>
-              <Text>{Number(netPayable).toLocaleString('th-TH', {minimumFractionDigits: 2})}</Text>
-            </View>
+
           </View>
         </View>
 
