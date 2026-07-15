@@ -99,11 +99,11 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   colNo: { width: '8%', textAlign: 'center', paddingHorizontal: 2 },
-  colItem: { width: '37%', paddingRight: 2 },
+  colItem: { width: '35%', paddingRight: 2 },
   colQty: { width: '12%', textAlign: 'center', paddingHorizontal: 2 },
   colPrice: { width: '15%', textAlign: 'right', paddingRight: 4 },
   colDiscount: { width: '13%', textAlign: 'right', paddingRight: 4 },
-  colTotal: { width: '15%', textAlign: 'right', paddingRight: 4 },
+  colTotal: { width: '17%', textAlign: 'right', paddingRight: 4 },
   
   summaryContainer: {
     flexDirection: 'row',
@@ -228,7 +228,7 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
           
           <View style={styles.metaBox}>
             <View style={{flexDirection: 'row', marginBottom: 3}}>
-              <Text style={{width: 80, fontWeight: 'bold'}}>เลขที่ (Doc No.):</Text>
+              <Text style={{width: 80, fontWeight: 'bold'}}>เลขที่ (Inv No.):</Text>
               <Text style={{flex: 1}}>{quotation.quotation_number}</Text>
             </View>
             <View style={{flexDirection: 'row', marginBottom: 3}}>
@@ -329,7 +329,7 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
             )}
             
             <View style={{...styles.totalRow, borderTopWidth: 1, borderTopColor: '#eee', marginTop: 4, paddingTop: 4}}>
-              <Text style={styles.boldText}>จำนวนเงินรวม (Total)</Text>
+              <Text style={styles.boldText}>จำนวนเงินรวม (Total Amount)</Text>
               <Text style={styles.boldText}>{grandTotal.toLocaleString('th-TH', {minimumFractionDigits: 2})}</Text>
             </View>
 
@@ -341,7 +341,7 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
             )}
             
             <View style={styles.grandTotalRow}>
-              <Text>ยอดชำระสุทธิ (Net Payable)</Text>
+              <Text>ยอดชำระสุทธิ (Total Payment)</Text>
               <Text>{Number(netPayable).toLocaleString('th-TH', {minimumFractionDigits: 2})}</Text>
             </View>
           </View>
