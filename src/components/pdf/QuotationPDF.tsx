@@ -255,30 +255,30 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
         {/* Table */}
         <View style={styles.table}>
           <View style={{...styles.tableHeader, backgroundColor: headerBgColor, color: headerTextColor}} fixed>
-            <View style={styles.colNo}>
-              <Text>ลำดับ</Text>
+            <Text style={styles.colNo}>
+              ลำดับ{'\n'}
               <Text style={{ fontSize: 7, fontWeight: 'normal' }}>(No.)</Text>
-            </View>
-            <View style={styles.colItem}>
-              <Text>รายการสินค้า</Text>
+            </Text>
+            <Text style={styles.colItem}>
+              รายการสินค้า{'\n'}
               <Text style={{ fontSize: 7, fontWeight: 'normal' }}>(Description)</Text>
-            </View>
-            <View style={styles.colQty}>
-              <Text>จำนวน</Text>
+            </Text>
+            <Text style={styles.colQty}>
+              จำนวน{'\n'}
               <Text style={{ fontSize: 7, fontWeight: 'normal' }}>(Qty)</Text>
-            </View>
-            <View style={styles.colPrice}>
-              <Text>ราคา/หน่วย</Text>
+            </Text>
+            <Text style={styles.colPrice}>
+              ราคา/หน่วย{'\n'}
               <Text style={{ fontSize: 7, fontWeight: 'normal' }}>(Unit Price)</Text>
-            </View>
-            <View style={styles.colDiscount}>
-              <Text>ส่วนลด</Text>
+            </Text>
+            <Text style={styles.colDiscount}>
+              ส่วนลด{'\n'}
               <Text style={{ fontSize: 7, fontWeight: 'normal' }}>(Discount)</Text>
-            </View>
-            <View style={styles.colTotal}>
-              <Text>จำนวนเงิน</Text>
+            </Text>
+            <Text style={styles.colTotal}>
+              จำนวนเงิน{'\n'}
               <Text style={{ fontSize: 7, fontWeight: 'normal' }}>(Amount)</Text>
-            </View>
+            </Text>
           </View>
           
           {items.map((item, index) => (
