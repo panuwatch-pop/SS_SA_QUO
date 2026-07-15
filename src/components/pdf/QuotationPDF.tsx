@@ -99,11 +99,11 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   colNo: { width: '7%', textAlign: 'center', paddingHorizontal: 2 },
-  colItem: { width: '34%', paddingRight: 2 },
+  colItem: { width: '31%', paddingRight: 2 },
   colQty: { width: '11%', textAlign: 'center', paddingHorizontal: 2 },
   colPrice: { width: '14%', textAlign: 'right', paddingRight: 4 },
   colDiscount: { width: '14%', textAlign: 'right', paddingRight: 4 },
-  colTotal: { width: '20%', textAlign: 'right', paddingRight: 4 },
+  colTotal: { width: '23%', textAlign: 'right', paddingRight: 4 },
   
   summaryContainer: {
     flexDirection: 'row',
