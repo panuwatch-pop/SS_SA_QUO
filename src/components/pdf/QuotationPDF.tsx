@@ -315,10 +315,16 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
             </View>
             
             {quotation.global_discount_percent > 0 && (
-              <View style={styles.totalRow}>
-                <Text style={{ color: '#d32f2f' }}>หักส่วนลด (Discount) {quotation.global_discount_percent}% </Text>
-                <Text>- {discountAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})}</Text>
-              </View>
+              <>
+                <View style={styles.totalRow}>
+                  <Text style={{ color: '#d32f2f' }}>หักส่วนลด (Discount) {quotation.global_discount_percent}% </Text>
+                  <Text>- {discountAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})}</Text>
+                </View>
+                <View style={styles.totalRow}>
+                  <Text>จำนวนเงินหลังหักส่วนลด (After Discount)</Text>
+                  <Text>{(subtotal - discountAmount).toLocaleString('th-TH', {minimumFractionDigits: 2})}</Text>
+                </View>
+              </>
             )}
 
             {quotation.has_vat && (

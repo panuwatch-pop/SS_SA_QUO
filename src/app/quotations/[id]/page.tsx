@@ -410,10 +410,16 @@ export default function QuotationDetailPage() {
                       </div>
                       
                       {quotation.global_discount_percent > 0 && (
-                        <div className="total-line" style={{ color: 'var(--error-color)' }}>
-                          <span>หักส่วนลด {quotation.global_discount_percent}%:</span>
-                          <span>- {discountAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท</span>
-                        </div>
+                        <>
+                          <div className="total-line" style={{ color: 'var(--error-color)' }}>
+                            <span>หักส่วนลด {quotation.global_discount_percent}%:</span>
+                            <span>- {discountAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท</span>
+                          </div>
+                          <div className="total-line">
+                            <span>จำนวนเงินหลังหักส่วนลด:</span>
+                            <span>{(subtotal - discountAmount).toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท</span>
+                          </div>
+                        </>
                       )}
                       
                       <div className="total-line">
