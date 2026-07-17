@@ -207,7 +207,7 @@ export default function QuotationDetailPage() {
   const handleShareLine = async () => {
     try {
       if (!quotation) return;
-      const summaryText = `แจ้งเสนอราคา: ${quotation.quotation_number}\nลูกค้า: ${customer?.name || '-'}\n${quotation.project_name ? `โปรเจกต์: ${quotation.project_name}\n` : ''}ยอดรวมสุทธิ: ${quotation.total_amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท\n\n(ดาวน์โหลดและแนบไฟล์ PDF หรือแคตตาล็อกส่งให้ลูกค้า)`;
+      const summaryText = `แจ้งเสนอราคา: ${quotation.quotation_number}\nลูกค้า: ${customer?.name || '-'}\n${quotation.project_name ? `โปรเจกต์: ${quotation.project_name}\n` : ''}ยอดรวมสุทธิ: ${quotation.total_amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท`;
       
       const { pdf } = await import('@react-pdf/renderer');
       const blob = await pdf(
