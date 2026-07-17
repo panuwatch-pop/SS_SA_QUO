@@ -83,35 +83,69 @@ export default function EditQuotationPage() {
       .single();
 
     if (qData) {
-      setQuotationNumber(qData.quotation_number);
-      setSelectedCustomerId(qData.customer_id);
-      setProjectName(qData.project_name || '');
-      setNotes(qData.notes || '');
-      setGlobalDiscountPercent(qData.global_discount_percent || 0);
-      setIncludeVat(qData.has_vat);
-      setIncludeWht(qData.has_wht);
-
       // Fetch items
       const { data: iData } = await supabase
         .from('quotation_items')
         .select('*, products(name)')
         .eq('quotation_id', id);
 
-      if (iData) {
-        setItems(iData.map((item: any) => ({
-          product_id: item.product_id,
-          product_name: item.products?.name || '',
-          description: item.description || '',
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-          discount: item.discount,
-          total: item.total
-        })));
+      const draftStr = localStorage.getItem(`quotation_draft_edit_${id}`);
+      if (draftStr) {
+        try {
+          const draft = JSON.parse(draftStr);
+          setQuotationNumber(draft.quotationNumber || qData.quotation_number);
+          if (draft.selectedCustomerId) setSelectedCustomerId(draft.selectedCustomerId);
+          if (draft.projectName !== undefined) setProjectName(draft.projectName);
+          if (draft.items && Array.isArray(draft.items)) setItems(draft.items);
+          if (draft.notes !== undefined) setNotes(draft.notes);
+          if (draft.globalDiscountPercent !== undefined) setGlobalDiscountPercent(draft.globalDiscountPercent);
+          if (draft.includeVat !== undefined) setIncludeVat(draft.includeVat);
+          if (draft.includeWht !== undefined) setIncludeWht(draft.includeWht);
+        } catch (e) {
+          console.error('Failed to parse draft', e);
+        }
+      } else {
+        setQuotationNumber(qData.quotation_number);
+        setSelectedCustomerId(qData.customer_id);
+        setProjectName(qData.project_name || '');
+        setNotes(qData.notes || '');
+        setGlobalDiscountPercent(qData.global_discount_percent || 0);
+        setIncludeVat(qData.has_vat);
+        setIncludeWht(qData.has_wht);
+
+        if (iData) {
+          setItems(iData.map((item: any) => ({
+            product_id: item.product_id,
+            product_name: item.products?.name || '',
+            description: item.description || '',
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            discount: item.discount,
+            total: item.total
+          })));
+        }
       }
     }
     
     setFetchingData(false);
   };
+
+  // Auto-save draft
+  useEffect(() => {
+    if (fetchingData || !id) return;
+    
+    const draftData = {
+      quotationNumber,
+      selectedCustomerId,
+      projectName,
+      items,
+      notes,
+      globalDiscountPercent,
+      includeVat,
+      includeWht,
+    };
+    localStorage.setItem(`quotation_draft_edit_${id}`, JSON.stringify(draftData));
+  }, [quotationNumber, selectedCustomerId, projectName, items, notes, globalDiscountPercent, includeVat, includeWht, id, fetchingData]);
 
   const addItem = () => {
     setItems([...items, { product_id: '', product_name: '', quantity: 1, unit_price: 0, discount: 0, total: 0 }]);
@@ -214,6 +248,7 @@ export default function EditQuotationPage() {
       if (itemsError) throw itemsError;
 
       alert('แก้ไขใบเสนอราคาเรียบร้อยแล้ว');
+      localStorage.removeItem(`quotation_draft_edit_${id}`);
       router.push(`/quotations`);
 
     } catch (error: any) {
@@ -221,6 +256,13 @@ export default function EditQuotationPage() {
       alert(`เกิดข้อผิดพลาด: ${error.message}`);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleClearDraft = () => {
+    if (confirm('คุณต้องการยกเลิกการแก้ไขที่ทำค้างไว้ และคืนค่าข้อมูลเดิมทั้งหมดใช่หรือไม่?')) {
+      localStorage.removeItem(`quotation_draft_edit_${id}`);
+      fetchData(); // Reload data from DB
     }
   };
 
@@ -238,10 +280,15 @@ export default function EditQuotationPage() {
             <p className="subtitle">เอกสารเลขที่ {quotationNumber} • บริษัท {company}</p>
           </div>
         </div>
-        <button className="btn btn-primary" onClick={handleSave} disabled={loading}>
-          <Save size={20} style={{ marginRight: '0.5rem' }} /> 
-          {loading ? 'กำลังบันทึก...' : 'บันทึกการแก้ไข'}
-        </button>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button className="btn btn-outline" onClick={handleClearDraft} disabled={loading} style={{ borderColor: '#ef4444', color: '#ef4444' }}>
+            คืนค่าเดิม
+          </button>
+          <button className="btn btn-primary" onClick={handleSave} disabled={loading}>
+            <Save size={20} style={{ marginRight: '0.5rem' }} /> 
+            {loading ? 'กำลังบันทึก...' : 'บันทึกการแก้ไข'}
+          </button>
+        </div>
       </header>
 
       <div className="quotation-form-grid">
