@@ -228,9 +228,17 @@ export default function QuotationDetailPage() {
           files: [file]
         });
       } else {
-        // Fallback: Copy summary to clipboard and open LINE URL scheme
+        // Fallback for Desktop/unsupported browsers: Auto-download the PDF first
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${quotation.quotation_number}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        // Copy summary to clipboard and open LINE URL scheme
         await navigator.clipboard.writeText(summaryText);
-        alert('คัดลอกข้อความสรุปข้อมูลแล้ว! ระบบกำลังเปิดหน้าเว็บ LINE ให้คุณกดวางข้อความและแนบไฟล์ PDF ด้วยตัวเอง');
+        alert('ระบบได้ดาวน์โหลดไฟล์ PDF ไว้ที่เครื่องของคุณแล้ว พร้อมทั้งคัดลอกข้อความสรุปข้อมูล\n\nระบบกำลังเปิดหน้าเว็บ LINE ให้คุณกดวางข้อความและลากไฟล์ PDF แนบไปส่งได้เลยครับ');
         const lineUrl = `https://line.me/R/msg/text/?${encodeURIComponent(summaryText)}`;
         window.open(lineUrl, '_blank');
       }
