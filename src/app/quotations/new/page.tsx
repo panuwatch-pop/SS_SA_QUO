@@ -104,10 +104,43 @@ function NewQuotationContent() {
           })));
         }
       }
+    } else {
+      // Try to load from draft
+      const draftStr = localStorage.getItem(`quotation_draft_${company}`);
+      if (draftStr) {
+        try {
+          const draft = JSON.parse(draftStr);
+          if (draft.selectedCustomerId) setSelectedCustomerId(draft.selectedCustomerId);
+          if (draft.projectName !== undefined) setProjectName(draft.projectName);
+          if (draft.items && Array.isArray(draft.items)) setItems(draft.items);
+          if (draft.notes !== undefined) setNotes(draft.notes);
+          if (draft.globalDiscountPercent !== undefined) setGlobalDiscountPercent(draft.globalDiscountPercent);
+          if (draft.includeVat !== undefined) setIncludeVat(draft.includeVat);
+          if (draft.includeWht !== undefined) setIncludeWht(draft.includeWht);
+        } catch (e) {
+          console.error('Failed to parse draft', e);
+        }
+      }
     }
 
     setFetchingData(false);
   };
+
+  // Auto-save draft
+  useEffect(() => {
+    if (fetchingData || !company) return;
+    
+    const draftData = {
+      selectedCustomerId,
+      projectName,
+      items,
+      notes,
+      globalDiscountPercent,
+      includeVat,
+      includeWht,
+    };
+    localStorage.setItem(`quotation_draft_${company}`, JSON.stringify(draftData));
+  }, [selectedCustomerId, projectName, items, notes, globalDiscountPercent, includeVat, includeWht, company, fetchingData]);
 
   const generateQuotationNumber = async () => {
     const prefix = company === 'SST' ? 'SST-QT-' : 'SA-QT-';
@@ -232,6 +265,7 @@ function NewQuotationContent() {
       if (itemsError) throw itemsError;
 
       alert('บันทึกใบเสนอราคาเรียบร้อยแล้ว');
+      localStorage.removeItem(`quotation_draft_${company}`);
       router.push(`/quotations`);
 
     } catch (error: any) {
@@ -239,6 +273,20 @@ function NewQuotationContent() {
       alert(`เกิดข้อผิดพลาด: ${error.message}`);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleClearDraft = () => {
+    if (confirm('คุณต้องการล้างข้อมูลที่กรอกไว้ทั้งหมดและเริ่มใหม่ใช่หรือไม่?')) {
+      localStorage.removeItem(`quotation_draft_${company}`);
+      setSelectedCustomerId('');
+      setProjectName('');
+      setItems([]);
+      setNotes('กำหนดยืนราคา 30 วัน นับจากวันที่เสนอราคา');
+      setGlobalDiscountPercent(0);
+      setIncludeVat(true);
+      setIncludeWht(false);
+      generateQuotationNumber().then(setQuotationNumber);
     }
   };
 
@@ -256,10 +304,15 @@ function NewQuotationContent() {
             <p className="subtitle">บริษัท {company}</p>
           </div>
         </div>
-        <button className="btn btn-primary" onClick={handleSave} disabled={loading}>
-          <Save size={20} style={{ marginRight: '0.5rem' }} /> 
-          {loading ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}
-        </button>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button className="btn btn-outline" onClick={handleClearDraft} disabled={loading} style={{ borderColor: '#ef4444', color: '#ef4444' }}>
+            ล้างข้อมูล (เริ่มใหม่)
+          </button>
+          <button className="btn btn-primary" onClick={handleSave} disabled={loading}>
+            <Save size={20} style={{ marginRight: '0.5rem' }} /> 
+            {loading ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}
+          </button>
+        </div>
       </header>
 
       <div className="quotation-form-grid">
