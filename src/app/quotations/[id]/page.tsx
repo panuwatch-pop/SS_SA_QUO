@@ -416,7 +416,7 @@ export default function QuotationDetailPage() {
                             <span>- {discountAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท</span>
                           </div>
                           <div className="total-line">
-                            <span>จำนวนเงินหลังหักส่วนลด:</span>
+                            <span>หลังหักส่วนลด:</span>
                             <span>{(subtotal - discountAmount).toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท</span>
                           </div>
                         </>

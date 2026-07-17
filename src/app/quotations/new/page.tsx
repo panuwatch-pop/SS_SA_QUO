@@ -495,7 +495,7 @@ function NewQuotationContent() {
 
             {globalDiscountPercent > 0 && (
               <div className="total-row">
-                <span>จำนวนเงินหลังหักส่วนลด (After Discount)</span>
+                <span>หลังหักส่วนลด (After Discount)</span>
                 <span>{afterDiscount.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</span>
               </div>
             )}

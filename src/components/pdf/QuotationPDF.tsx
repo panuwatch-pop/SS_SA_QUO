@@ -321,7 +321,7 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
                   <Text>- {discountAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})}</Text>
                 </View>
                 <View style={styles.totalRow}>
-                  <Text>จำนวนเงินหลังหักส่วนลด (After Discount)</Text>
+                  <Text>หลังหักส่วนลด (After Discount)</Text>
                   <Text>{(subtotal - discountAmount).toLocaleString('th-TH', {minimumFractionDigits: 2})}</Text>
                 </View>
               </>
