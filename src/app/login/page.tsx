@@ -93,15 +93,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="toggle-auth">
-          <button 
-            type="button" 
-            className="toggle-btn"
-            onClick={() => setIsSignUp(!isSignUp)}
-          >
-            {isSignUp ? 'มีบัญชีอยู่แล้ว? เข้าสู่ระบบ' : 'ยังไม่มีบัญชี? สมัครใช้งาน'}
-          </button>
-        </div>
+        {/* Removed Sign Up toggle button per user request */}
       </div>
 
       <style jsx>{`
