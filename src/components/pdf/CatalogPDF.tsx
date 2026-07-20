@@ -187,7 +187,7 @@ export default function CatalogPDF({ products, date, projectName, companyName }:
 
             {/* Page Number */}
             <Text 
-              style={{ position: 'absolute', bottom: 20, right: 30, fontSize: 12, color: '#666', fontFamily: 'Sarabun' }} 
+              style={{ position: 'absolute', bottom: 30, left: 0, right: 30, textAlign: 'right', fontSize: 12, color: '#666', fontFamily: 'Sarabun' }} 
               render={({ pageNumber, totalPages }) => `หน้า ${pageNumber} / ${totalPages}`} 
               fixed
             />

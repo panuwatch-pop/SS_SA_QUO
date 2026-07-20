@@ -373,7 +373,7 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
         </View>
 
         <Text 
-          style={{ position: 'absolute', bottom: 20, right: 30, fontSize: 10, color: '#333', fontFamily: 'Sarabun' }} 
+          style={{ position: 'absolute', bottom: 30, left: 0, right: 30, textAlign: 'right', fontSize: 10, color: '#555', fontFamily: 'Sarabun' }} 
           render={({ pageNumber, totalPages }) => `หน้า ${pageNumber} / ${totalPages}`} 
           fixed
         />
