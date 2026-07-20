@@ -184,6 +184,14 @@ export default function CatalogPDF({ products, date, projectName, companyName }:
             <View style={styles.footer}>
               <Text style={styles.companyName}>{displayCompanyName}</Text>
             </View>
+
+            {/* Page Number */}
+            <View style={{ position: 'absolute', bottom: 20, right: 30 }} fixed>
+              <Text 
+                style={{ fontSize: 12, color: '#666', fontFamily: 'Sarabun' }} 
+                render={({ pageNumber, totalPages }) => `หน้า ${pageNumber} / ${totalPages}`} 
+              />
+            </View>
           </Page>
         );
       })}
