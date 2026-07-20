@@ -351,7 +351,7 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
         </View>
 
         {/* Footer Signatures */}
-        <View style={styles.footer} fixed>
+        <View style={styles.footer}>
           <View style={styles.signatureBox}>
             <View style={styles.signatureLine}></View>
             <Text>ผู้เสนอราคา</Text>
