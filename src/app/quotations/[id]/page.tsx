@@ -26,6 +26,7 @@ export default function QuotationDetailPage() {
   const [showCatalogModal, setShowCatalogModal] = useState(false);
   const [catalogDate, setCatalogDate] = useState(new Date().toLocaleDateString('en-GB'));
   const [catalogProject, setCatalogProject] = useState('');
+  const [isGeneratingCatalog, setIsGeneratingCatalog] = useState(false);
 
   // Email Modal State
   const [showEmailModal, setShowEmailModal] = useState(false);
@@ -234,6 +235,7 @@ export default function QuotationDetailPage() {
 
   const handleDownloadCatalog = async () => {
     try {
+      setIsGeneratingCatalog(true);
       const { pdf } = await import('@react-pdf/renderer');
       
       // Get unique products from items
@@ -247,6 +249,7 @@ export default function QuotationDetailPage() {
       }
 
       if (uniqueProducts.length === 0) {
+        setIsGeneratingCatalog(false);
         alert('ไม่มีสินค้าในใบเสนอราคานี้');
         return;
       }
@@ -271,6 +274,8 @@ export default function QuotationDetailPage() {
     } catch (error) {
       console.error('Error generating Catalog PDF:', error);
       alert('เกิดข้อผิดพลาดในการสร้าง Catalog');
+    } finally {
+      setIsGeneratingCatalog(false);
     }
   };
 
@@ -498,8 +503,10 @@ export default function QuotationDetailPage() {
               />
             </div>
             <div className="modal-actions" style={{ marginTop: '2rem' }}>
-              <button type="button" className="btn" onClick={() => setShowCatalogModal(false)}>ยกเลิก</button>
-              <button type="button" className="btn btn-primary" onClick={handleDownloadCatalog}>ดาวน์โหลด PDF</button>
+              <button type="button" className="btn" onClick={() => setShowCatalogModal(false)} disabled={isGeneratingCatalog}>ยกเลิก</button>
+              <button type="button" className="btn btn-primary" onClick={handleDownloadCatalog} disabled={isGeneratingCatalog}>
+                {isGeneratingCatalog ? 'กำลังสร้าง PDF...' : 'ดาวน์โหลด PDF'}
+              </button>
             </div>
           </div>
         </div>
