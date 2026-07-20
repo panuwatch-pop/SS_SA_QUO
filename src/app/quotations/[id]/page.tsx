@@ -114,30 +114,12 @@ export default function QuotationDetailPage() {
         />
       ).toBlob();
 
-      if ('showSaveFilePicker' in window) {
-        try {
-          const handle = await (window as any).showSaveFilePicker({
-            suggestedName: `${quotation.quotation_number}.pdf`,
-            types: [{
-              description: 'PDF Document',
-              accept: { 'application/pdf': ['.pdf'] }
-            }]
-          });
-          const writable = await handle.createWritable();
-          await writable.write(blob);
-          await writable.close();
-        } catch (err: any) {
-          if (err.name !== 'AbortError') throw err;
-        }
-      } else {
-        // Fallback for browsers that don't support showSaveFilePicker
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${quotation.quotation_number}.pdf`;
-        a.click();
-        URL.revokeObjectURL(url);
-      }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${quotation.quotation_number}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('เกิดข้อผิดพลาดในการสร้าง PDF');
@@ -278,29 +260,12 @@ export default function QuotationDetailPage() {
         />
       ).toBlob();
 
-      if ('showSaveFilePicker' in window) {
-        try {
-          const handle = await (window as any).showSaveFilePicker({
-            suggestedName: `Catalog_${quotation.quotation_number}.pdf`,
-            types: [{
-              description: 'PDF Document',
-              accept: { 'application/pdf': ['.pdf'] }
-            }]
-          });
-          const writable = await handle.createWritable();
-          await writable.write(blob);
-          await writable.close();
-        } catch (err: any) {
-          if (err.name !== 'AbortError') throw err;
-        }
-      } else {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Catalog_${quotation.quotation_number}.pdf`;
-        a.click();
-        URL.revokeObjectURL(url);
-      }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Catalog_${quotation.quotation_number}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
       
       setShowCatalogModal(false);
     } catch (error) {
