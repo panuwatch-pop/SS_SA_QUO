@@ -468,13 +468,6 @@ export default function QuotationDetailPage() {
               <Link href={`/quotations/new?cloneId=${id}`} className="btn btn-outline" style={{ display: 'flex', justifyContent: 'center' }}>
                 คัดลอก (ทำซ้ำ)
               </Link>
-              <button 
-                className="btn btn-outline" 
-                onClick={() => setShowCatalogModal(true)}
-                style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem' }}
-              >
-                <Download size={18} style={{ marginRight: '0.5rem' }} /> สร้างแคตตาล็อกสินค้า
-              </button>
             </div>
 
             <div className="status-updater">
@@ -501,13 +494,9 @@ export default function QuotationDetailPage() {
               <p><strong>แก้ไขล่าสุด:</strong> {new Date(quotation.created_at).toLocaleString('th-TH')}</p>
             </div>
           </div>
-        </div>
-      </div>
 
-      {showCatalogModal && (
-        <div className="modal-backdrop">
-          <div className="modal-content glass-panel animate-fade-in" style={{ maxWidth: '400px' }}>
-            <h2>สร้างแคตตาล็อกสินค้า</h2>
+          <div className="glass-panel side-panel" style={{ marginTop: '1.5rem' }}>
+            <h3>สร้างแคตตาล็อกสินค้า</h3>
             <div className="form-group" style={{ marginTop: '1rem' }}>
               <label className="label">วันที่ (Date)</label>
               <input 
@@ -526,15 +515,18 @@ export default function QuotationDetailPage() {
                 onChange={e => setCatalogProject(e.target.value)}
               />
             </div>
-            <div className="modal-actions" style={{ marginTop: '2rem' }}>
-              <button type="button" className="btn" onClick={() => setShowCatalogModal(false)} disabled={isGeneratingCatalog}>ยกเลิก</button>
-              <button type="button" className="btn btn-primary" onClick={handleDownloadCatalog} disabled={isGeneratingCatalog}>
-                {isGeneratingCatalog ? 'กำลังสร้าง PDF...' : 'ดาวน์โหลด PDF'}
-              </button>
-            </div>
+            <button 
+              className="btn btn-primary" 
+              onClick={handleDownloadCatalog} 
+              disabled={isGeneratingCatalog}
+              style={{ width: '100%', marginTop: '1rem', display: 'flex', justifyContent: 'center' }}
+            >
+              <Download size={18} style={{ marginRight: '0.5rem' }} /> 
+              {isGeneratingCatalog ? 'กำลังสร้าง PDF...' : 'ดาวน์โหลด PDF'}
+            </button>
           </div>
         </div>
-      )}
+      </div>
 
       <style jsx>{`
         .page-container { padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; }
