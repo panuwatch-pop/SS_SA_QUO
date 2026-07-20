@@ -105,6 +105,14 @@ export default function QuotationDetailPage() {
 
   const handleDownloadPDF = async () => {
     try {
+      const isLineBrowser = /Line/i.test(navigator.userAgent);
+      if (isLineBrowser) {
+        alert('กรุณากดที่เมนูมุมขวาบน แล้วเลือก "เปิดในเบราว์เซอร์อื่น" (Open in other browser) เช่น Safari หรือ Chrome เพื่อดาวน์โหลดไฟล์ครับ');
+        return;
+      }
+      // Small delay in case we add a loading state later
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       const { pdf } = await import('@react-pdf/renderer');
       const blob = await pdf(
         <QuotationPDF 
@@ -235,7 +243,17 @@ export default function QuotationDetailPage() {
 
   const handleDownloadCatalog = async () => {
     try {
+      // Check for LINE in-app browser which blocks downloads
+      const isLineBrowser = /Line/i.test(navigator.userAgent);
+      if (isLineBrowser) {
+        alert('กรุณากดที่เมนูมุมขวาบน แล้วเลือก "เปิดในเบราว์เซอร์อื่น" (Open in other browser) เช่น Safari หรือ Chrome เพื่อดาวน์โหลดไฟล์ครับ');
+        return;
+      }
+
       setIsGeneratingCatalog(true);
+      // Allow React to paint the loading state before blocking the main thread
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       const { pdf } = await import('@react-pdf/renderer');
       
       // Get unique products from items
