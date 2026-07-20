@@ -125,9 +125,12 @@ export default function QuotationDetailPage() {
 
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
+      a.style.display = 'none';
       a.href = url;
       a.download = `${quotation.quotation_number}.pdf`;
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error generating PDF:', error);
@@ -283,9 +286,12 @@ export default function QuotationDetailPage() {
 
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
+      a.style.display = 'none';
       a.href = url;
       a.download = `Catalog_${quotation.quotation_number}.pdf`;
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(url);
       
       setShowCatalogModal(false);
