@@ -76,12 +76,26 @@ export default function SearchableSelect({ options, value, onChange, placeholder
             <button 
               key={opt.id}
               type="button"
+              onPointerUp={(e) => {
+                // On touch devices, pointerup fires reliably for taps (and is cancelled during scrolls)
+                // This bypasses the Android bug where click is suppressed by keyboard closing
+                if (e.pointerType === 'touch') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onChange(opt.id);
+                  setIsOpen(false);
+                  setSearchTerm('');
+                }
+              }}
               onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onChange(opt.id);
-                setIsOpen(false);
-                setSearchTerm('');
+                // Keep onClick for desktop/mouse users
+                if ((e.nativeEvent as any).pointerType !== 'touch') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onChange(opt.id);
+                  setIsOpen(false);
+                  setSearchTerm('');
+                }
               }}
               className="searchable-option"
               style={{
