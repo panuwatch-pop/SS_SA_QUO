@@ -76,10 +76,6 @@ export default function SearchableSelect({ options, value, onChange, placeholder
             <button 
               key={opt.id}
               type="button"
-              onMouseDown={(e) => {
-                // Prevent input from losing focus on tap
-                e.preventDefault();
-              }}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
