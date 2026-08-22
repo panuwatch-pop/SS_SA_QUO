@@ -167,9 +167,8 @@ export default function SearchableSelect({ options, value, onChange, placeholder
         .mobile-overlay {
           position: fixed;
           top: 0; left: 0; right: 0; bottom: 0;
-          background: rgba(0,0,0,0.4);
+          background: rgba(0,0,0,0.6);
           z-index: 9999;
-          backdrop-filter: blur(2px);
         }
         
         .mobile-modal {
@@ -183,6 +182,9 @@ export default function SearchableSelect({ options, value, onChange, placeholder
           z-index: 10000 !important;
           border-radius: 12px;
           margin-top: 0 !important;
+          backdrop-filter: none !important;
+          -webkit-backdrop-filter: none !important;
+          background: var(--bg-color) !important;
         }
         
         .mobile-modal .searchable-dropdown-list {
