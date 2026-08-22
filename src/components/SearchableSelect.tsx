@@ -47,9 +47,11 @@ export default function SearchableSelect({ options, value, onChange, placeholder
     };
   }, [isMobile]);
 
+  const touchStartY = useRef(0);
+
   const dropdownContent = (
     <div className={`searchable-dropdown glass-panel ${isMobile ? 'mobile-modal' : ''}`}>
-      <div style={{ padding: '12px', borderBottom: '1px solid rgba(128,128,128,0.2)', flexShrink: 0 }}>
+      <div style={{ padding: '10px', borderBottom: '1px solid var(--border-color)', position: 'sticky', top: 0, background: 'var(--bg-color)', zIndex: 10, borderTopLeftRadius: isMobile ? '12px' : '8px', borderTopRightRadius: isMobile ? '12px' : '8px' }}>
         <div style={{ position: 'relative' }}>
           <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
           <input
@@ -60,12 +62,13 @@ export default function SearchableSelect({ options, value, onChange, placeholder
             autoFocus
             style={{
               width: '100%',
-              padding: '8px 10px 8px 34px',
-              borderRadius: '8px',
-              border: '1px solid rgba(128,128,128,0.3)',
-              background: 'var(--bg-color)',
+              padding: '8px 10px 8px 32px',
+              borderRadius: '6px',
+              border: '1px solid var(--border-color)',
+              outline: 'none',
+              background: 'transparent',
               color: 'var(--text-color)',
-              fontSize: '1rem'
+              fontSize: '1rem' // Prevents iOS auto-zoom
             }}
           />
         </div>
@@ -73,29 +76,34 @@ export default function SearchableSelect({ options, value, onChange, placeholder
       <div className="searchable-dropdown-list">
         {filteredOptions.length > 0 ? (
           filteredOptions.map(opt => (
-            <button 
+            <div 
               key={opt.id}
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
+              onClick={() => {
                 onChange(opt.id);
-                // Delay closing slightly so React can register the change before unmounting the button
-                setTimeout(() => {
+                setIsOpen(false);
+                setSearchTerm('');
+              }}
+              onTouchStart={(e) => {
+                touchStartY.current = e.touches[0].clientY;
+              }}
+              onTouchEnd={(e) => {
+                const touchEndY = e.changedTouches[0].clientY;
+                if (Math.abs(touchEndY - touchStartY.current) < 10) {
+                  // It's a tap, not a scroll
+                  e.preventDefault();
+                  onChange(opt.id);
                   setIsOpen(false);
                   setSearchTerm('');
-                }, 50);
+                }
               }}
               className="searchable-option"
               style={{
-                width: '100%',
-                textAlign: 'left',
-                border: 'none',
                 background: value === opt.id ? 'rgba(0, 51, 160, 0.1)' : 'transparent',
               }}
             >
-              <span style={{ fontWeight: value === opt.id ? 'bold' : 'normal', color: 'var(--text-color)', fontSize: '1rem', display: 'block' }}>{opt.label}</span>
-              {opt.subLabel && <span style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginTop: '4px', display: 'block' }}>{opt.subLabel}</span>}
-            </button>
+              <span style={{ fontWeight: value === opt.id ? 'bold' : 'normal', color: 'var(--text-color)', fontSize: '1rem' }}>{opt.label}</span>
+              {opt.subLabel && <span style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginTop: '4px' }}>{opt.subLabel}</span>}
+            </div>
           ))
         ) : (
           <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-light)', fontSize: '1rem' }}>
