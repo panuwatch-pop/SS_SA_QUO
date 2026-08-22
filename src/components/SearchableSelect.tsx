@@ -73,21 +73,26 @@ export default function SearchableSelect({ options, value, onChange, placeholder
       <div className="searchable-dropdown-list">
         {filteredOptions.length > 0 ? (
           filteredOptions.map(opt => (
-            <div 
+            <button 
               key={opt.id}
-              onClick={() => {
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
                 onChange(opt.id);
                 setIsOpen(false);
                 setSearchTerm('');
               }}
               className="searchable-option"
               style={{
+                width: '100%',
+                textAlign: 'left',
+                border: 'none',
                 background: value === opt.id ? 'rgba(0, 51, 160, 0.1)' : 'transparent',
               }}
             >
-              <span style={{ fontWeight: value === opt.id ? 'bold' : 'normal', color: 'var(--text-color)', fontSize: '1rem' }}>{opt.label}</span>
-              {opt.subLabel && <span style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginTop: '4px' }}>{opt.subLabel}</span>}
-            </div>
+              <span style={{ fontWeight: value === opt.id ? 'bold' : 'normal', color: 'var(--text-color)', fontSize: '1rem', display: 'block' }}>{opt.label}</span>
+              {opt.subLabel && <span style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginTop: '4px', display: 'block' }}>{opt.subLabel}</span>}
+            </button>
           ))
         ) : (
           <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-light)', fontSize: '1rem' }}>
@@ -173,12 +178,12 @@ export default function SearchableSelect({ options, value, onChange, placeholder
         
         .mobile-modal {
           position: fixed !important;
-          top: 50% !important;
-          left: 50% !important;
-          transform: translate(-50%, -50%) !important;
+          top: 20px !important;
+          left: 5vw !important;
+          transform: none !important;
           width: 90vw !important;
           max-width: 500px;
-          max-height: 70vh !important;
+          max-height: calc(100vh - 40px) !important;
           z-index: 10000 !important;
           border-radius: 12px;
           margin-top: 0 !important;
