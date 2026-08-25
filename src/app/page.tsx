@@ -436,61 +436,58 @@ export default function Dashboard() {
           display: flex;
           height: 100vh;
           overflow: hidden;
-          background: var(--bg-color);
+          background: #f8fafc;
         }
         
         /* Sidebar Styling */
         .sidebar {
-          width: 260px;
-          min-width: 260px;
+          width: 270px;
+          min-width: 270px;
           display: flex;
           flex-direction: column;
-          padding: 1.25rem 0.85rem;
+          padding: 1.5rem 1rem;
           border-radius: 0;
           border-left: none;
           border-top: none;
           border-bottom: none;
-          border-right: 1px solid var(--glass-border);
+          border-right: 1px solid #e2e8f0;
           z-index: 10;
-          background: rgba(255, 255, 255, 0.7);
-          backdrop-filter: blur(16px);
-        }
-        [data-company="Shinwa Anzen"] .sidebar {
-          background: rgba(15, 23, 42, 0.7);
+          background: #ffffff;
+          box-shadow: 2px 0 12px rgba(0,0,0,0.02);
         }
 
         .brand {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 0.85rem;
           padding: 0.25rem 0.5rem 1.25rem 0.5rem;
-          border-bottom: 1px solid rgba(0,0,0,0.06);
-          margin-bottom: 1rem;
-        }
-        [data-company="Shinwa Anzen"] .brand {
-          border-bottom-color: rgba(255,255,255,0.08);
+          border-bottom: 1px solid #f1f5f9;
+          margin-bottom: 1.25rem;
         }
         .brand-logo {
-          width: 38px;
-          height: 38px;
-          border-radius: 8px;
+          width: 42px;
+          height: 42px;
+          border-radius: 10px;
           display: flex;
           align-items: center;
           justify-content: center;
           overflow: hidden;
           flex-shrink: 0;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+          border: 1px solid #e2e8f0;
+          background: #ffffff;
         }
         .brand-info h2 {
-          font-size: 1.05rem;
-          font-weight: 700;
+          font-size: 1.2rem;
+          font-weight: 800;
           margin: 0;
           line-height: 1.2;
-          color: var(--text-color);
+          color: #0f172a;
         }
         .brand-badge {
-          font-size: 0.65rem;
-          color: var(--text-light);
+          font-size: 0.72rem;
+          font-weight: 600;
+          color: #64748b;
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
@@ -499,7 +496,7 @@ export default function Dashboard() {
         .nav-links {
           display: flex;
           flex-direction: column;
-          gap: 0.25rem;
+          gap: 0.35rem;
           flex-grow: 1;
           overflow-y: auto;
           padding-right: 4px;
@@ -508,48 +505,46 @@ export default function Dashboard() {
         .nav-group {
           display: flex;
           flex-direction: column;
-          gap: 0.15rem;
-          margin-bottom: 0.75rem;
+          gap: 0.2rem;
+          margin-bottom: 1rem;
         }
         .nav-group-title {
-          font-size: 0.7rem;
-          font-weight: 700;
-          color: var(--text-light);
+          font-size: 0.82rem;
+          font-weight: 800;
+          color: #475569;
           text-transform: uppercase;
-          letter-spacing: 0.75px;
-          padding: 0.4rem 0.75rem 0.2rem 0.75rem;
-          opacity: 0.8;
+          letter-spacing: 0.6px;
+          padding: 0.4rem 0.75rem 0.25rem 0.75rem;
+          display: flex;
+          align-items: center;
         }
         .nav-link {
           display: flex;
           align-items: center;
-          gap: 0.65rem;
-          padding: 0.55rem 0.75rem;
+          gap: 0.75rem;
+          padding: 0.65rem 0.85rem;
           border-radius: 8px;
-          color: var(--text-color);
-          font-size: 0.88rem;
-          font-weight: 500;
+          color: #334155;
+          font-size: 0.94rem;
+          font-weight: 600;
           transition: all 0.15s ease-in-out;
           text-decoration: none;
         }
         .nav-link:hover {
-          background: rgba(0, 51, 160, 0.06);
+          background: #f1f5f9;
           color: var(--primary-color);
-        }
-        [data-company="Shinwa Anzen"] .nav-link:hover {
-          background: rgba(212, 175, 55, 0.12);
-          color: var(--secondary-color);
+          transform: translateX(2px);
         }
         .nav-link.active {
           background: var(--primary-color);
           color: #ffffff !important;
-          font-weight: 600;
-          box-shadow: 0 4px 12px rgba(0, 51, 160, 0.25);
+          font-weight: 700;
+          box-shadow: 0 3px 10px rgba(0, 51, 160, 0.2);
         }
         [data-company="Shinwa Anzen"] .nav-link.active {
-          background: var(--secondary-color);
-          color: #1e293b !important;
-          box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+          background: #002266;
+          color: #ffffff !important;
+          box-shadow: 0 3px 10px rgba(0, 34, 102, 0.25);
         }
 
         /* Sidebar Footer */
@@ -558,16 +553,16 @@ export default function Dashboard() {
           display: flex;
           flex-direction: column;
           gap: 0.75rem;
-          padding-top: 0.85rem;
-          border-top: 1px solid rgba(0,0,0,0.06);
-        }
-        [data-company="Shinwa Anzen"] .sidebar-footer {
-          border-top-color: rgba(255,255,255,0.08);
+          padding-top: 1rem;
+          border-top: 1px solid #f1f5f9;
         }
         .select-company {
-          font-size: 0.82rem;
-          padding: 0.45rem 0.6rem;
-          border-radius: 6px;
+          font-size: 0.85rem;
+          font-weight: 600;
+          padding: 0.5rem 0.75rem;
+          border-radius: 8px;
+          border: 1px solid #cbd5e1;
+          background-color: #f8fafc;
         }
         .logout-btn {
           width: 100%;
@@ -575,24 +570,26 @@ export default function Dashboard() {
           align-items: center;
           justify-content: center;
           gap: 0.5rem;
-          padding: 0.5rem;
-          font-size: 0.85rem;
-          color: var(--error-color);
-          background: rgba(239, 68, 68, 0.06);
-          border: 1px solid rgba(239, 68, 68, 0.15);
-          border-radius: 6px;
+          padding: 0.55rem;
+          font-size: 0.88rem;
+          font-weight: 600;
+          color: #dc2626;
+          background: #fef2f2;
+          border: 1px solid #fecaca;
+          border-radius: 8px;
           cursor: pointer;
           transition: background 0.2s;
         }
         .logout-btn:hover {
-          background: rgba(239, 68, 68, 0.15);
+          background: #fee2e2;
         }
         
         /* Main Content */
         .main-content {
           flex: 1;
-          padding: 2rem 2.5rem;
+          padding: 2.25rem 2.75rem;
           overflow-y: auto;
+          background: #f8fafc;
         }
         .topbar {
           margin-bottom: 2rem;
@@ -602,11 +599,16 @@ export default function Dashboard() {
           flex-wrap: wrap;
           gap: 1rem;
         }
+        .topbar h1 {
+          font-size: 1.5rem;
+          font-weight: 800;
+          color: #0f172a;
+        }
         .dashboard-section-title {
           font-size: 1.15rem;
           margin-bottom: 1rem;
-          color: var(--primary-color);
-          font-weight: 700;
+          color: #1e293b;
+          font-weight: 800;
         }
         
         .dashboard-grid {
@@ -622,45 +624,46 @@ export default function Dashboard() {
         }
         .click-card:hover {
           transform: translateY(-3px);
-          box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+          box-shadow: 0 10px 25px rgba(0,0,0,0.06);
         }
         .stat-card {
-          padding: 1.25rem;
+          padding: 1.25rem 1.5rem;
           display: flex;
           align-items: center;
           gap: 1.25rem;
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.02);
         }
         .icon-wrapper {
           width: 52px;
           height: 52px;
-          border-radius: 10px;
-          background: rgba(0, 51, 160, 0.1);
-          color: var(--primary-color);
+          border-radius: 12px;
+          background: rgba(37, 99, 235, 0.08);
+          color: #2563eb;
           display: flex;
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
         }
-        [data-company="Shinwa Anzen"] .icon-wrapper {
-          background: rgba(212, 175, 55, 0.1);
-          color: var(--secondary-color);
-        }
         .stat-info h3 {
-          font-size: 0.85rem;
-          color: var(--text-light);
-          margin-bottom: 0.2rem;
+          font-size: 0.88rem;
+          font-weight: 600;
+          color: #64748b;
+          margin-bottom: 0.25rem;
         }
         .stat-number {
-          font-size: 1.5rem;
-          font-weight: 700;
-          color: var(--text-color);
+          font-size: 1.6rem;
+          font-weight: 800;
+          color: #0f172a;
         }
         .stat-unit {
-          font-size: 0.85rem;
+          font-size: 0.88rem;
           font-weight: normal;
-          color: var(--text-light);
+          color: #64748b;
         }
-        .text-primary { color: var(--primary-color); }
+        .text-primary { color: #2563eb; }
 
         /* Tables Dual Grid */
         .tables-dual-grid {
@@ -669,26 +672,31 @@ export default function Dashboard() {
           gap: 1.5rem;
         }
         .table-panel {
-          padding: 1.25rem;
+          padding: 1.5rem;
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.02);
         }
         .panel-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 1rem;
-          border-bottom: 1px solid rgba(0,0,0,0.06);
-          padding-bottom: 0.75rem;
+          border-bottom: 1px solid #f1f5f9;
+          padding-bottom: 0.85rem;
         }
         .panel-header h3 {
-          font-size: 1rem;
+          font-size: 1.05rem;
           margin: 0;
-          font-weight: 600;
+          font-weight: 800;
+          color: #0f172a;
         }
         .view-all-link {
-          font-size: 0.85rem;
-          color: var(--primary-color);
+          font-size: 0.88rem;
+          color: #2563eb;
           text-decoration: none;
-          font-weight: 500;
+          font-weight: 700;
         }
         .view-all-link:hover {
           text-decoration: underline;
@@ -702,20 +710,21 @@ export default function Dashboard() {
           width: 100%;
           border-collapse: collapse;
           text-align: left;
-          font-size: 0.88rem;
+          font-size: 0.9rem;
         }
         .mini-table th, .mini-table td {
-          padding: 0.75rem 0.5rem;
-          border-bottom: 1px solid rgba(0,0,0,0.05);
+          padding: 0.85rem 0.6rem;
+          border-bottom: 1px solid #f1f5f9;
         }
         .mini-table th {
-          font-weight: 600;
-          color: var(--text-light);
-          font-size: 0.8rem;
+          font-weight: 700;
+          color: #64748b;
+          font-size: 0.82rem;
+          text-transform: uppercase;
         }
         .table-link {
-          font-weight: 600;
-          color: var(--primary-color);
+          font-weight: 700;
+          color: #2563eb;
           text-decoration: none;
         }
         .table-link:hover {
@@ -724,17 +733,17 @@ export default function Dashboard() {
 
         .mini-badge {
           display: inline-block;
-          padding: 2px 6px;
-          border-radius: 4px;
-          font-size: 0.75rem;
-          font-weight: 500;
+          padding: 3px 8px;
+          border-radius: 6px;
+          font-size: 0.78rem;
+          font-weight: 700;
         }
-        .badge-draft { background: rgba(100, 116, 139, 0.1); color: #475569; }
-        .badge-sent { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
-        .badge-ordered { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
-        .badge-partial { background: rgba(245, 158, 11, 0.1); color: #d97706; }
-        .badge-success { background: rgba(16, 185, 129, 0.1); color: #059669; }
-        .badge-error { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+        .badge-draft { background: #f1f5f9; color: #475569; }
+        .badge-sent { background: #eff6ff; color: #2563eb; }
+        .badge-ordered { background: #eff6ff; color: #2563eb; }
+        .badge-partial { background: #fffbeb; color: #d97706; }
+        .badge-success { background: #ecfdf5; color: #059669; }
+        .badge-error { background: #fef2f2; color: #dc2626; }
 
         /* Responsive Design */
         @media (max-width: 1024px) {
@@ -751,7 +760,7 @@ export default function Dashboard() {
             min-width: 100%;
             height: auto;
             border-right: none;
-            border-bottom: 1px solid var(--glass-border);
+            border-bottom: 1px solid #e2e8f0;
             padding: 1rem;
           }
           .nav-links {
@@ -760,7 +769,7 @@ export default function Dashboard() {
             max-height: 200px;
           }
           .main-content {
-            padding: 1rem;
+            padding: 1.25rem 1rem;
           }
           .stat-card {
             padding: 1rem;

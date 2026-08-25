@@ -1,31 +1,31 @@
 :root {
-  /* Default Theme (SST - Blue/White) */
-  --primary-color: #0033a0;
-  --primary-light: #2563eb;
+  /* Default Theme (SST - Soft Blue/White) */
+  --primary-color: #2563eb;
+  --primary-light: #3b82f6;
   --secondary-color: #ffffff;
   --text-color: #1e293b;
   --text-light: #64748b;
-  --bg-color: #f1f5f9;
-  --glass-bg: rgba(255, 255, 255, 0.9);
+  --bg-color: #f8fafc;
+  --glass-bg: rgba(255, 255, 255, 0.95);
   --glass-border: rgba(226, 232, 240, 0.9);
-  --glass-shadow: 0 4px 20px 0 rgba(0, 51, 160, 0.06);
+  --glass-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.04);
   --error-color: #ef4444;
   --success-color: #10b981;
   --border-color: #cbd5e1;
 }
 
 [data-company="Shinwa Anzen"] {
-  /* Shinwa Anzen Theme (Navy/Gold - Light & Clean) */
-  --primary-color: #002266;
-  --primary-light: #1e3a8a;
+  /* Shinwa Anzen Theme (Soft Navy/Warm Gold) */
+  --primary-color: #1e3a8a;
+  --primary-light: #2563eb;
   --secondary-color: #d4af37;
   --text-color: #1e293b;
   --text-light: #64748b;
   --bg-color: #f8fafc;
-  --glass-bg: rgba(255, 255, 255, 0.92);
-  --glass-border: rgba(212, 175, 55, 0.35);
-  --glass-shadow: 0 4px 20px 0 rgba(0, 34, 102, 0.08);
-  --border-color: rgba(212, 175, 55, 0.35);
+  --glass-bg: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(226, 232, 240, 0.9);
+  --glass-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.04);
+  --border-color: #cbd5e1;
   
   color: var(--text-color);
   background-color: var(--bg-color);
