@@ -27,15 +27,16 @@ export function CompanyProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('selectedCompany', newCompany);
     // Add logic here to apply theme colors to the document
     if (newCompany === 'SST') {
-      document.documentElement.style.setProperty('--primary-color', '#0033a0'); // Blue
-      document.documentElement.style.setProperty('--secondary-color', '#ffffff'); // White
-      document.documentElement.style.setProperty('--text-color', '#333333');
+      document.documentElement.style.setProperty('--primary-color', '#0033a0'); // SST Blue
+      document.documentElement.style.setProperty('--secondary-color', '#ffffff');
+      document.documentElement.style.setProperty('--text-color', '#1e293b');
+      document.documentElement.style.setProperty('--bg-color', '#f1f5f9');
     } else {
-      document.documentElement.style.setProperty('--primary-color', '#0033a0'); // Blue
-      document.documentElement.style.setProperty('--secondary-color', '#d4af37'); // Gold
-      document.documentElement.style.setProperty('--text-color', '#ffffff');
+      document.documentElement.style.setProperty('--primary-color', '#002266'); // Shinwa Navy
+      document.documentElement.style.setProperty('--secondary-color', '#d4af37'); // Shinwa Gold
+      document.documentElement.style.setProperty('--text-color', '#1e293b'); // Clear dark readable text
+      document.documentElement.style.setProperty('--bg-color', '#f8fafc');
     }
-    // Set a data attribute on body for specific css overrides if needed
     document.body.setAttribute('data-company', newCompany);
   };
 
