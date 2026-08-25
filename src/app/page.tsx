@@ -4,14 +4,26 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { useCompany } from '@/context/CompanyContext';
-import { LogOut, Users, Package, FileText, Settings, DollarSign, BookOpen } from 'lucide-react';
+import { 
+  LogOut, Users, Package, FileText, Settings, DollarSign, BookOpen, 
+  Truck, ShoppingCart, Layers, Receipt, AlertTriangle, Clock, ArrowRight 
+} from 'lucide-react';
 import Link from 'next/link';
 
 export default function Dashboard() {
   const { user, signOut, loading: authLoading } = useAuth();
   const { company, setCompany } = useCompany();
   
-  const [stats, setStats] = useState({ customers: 0, products: 0 });
+  const [stats, setStats] = useState({ 
+    customers: 0, 
+    products: 0,
+    suppliers: 0,
+    purchaseOrders: 0,
+    pendingReceipts: 0,
+    unpaidBillsAmount: 0,
+    overdueBillsCount: 0,
+    lowStockCount: 0
+  });
   const [quotationsList, setQuotationsList] = useState<any[]>([]);
   const [selectedMonth, setSelectedMonth] = useState('all');
   const [loadingStats, setLoadingStats] = useState(true);
@@ -25,16 +37,42 @@ export default function Dashboard() {
   const fetchStats = async () => {
     setLoadingStats(true);
     
-    // Fetch counts and quotation data in parallel
-    const [custRes, prodRes, quotRes] = await Promise.all([
+    // Fetch counts and metrics in parallel
+    const [custRes, prodRes, quotRes, supRes, poRes, poPendingRes, billsRes, invRes] = await Promise.all([
       supabase.from('customers').select('*', { count: 'exact', head: true }).or(`company.eq.${company},company.eq.Shared`),
       supabase.from('products').select('*', { count: 'exact', head: true }).eq('company', company),
       supabase.from('quotations').select('created_at, total_amount, status').eq('company_name', company),
+      supabase.from('suppliers').select('*', { count: 'exact', head: true }).or(`company.eq.${company},company.eq.Shared`),
+      supabase.from('purchase_orders').select('*', { count: 'exact', head: true }).eq('company_name', company),
+      supabase.from('purchase_orders').select('*', { count: 'exact', head: true }).eq('company_name', company).in('status', ['ordered', 'partially_received']),
+      supabase.from('supplier_bills').select('net_amount, due_date, status').eq('company_name', company).neq('status', 'paid'),
+      supabase.from('inventory').select('quantity_on_hand, reorder_level').or(`company.eq.${company},company.eq.Shared`),
     ]);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const unpaidBills = billsRes.data || [];
+    const totalUnpaid = unpaidBills.reduce((sum, b) => sum + Number(b.net_amount || 0), 0);
+    const overdueCount = unpaidBills.filter(b => {
+      const d = new Date(b.due_date);
+      d.setHours(0, 0, 0, 0);
+      return d < today;
+    }).length;
+
+    const lowStock = (invRes.data || []).filter(
+      i => Number(i.quantity_on_hand) <= Number(i.reorder_level || 5)
+    ).length;
 
     setStats({
       customers: custRes.count || 0,
-      products: prodRes.count || 0
+      products: prodRes.count || 0,
+      suppliers: supRes.count || 0,
+      purchaseOrders: poRes.count || 0,
+      pendingReceipts: poPendingRes.count || 0,
+      unpaidBillsAmount: totalUnpaid,
+      overdueBillsCount: overdueCount,
+      lowStockCount: lowStock
     });
     setQuotationsList(quotRes.data || []);
     
@@ -49,8 +87,6 @@ export default function Dashboard() {
       });
 
   const totalQuotations = filteredQuotations.length;
-  // Exclude rejected/draft if needed, but let's sum all or maybe only approved/sent?
-  // User didn't specify, we'll sum all that aren't rejected.
   const totalAmount = filteredQuotations
     .filter(q => q.status !== 'rejected')
     .reduce((sum, q) => sum + (Number(q.total_amount) || 0), 0);
@@ -60,7 +96,7 @@ export default function Dashboard() {
   }
 
   if (!user) {
-    return null; // Will redirect via AuthContext
+    return null;
   }
 
   return (
@@ -79,23 +115,40 @@ export default function Dashboard() {
         </div>
         
         <nav className="nav-links">
+          <div className="nav-section-label">ระบบขาย & ลูกค้า</div>
           <Link href="/" className="nav-link active">
-            <Settings size={20} /> แดชบอร์ด
+            <Settings size={18} /> แดชบอร์ด
           </Link>
           <Link href="/customers" className="nav-link">
-            <Users size={20} /> ลูกค้า
+            <Users size={18} /> ลูกค้า
           </Link>
           <Link href="/products" className="nav-link">
-            <Package size={20} /> สินค้า
+            <Package size={18} /> สินค้า
           </Link>
           <Link href="/quotations" className="nav-link">
-            <FileText size={20} /> ใบเสนอราคา
+            <FileText size={18} /> ใบเสนอราคา
           </Link>
           <Link href="/catalogs" className="nav-link">
-            <BookOpen size={20} /> แคตตาล็อก
+            <BookOpen size={18} /> แคตตาล็อก
           </Link>
+
+          <div className="nav-section-label" style={{ marginTop: '0.75rem' }}>ระบบจัดซื้อ & สต็อก</div>
+          <Link href="/suppliers" className="nav-link">
+            <Truck size={18} /> ซัพพลายเออร์ (Suppliers)
+          </Link>
+          <Link href="/purchase-orders" className="nav-link">
+            <ShoppingCart size={18} /> ใบสั่งซื้อ (PO)
+          </Link>
+          <Link href="/inventory" className="nav-link">
+            <Layers size={18} /> คลังสินค้า & สต็อก
+          </Link>
+          <Link href="/supplier-bills" className="nav-link">
+            <Receipt size={18} /> บิลเจ้าหนี้ & กำหนดจ่าย (AP)
+          </Link>
+
+          <div className="nav-section-label" style={{ marginTop: '0.75rem' }}>ตั้งค่าระบบ</div>
           <Link href="/settings" className="nav-link">
-            <Settings size={20} /> ตั้งค่าบริษัท
+            <Settings size={18} /> ตั้งค่าบริษัท
           </Link>
         </nav>
 
@@ -113,13 +166,13 @@ export default function Dashboard() {
           </div>
           
           <button className="btn nav-link logout-btn" onClick={signOut}>
-            <LogOut size={20} /> ออกจากระบบ
+            <LogOut size={18} /> ออกจากระบบ
           </button>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <main className="main-content animate-fade-in">
+      <main className="main-content animate-fade-in" style={{ overflowY: 'auto' }}>
         <header className="topbar">
           <div>
             <h1>ยินดีต้อนรับ, {user.email}</h1>
@@ -152,35 +205,91 @@ export default function Dashboard() {
           </div>
         </header>
 
+        {/* Section 1: Sales & Quotations Overview */}
+        <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: 'var(--primary-color)' }}>
+          📊 ภาพรวมงานขายและใบเสนอราคา (Sales Overview)
+        </h2>
         <div className="dashboard-grid">
           <div className="stat-card glass-panel">
-            <div className="icon-wrapper"><Users size={32} /></div>
+            <div className="icon-wrapper"><Users size={28} /></div>
             <div className="stat-info">
-              <h3>ลูกค้า (บริษัทนี้)</h3>
+              <h3>ลูกค้าทั้งหมด</h3>
               <p className="stat-number">{loadingStats ? '-' : stats.customers}</p>
             </div>
           </div>
           <div className="stat-card glass-panel">
-            <div className="icon-wrapper"><Package size={32} /></div>
+            <div className="icon-wrapper"><Package size={28} /></div>
             <div className="stat-info">
-              <h3>สินค้าทั้งหมด (บริษัทนี้)</h3>
+              <h3>สินค้าทั้งหมด</h3>
               <p className="stat-number">{loadingStats ? '-' : stats.products}</p>
             </div>
           </div>
           <div className="stat-card glass-panel">
-            <div className="icon-wrapper"><FileText size={32} /></div>
+            <div className="icon-wrapper"><FileText size={28} /></div>
             <div className="stat-info">
-              <h3>ใบเสนอราคา (บริษัทนี้)</h3>
+              <h3>ใบเสนอราคา</h3>
               <p className="stat-number">{loadingStats ? '-' : totalQuotations}</p>
             </div>
           </div>
           <div className="stat-card glass-panel">
-            <div className="icon-wrapper"><DollarSign size={32} /></div>
+            <div className="icon-wrapper"><DollarSign size={28} /></div>
             <div className="stat-info">
-              <h3>ยอดเงินรวม (ไม่รวมยกเลิก)</h3>
+              <h3>ยอดเสนอราคารวม</h3>
               <p className="stat-number">{loadingStats ? '-' : `฿${totalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})}`}</p>
             </div>
           </div>
+        </div>
+
+        {/* Section 2: Purchasing, Inventory & AP Overview */}
+        <h2 style={{ fontSize: '1.2rem', margin: '2rem 0 1rem 0', color: 'var(--primary-color)' }}>
+          🏢 ภาพรวมจัดซื้อ คลังสินค้า และเจ้าหนี้ (Purchasing & AP Overview)
+        </h2>
+        <div className="dashboard-grid">
+          <Link href="/suppliers" className="stat-card glass-panel click-card">
+            <div className="icon-wrapper" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#2563eb' }}>
+              <Truck size={28} />
+            </div>
+            <div className="stat-info">
+              <h3>ซัพพลายเออร์</h3>
+              <p className="stat-number">{loadingStats ? '-' : stats.suppliers} <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: 'var(--text-light)' }}>ราย</span></p>
+            </div>
+          </Link>
+
+          <Link href="/purchase-orders" className="stat-card glass-panel click-card">
+            <div className="icon-wrapper" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#059669' }}>
+              <ShoppingCart size={28} />
+            </div>
+            <div className="stat-info">
+              <h3>รอรับสินค้าเข้าคลัง</h3>
+              <p className="stat-number" style={{ color: stats.pendingReceipts > 0 ? '#f59e0b' : 'inherit' }}>
+                {loadingStats ? '-' : stats.pendingReceipts} <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: 'var(--text-light)' }}>ใบสั่งซื้อ</span>
+              </p>
+            </div>
+          </Link>
+
+          <Link href="/inventory" className="stat-card glass-panel click-card">
+            <div className="icon-wrapper" style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#d97706' }}>
+              <Layers size={28} />
+            </div>
+            <div className="stat-info">
+              <h3>สินค้าสต็อกต่ำ</h3>
+              <p className="stat-number" style={{ color: stats.lowStockCount > 0 ? '#ef4444' : 'inherit' }}>
+                {loadingStats ? '-' : stats.lowStockCount} <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: 'var(--text-light)' }}>รายการ</span>
+              </p>
+            </div>
+          </Link>
+
+          <Link href="/supplier-bills" className="stat-card glass-panel click-card">
+            <div className="icon-wrapper" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#dc2626' }}>
+              <Receipt size={28} />
+            </div>
+            <div className="stat-info">
+              <h3>ยอดค้างจ่าย Supplier</h3>
+              <p className="stat-number" style={{ fontSize: '1.25rem', color: '#dc2626' }}>
+                {loadingStats ? '-' : `฿${stats.unpaidBillsAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})}`}
+              </p>
+            </div>
+          </Link>
         </div>
       </main>
 
@@ -235,11 +344,23 @@ export default function Dashboard() {
         [data-company="Shinwa Anzen"] .brand-logo {
           background: transparent;
         }
-        .nav-links {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-          flex-grow: 1;
+        .nav-section-label {
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: var(--text-light);
+          padding: 0 0.5rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        .click-card {
+          cursor: pointer;
+          transition: transform 0.2s, box-shadow 0.2s;
+          text-decoration: none;
+          color: inherit;
+        }
+        .click-card:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 24px rgba(0,0,0,0.12);
         }
         .nav-link {
           display: flex;
