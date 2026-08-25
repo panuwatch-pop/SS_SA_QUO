@@ -77,25 +77,27 @@ export default function EditPurchaseOrderPage() {
   const loadInitialData = async () => {
     setFetchingData(true);
     try {
-      // 1. Fetch Suppliers
-      const { data: supData } = await supabase
-        .from('suppliers')
-        .select('*')
-        .or(`company.eq.${company},company.eq.Shared`)
-        .order('name', { ascending: true });
-      setSuppliers(supData || []);
-
-      // 2. Fetch Products
-      const { data: prodData } = await fetchAllProducts();
-      setProducts(prodData || []);
-
-      // 3. Fetch PO
+      // 1. Fetch PO first to know its company
       const { data: poData, error: poError } = await supabase
         .from('purchase_orders')
         .select('*')
         .eq('id', id)
         .single();
       if (poError) throw poError;
+
+      const poCompany = poData.company_name || company;
+
+      // 2. Fetch Suppliers for this company
+      const { data: supData } = await supabase
+        .from('suppliers')
+        .select('*')
+        .or(`company.eq.${poCompany},company.eq.Shared`)
+        .order('name', { ascending: true });
+      setSuppliers(supData || []);
+
+      // 3. Fetch Products for this company
+      const { data: prodData } = await fetchAllProducts(poCompany);
+      setProducts(prodData || []);
 
       setPoNumber(poData.po_number);
       setSelectedSupplierId(poData.supplier_id);

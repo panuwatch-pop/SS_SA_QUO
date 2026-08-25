@@ -110,12 +110,12 @@ export default function PurchaseOrderDetailPage() {
         }
       }
 
-      // 4. Fetch Company Profile
+      // 4. Fetch Company Profile from 'companies' table
       const { data: compData } = await supabase
-        .from('company_profiles')
+        .from('companies')
         .select('*')
-        .eq('company_name', poData.company_name)
-        .single();
+        .eq('id', poData.company_name)
+        .maybeSingle();
       setCompanyProfile(compData);
 
       // 5. Fetch Goods Receipts for this PO
@@ -541,9 +541,9 @@ export default function PurchaseOrderDetailPage() {
           <div className="glass-panel document-preview">
             <div className="preview-header">
               <div>
-                <h2>{po.company_name === 'SST' ? 'บริษัท เอสเอสที (ประเทศไทย) จำกัด' : 'บริษัท ชินวา อันเซ็น จำกัด'}</h2>
+                <h2>{companyProfile?.full_name || (po.company_name === 'SST' ? 'บริษัท เอสเอสที (ประเทศไทย) จำกัด' : 'บริษัท ชินวา อันเซ็น จำกัด')}</h2>
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginTop: '2px' }}>
-                  {po.company_name === 'SST' ? 'SST (Thailand) Co., Ltd.' : 'Shinwa Anzen Co., Ltd.'}
+                  {companyProfile?.address ? `${companyProfile.address} | เลขผู้เสียภาษี: ${companyProfile.tax_id || '-'} | โทร: ${companyProfile.phone || '-'}` : (po.company_name === 'SST' ? 'SST (Thailand) Co., Ltd.' : 'Shinwa Anzen Co., Ltd.')}
                 </p>
               </div>
               <div style={{ textAlign: 'right' }}>
@@ -563,7 +563,7 @@ export default function PurchaseOrderDetailPage() {
                 {supplier?.contact_name && <p><strong>ผู้ติดต่อ:</strong> {supplier.contact_name}</p>}
                 {supplier?.phone && <p><strong>โทร:</strong> {supplier.phone}</p>}
                 {supplier?.credit_terms && <p><strong>เครดิตเทอม:</strong> {po.credit_terms || supplier.credit_terms} วัน</p>}
-                <p><strong>สถานที่ส่งของ:</strong> {po.company_name === 'SST' ? 'บริษัท เอสเอสที (ประเทศไทย) จำกัด (สำนักงานใหญ่ คลองหลวง ปทุมธานี)' : 'บริษัท ชินวา อันเซ็น จำกัด (สำนักงานใหญ่ คลองหลวง ปทุมธานี)'}</p>
+                <p><strong>สถานที่ส่งของ:</strong> {companyProfile?.full_name || (po.company_name === 'SST' ? 'บริษัท เอสเอสที (ประเทศไทย) จำกัด' : 'บริษัท ชินวา อันเซ็น จำกัด')} {companyProfile?.address ? `(${companyProfile.address})` : ''}</p>
               </div>
             </div>
 

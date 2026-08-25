@@ -89,8 +89,8 @@ function NewPurchaseOrderContent() {
       
       setSuppliers(supData || []);
 
-      // 2. Fetch Products
-      const { data: prodData } = await fetchAllProducts();
+      // 2. Fetch Products for current company
+      const { data: prodData } = await fetchAllProducts(company);
       setProducts(prodData || []);
 
       // 3. Generate PO Number

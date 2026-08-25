@@ -219,23 +219,20 @@ interface PurchaseOrderPDFProps {
 
 export const PurchaseOrderPDF: React.FC<PurchaseOrderPDFProps> = ({ po, items, supplier, companyProfile }) => {
   const isSST = po.company_name === 'SST';
-  const primaryColor = isSST ? '#002266' : '#002266'; // Can customize per company theme
+  const primaryColor = isSST ? '#002266' : '#002266';
 
-  const companyNameTh = isSST 
-    ? (companyProfile?.name || 'บริษัท เอสเอสที (ประเทศไทย) จำกัด')
-    : (companyProfile?.name || 'บริษัท ชินวา อันเซ็น จำกัด');
+  const companyNameTh = companyProfile?.full_name || (isSST 
+    ? 'บริษัท เอสเอสที (ประเทศไทย) จำกัด' 
+    : 'บริษัท ชินวา อันเซ็น จำกัด');
 
   const companyNameEn = isSST 
     ? 'SST (Thailand) Co., Ltd.' 
     : 'Shinwa Anzen Co., Ltd.';
 
-  const companyAddress = companyProfile?.address || (isSST
-    ? 'สำนักงานใหญ่: 88/8 หมู่ที่ 5 ตำบลคลองหนึ่ง อำเภอคลองหลวง จังหวัดปทุมธานี 12120'
-    : 'สำนักงานใหญ่: 88/9 หมู่ที่ 5 ตำบลคลองหนึ่ง อำเภอคลองหลวง จังหวัดปทุมธานี 12120');
-
-  const taxId = companyProfile?.tax_id || (isSST ? '0135560000000' : '0135561000000');
-  const phone = companyProfile?.phone || (isSST ? '02-000-0000' : '02-111-1111');
-  const email = companyProfile?.email || (isSST ? 'purchasing@sst-thailand.com' : 'purchasing@shinwa-anzen.com');
+  const companyAddress = companyProfile?.address || '';
+  const taxId = companyProfile?.tax_id || '';
+  const phone = companyProfile?.phone || '';
+  const email = companyProfile?.email || '';
 
   // Calculations
   const subtotal = items.reduce((sum, item) => sum + (Number(item.total) || 0), 0);
@@ -259,9 +256,11 @@ export const PurchaseOrderPDF: React.FC<PurchaseOrderPDFProps> = ({ po, items, s
             <View style={styles.companyDetails}>
               <Text style={[styles.companyName, { color: primaryColor }]}>{companyNameTh}</Text>
               <Text style={{ fontSize: 9, fontWeight: 'bold', color: '#475569', marginBottom: 2 }}>{companyNameEn}</Text>
-              <Text style={styles.companyAddress}>{companyAddress}</Text>
-              <Text style={styles.companyAddress}>เลขประจำตัวผู้เสียภาษี: {taxId} | โทร: {phone}</Text>
-              <Text style={styles.companyAddress}>อีเมล: {email}</Text>
+              {companyAddress ? <Text style={styles.companyAddress}>{companyAddress}</Text> : null}
+              <Text style={styles.companyAddress}>
+                {[taxId ? `เลขประจำตัวผู้เสียภาษี: ${taxId}` : null, phone ? `โทร: ${phone}` : null].filter(Boolean).join(' | ')}
+              </Text>
+              {email ? <Text style={styles.companyAddress}>อีเมล: {email}</Text> : null}
             </View>
           </View>
 
