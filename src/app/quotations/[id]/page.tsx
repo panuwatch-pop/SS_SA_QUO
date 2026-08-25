@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { useCompany } from '@/context/CompanyContext';
-import { ArrowLeft, Download, Send, Printer, FileText, CheckCircle, XCircle, Search, MessageCircle, Mail, X, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Download, Send, Printer, FileText, CheckCircle, XCircle, Search, MessageCircle, Mail, X, ShoppingCart, Edit, Plus, History, Layers, Copy } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { PDFDownloadLink } from '@react-pdf/renderer';
@@ -32,6 +32,7 @@ export default function QuotationDetailPage() {
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [emailSending, setEmailSending] = useState(false);
   const [emailData, setEmailData] = useState({ to: '', subject: '', message: '' });
+  const [revisions, setRevisions] = useState<any[]>([]);
 
   useEffect(() => {
     if (user && id) {
@@ -85,6 +86,15 @@ export default function QuotationDetailPage() {
       if (iError) throw iError;
       setItems(iData);
 
+      // 5. Fetch Revisions for this base quotation number
+      const baseNum = qData.quotation_number.replace(/-Rev\.\d+$/i, '');
+      const { data: revList } = await supabase
+        .from('quotations')
+        .select('id, quotation_number, status, total_amount, created_at')
+        .like('quotation_number', `${baseNum}%`)
+        .order('quotation_number', { ascending: true });
+      setRevisions(revList || []);
+
     } catch (error: any) {
       console.error('Error loading quotation:', error);
       alert('ไม่พบข้อมูลใบเสนอราคา หรือเกิดข้อผิดพลาด');
@@ -99,6 +109,7 @@ export default function QuotationDetailPage() {
       case 'sent': return <span className="badge badge-sent">ส่งให้ลูกค้าแล้ว</span>;
       case 'approved': return <span className="badge badge-success">ลูกค้ายืนยันแล้ว</span>;
       case 'rejected': return <span className="badge badge-error">ยกเลิก</span>;
+      case 'revised': return <span className="badge" style={{ backgroundColor: '#e0e7ff', color: '#3730a3', border: '1px solid #c7d2fe' }}>ฉบับแก้ไขแล้ว (Revised)</span>;
       default: return <span className="badge">{status}</span>;
     }
   };
@@ -461,12 +472,15 @@ export default function QuotationDetailPage() {
           <div className="glass-panel side-panel">
             <h3>จัดการเอกสาร</h3>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem', marginTop: '1rem' }}>
               <Link href={`/quotations/${id}/edit`} className="btn btn-outline" style={{ display: 'flex', justifyContent: 'center' }}>
-                แก้ไขข้อมูล
+                <Edit size={16} style={{ marginRight: '0.5rem' }} /> แก้ไขใบเสนอราคา
+              </Link>
+              <Link href={`/quotations/${id}/edit`} className="btn btn-outline" style={{ display: 'flex', justifyContent: 'center', borderColor: '#7c3aed', color: '#7c3aed' }} title="สร้างฉบับแก้ไข Rev.01, Rev.02 โดยคงฉบับเดิมไว้">
+                <Layers size={16} style={{ marginRight: '0.5rem' }} /> สร้าง Revision ใหม่ (Rev)
               </Link>
               <Link href={`/quotations/new?cloneId=${id}`} className="btn btn-outline" style={{ display: 'flex', justifyContent: 'center' }}>
-                คัดลอก (ทำซ้ำ)
+                <Copy size={16} style={{ marginRight: '0.5rem' }} /> คัดลอก (ทำซ้ำใบใหม่)
               </Link>
               <Link href={`/purchase-orders/new?quotationId=${id}`} className="btn btn-outline" style={{ display: 'flex', justifyContent: 'center', borderColor: '#059669', color: '#059669' }}>
                 <ShoppingCart size={16} style={{ marginRight: '0.5rem' }} /> ออกใบสั่งซื้อ PO จากใบนี้
@@ -475,7 +489,7 @@ export default function QuotationDetailPage() {
 
             <div className="status-updater">
               <label className="label">เปลี่ยนสถานะ</label>
-              <select className="input-field" defaultValue={quotation.status} onChange={async (e) => {
+              <select className="input-field" value={quotation.status} onChange={async (e) => {
                 const newStatus = e.target.value;
                 const { error } = await supabase.from('quotations').update({ status: newStatus }).eq('id', quotation.id);
                 if (!error) {
@@ -487,6 +501,7 @@ export default function QuotationDetailPage() {
                 <option value="sent">ส่งให้ลูกค้าแล้ว (Sent)</option>
                 <option value="approved">ลูกค้ายืนยันแล้ว (Approved)</option>
                 <option value="rejected">ยกเลิก/ปฏิเสธ (Rejected)</option>
+                <option value="revised">มีฉบับใหม่กว่า (Revised)</option>
               </select>
             </div>
 
@@ -497,6 +512,50 @@ export default function QuotationDetailPage() {
               <p><strong>แก้ไขล่าสุด:</strong> {new Date(quotation.created_at).toLocaleString('th-TH')}</p>
             </div>
           </div>
+
+          {/* Revision History Widget */}
+          {revisions && revisions.length > 1 && (
+            <div className="glass-panel side-panel" style={{ marginTop: '1.5rem' }}>
+              <h3 style={{ fontSize: '1rem', margin: 0, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <History size={18} color="var(--primary-color)" /> ประวัติ Revision ({revisions.length})
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {revisions.map((rev) => {
+                  const isCurrent = rev.id === id;
+                  return (
+                    <Link 
+                      key={rev.id} 
+                      href={`/quotations/${rev.id}`}
+                      style={{
+                        padding: '0.65rem 0.75rem',
+                        borderRadius: '6px',
+                        border: isCurrent ? '1.5px solid var(--primary-color)' : '1px solid #e2e8f0',
+                        backgroundColor: isCurrent ? 'rgba(37,99,235,0.08)' : '#ffffff',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        textDecoration: 'none',
+                        color: 'inherit',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontWeight: isCurrent ? 'bold' : '600', fontSize: '0.88rem', color: isCurrent ? 'var(--primary-color)' : '#1e293b' }}>
+                          {rev.quotation_number} {isCurrent ? '👈 (ปัจจุบัน)' : ''}
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px' }}>
+                          {new Date(rev.created_at).toLocaleDateString('th-TH')} • {Number(rev.total_amount || 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })} บ.
+                        </div>
+                      </div>
+                      <div style={{ transform: 'scale(0.85)', transformOrigin: 'right center' }}>
+                        {getStatusBadge(rev.status)}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <div className="glass-panel side-panel" style={{ marginTop: '1.5rem' }}>
             <h3>สร้างแคตตาล็อกสินค้า</h3>

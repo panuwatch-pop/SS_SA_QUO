@@ -87,6 +87,8 @@ export default function QuotationsPage() {
         return <span className="badge badge-success">อนุมัติแล้ว</span>;
       case 'rejected':
         return <span className="badge badge-error">ปฏิเสธ</span>;
+      case 'revised':
+        return <span className="badge" style={{ backgroundColor: '#e0e7ff', color: '#3730a3', border: '1px solid #c7d2fe' }}>ฉบับแก้ไขแล้ว (Revised)</span>;
       default:
         return <span className="badge">{status}</span>;
     }

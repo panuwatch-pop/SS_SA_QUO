@@ -193,7 +193,33 @@ export default function EditQuotationPage() {
   const whtAmount = includeWht ? afterDiscount * 0.03 : 0;
   const netPayable = grandTotal - whtAmount;
 
-  const handleSave = async () => {
+  const computeNextRevisionNumber = async (currentNum: string) => {
+    const base = currentNum.replace(/-Rev\.\d+$/i, '');
+    const { data } = await supabase
+      .from('quotations')
+      .select('quotation_number')
+      .like('quotation_number', `${base}%`);
+
+    let maxRev = 0;
+    if (data && data.length > 0) {
+      data.forEach((d: any) => {
+        const match = d.quotation_number.match(/-Rev\.(\d+)$/i);
+        if (match) {
+          const num = parseInt(match[1], 10);
+          if (num > maxRev) maxRev = num;
+        }
+      });
+    }
+    const nextRevInt = maxRev + 1;
+    return `${base}-Rev.${String(nextRevInt).padStart(2, '0')}`;
+  };
+
+  const handleSave = async (e: React.FormEvent, isRevision: boolean = false) => {
+    e.preventDefault();
+    if (!quotationNumber) {
+      alert('กรุณาระบุเลขที่ใบเสนอราคา');
+      return;
+    }
     if (!selectedCustomerId) {
       alert('กรุณาเลือกลูกค้า');
       return;
@@ -205,51 +231,109 @@ export default function EditQuotationPage() {
 
     setLoading(true);
     try {
-      // Update Quotation
-      const { error: qtError } = await supabase
-        .from('quotations')
-        .update({
-          quotation_number: quotationNumber,
-          customer_id: selectedCustomerId,
-          project_name: projectName || null,
-          total_amount: netPayable,
-          global_discount_percent: globalDiscountPercent,
-          has_vat: includeVat,
-          has_wht: includeWht,
-          notes: notes
-        })
-        .eq('id', id);
-
-      if (qtError) throw qtError;
-
-      // Delete old items
-      const { error: delError } = await supabase
-        .from('quotation_items')
-        .delete()
-        .eq('quotation_id', id);
+      if (isRevision) {
+        // --- SAVE AS NEW REVISION ---
+        const nextRevNumber = await computeNextRevisionNumber(quotationNumber);
         
-      if (delError) throw delError;
+        if (!confirm(`คุณต้องการบันทึกเป็น Revision ใหม่ "${nextRevNumber}" ใช่หรือไม่?\n(ระบบจะเก็บใบเดิม "${quotationNumber}" ไว้ให้ดูย้อนหลังได้ตลอดเวลา)`)) {
+          setLoading(false);
+          return;
+        }
 
-      // Insert new items
-      const itemsToInsert = items.map(item => ({
-        quotation_id: id,
-        product_id: item.product_id,
-        description: item.description || null,
-        quantity: item.quantity,
-        unit_price: item.unit_price,
-        discount: item.discount,
-        total: item.total
-      }));
+        // 1. Create new Quotation record
+        const { data: newQt, error: newQtError } = await supabase
+          .from('quotations')
+          .insert([{
+            quotation_number: nextRevNumber,
+            customer_id: selectedCustomerId,
+            company_name: company,
+            project_name: projectName || null,
+            total_amount: netPayable,
+            global_discount_percent: globalDiscountPercent,
+            has_vat: includeVat,
+            has_wht: includeWht,
+            notes: notes,
+            status: 'draft'
+          }])
+          .select()
+          .single();
 
-      const { error: itemsError } = await supabase
-        .from('quotation_items')
-        .insert(itemsToInsert);
+        if (newQtError) throw newQtError;
 
-      if (itemsError) throw itemsError;
+        // 2. Insert items for new revision
+        const itemsToInsert = items.map(item => ({
+          quotation_id: newQt.id,
+          product_id: item.product_id,
+          description: item.description || null,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          discount: item.discount,
+          total: item.total
+        }));
 
-      alert('แก้ไขใบเสนอราคาเรียบร้อยแล้ว');
-      localStorage.removeItem(`quotation_draft_edit_${id}`);
-      router.push(`/quotations`);
+        const { error: itemsError } = await supabase
+          .from('quotation_items')
+          .insert(itemsToInsert);
+
+        if (itemsError) throw itemsError;
+
+        // 3. Mark the previous quotation as revised
+        await supabase
+          .from('quotations')
+          .update({ status: 'revised' })
+          .eq('id', id);
+
+        localStorage.removeItem(`quotation_draft_edit_${id}`);
+        alert(`บันทึกเป็น Revision ใหม่ "${nextRevNumber}" สำเร็จ!`);
+        router.push(`/quotations/${newQt.id}`);
+
+      } else {
+        // --- OVERWRITE EXISTING QUOTATION ---
+        const { error: qtError } = await supabase
+          .from('quotations')
+          .update({
+            quotation_number: quotationNumber,
+            customer_id: selectedCustomerId,
+            project_name: projectName || null,
+            total_amount: netPayable,
+            global_discount_percent: globalDiscountPercent,
+            has_vat: includeVat,
+            has_wht: includeWht,
+            notes: notes
+          })
+          .eq('id', id);
+
+        if (qtError) throw qtError;
+
+        // Delete old items
+        const { error: delError } = await supabase
+          .from('quotation_items')
+          .delete()
+          .eq('quotation_id', id);
+          
+        if (delError) throw delError;
+
+        // Insert new items
+        const itemsToInsert = items.map(item => ({
+          quotation_id: id,
+          product_id: item.product_id,
+          description: item.description || null,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          discount: item.discount,
+          total: item.total
+        }));
+
+        const { error: itemsError } = await supabase
+          .from('quotation_items')
+          .insert(itemsToInsert);
+
+        if (itemsError) throw itemsError;
+
+        alert('แก้ไขใบเสนอราคาเรียบร้อยแล้ว');
+        localStorage.removeItem(`quotation_draft_edit_${id}`);
+        router.push(`/quotations/${id}`);
+      }
 
     } catch (error: any) {
       console.error('Save error:', error);
@@ -280,13 +364,23 @@ export default function EditQuotationPage() {
             <p className="subtitle">เอกสารเลขที่ {quotationNumber} • บริษัท {company}</p>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '1rem' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           <button className="btn btn-outline" onClick={handleClearDraft} disabled={loading} style={{ borderColor: '#ef4444', color: '#ef4444' }}>
             คืนค่าเดิม
           </button>
-          <button className="btn btn-primary" onClick={handleSave} disabled={loading}>
-            <Save size={20} style={{ marginRight: '0.5rem' }} /> 
-            {loading ? 'กำลังบันทึก...' : 'บันทึกการแก้ไข'}
+          <button className="btn btn-outline" onClick={(e) => handleSave(e, false)} disabled={loading}>
+            <Save size={18} style={{ marginRight: '0.5rem' }} /> 
+            {loading ? 'กำลังบันทึก...' : 'บันทึกทับใบเดิม'}
+          </button>
+          <button 
+            className="btn btn-primary" 
+            onClick={(e) => handleSave(e, true)} 
+            disabled={loading}
+            style={{ backgroundColor: '#7c3aed', borderColor: '#7c3aed' }}
+            title="สร้างเลข Revision ใหม่ (เช่น Rev.01) โดยไม่ลบใบเดิม"
+          >
+            <Plus size={18} style={{ marginRight: '0.5rem' }} /> 
+            {loading ? 'กำลังสร้าง Revision...' : 'บันทึกเป็น Revision ใหม่ (เก็บใบเดิม)'}
           </button>
         </div>
       </header>
