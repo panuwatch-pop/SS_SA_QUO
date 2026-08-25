@@ -100,7 +100,8 @@ const styles = StyleSheet.create({
   },
   infoRow: {
     flexDirection: 'row',
-    marginBottom: 2,
+    marginBottom: 3,
+    alignItems: 'flex-start',
   },
   infoLabel: {
     width: '35%',
@@ -111,6 +112,7 @@ const styles = StyleSheet.create({
     width: '65%',
     color: '#1e293b',
     fontSize: 8.5,
+    flexWrap: 'wrap',
   },
   table: {
     width: '100%',
@@ -335,9 +337,16 @@ export const PurchaseOrderPDF: React.FC<PurchaseOrderPDFProps> = ({ po, items, s
                 {po.expected_delivery_date ? new Date(po.expected_delivery_date).toLocaleDateString('th-TH') : 'ตามตกลง'}
               </Text>
             </View>
-            <View style={styles.infoRow}>
+            <View style={[styles.infoRow, { alignItems: 'flex-start' }]}>
               <Text style={styles.infoLabel}>สถานที่ส่งของ:</Text>
-              <Text style={styles.infoValue}>{companyNameTh}</Text>
+              <View style={{ width: '65%' }}>
+                <Text style={[styles.infoValue, { width: '100%', fontWeight: 'bold' }]}>
+                  {companyNameTh}
+                </Text>
+                <Text style={{ fontSize: 7, color: '#475569', marginTop: 1, lineHeight: 1.3 }}>
+                  {companyAddress}
+                </Text>
+              </View>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>การชำระเงิน:</Text>

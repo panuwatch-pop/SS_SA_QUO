@@ -544,6 +544,7 @@ export default function PurchaseOrderDetailPage() {
                 {supplier?.contact_name && <p><strong>ผู้ติดต่อ:</strong> {supplier.contact_name}</p>}
                 {supplier?.phone && <p><strong>โทร:</strong> {supplier.phone}</p>}
                 {supplier?.credit_terms && <p><strong>เครดิตเทอม:</strong> {po.credit_terms || supplier.credit_terms} วัน</p>}
+                <p><strong>สถานที่ส่งของ:</strong> {po.company_name === 'SST' ? 'บริษัท เอสเอสที (ประเทศไทย) จำกัด (สำนักงานใหญ่ คลองหลวง ปทุมธานี)' : 'บริษัท ชินวา อันเซ็น จำกัด (สำนักงานใหญ่ คลองหลวง ปทุมธานี)'}</p>
               </div>
             </div>
 
