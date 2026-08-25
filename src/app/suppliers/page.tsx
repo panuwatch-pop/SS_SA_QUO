@@ -478,7 +478,7 @@ export default function SuppliersPage() {
       )}
 
       <style jsx>{`
-        .page-container { padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; }
+        .page-container { padding: 3rem 2rem 2rem 2rem; max-width: 1200px; margin: 0 auto; width: 100%; }
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
         .header-left { display: flex; align-items: center; gap: 1rem; }
         .subtitle { color: var(--text-light); font-size: 0.9rem; margin-top: 0.25rem; }
@@ -504,8 +504,27 @@ export default function SuppliersPage() {
         .action-buttons { display: flex; gap: 0.5rem; }
         .loading-text, .empty-state { text-align: center; padding: 3rem; color: var(--text-light); }
         
-        .modal-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 1rem; }
-        .modal-content { background: var(--bg-color); width: 100%; border-radius: 12px; padding: 2rem; max-height: 90vh; overflow-y: auto; }
+        .modal-backdrop { 
+          position: fixed; 
+          top: 0; left: 0; right: 0; bottom: 0; 
+          background: rgba(0,0,0,0.5); 
+          display: flex; 
+          justify-content: center; 
+          align-items: flex-start; 
+          padding: 40px 1rem; 
+          z-index: 1000; 
+          overflow-y: auto;
+        }
+        .modal-content { 
+          background: var(--bg-color); 
+          width: 100%; 
+          border-radius: 12px; 
+          padding: 2rem; 
+          margin-top: 20px;
+          max-height: 85vh; 
+          overflow-y: auto; 
+          box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+        }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
         .btn-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-light); }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
@@ -513,9 +532,10 @@ export default function SuppliersPage() {
         .modal-actions { display: flex; justify-content: flex-end; gap: 1rem; }
 
         @media (max-width: 768px) {
-          .page-container { padding: 1rem; }
+          .page-container { padding: 1.5rem 1rem; }
           .page-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
           .form-grid { grid-template-columns: 1fr; }
+          .modal-backdrop { padding: 20px 0.75rem; }
         }
       `}</style>
     </div>
