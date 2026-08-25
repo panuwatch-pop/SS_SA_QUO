@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
   logoAndCompany: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '60%',
+    width: '66%',
   },
   logo: {
     width: 60,
@@ -40,20 +40,24 @@ const styles = StyleSheet.create({
   },
   companyDetails: {
     flexDirection: 'column',
+    flex: 1,
+    paddingRight: 10,
   },
   companyName: {
-    fontSize: 14,
+    fontSize: 13.5,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 3,
     color: '#002266',
+    paddingRight: 10,
   },
   companyAddress: {
     fontSize: 8.5,
     color: '#555555',
     lineHeight: 1.3,
+    paddingRight: 8,
   },
   documentTitleBox: {
-    width: '38%',
+    width: '32%',
     alignItems: 'flex-end',
   },
   documentTitle: {
@@ -254,9 +258,9 @@ export const PurchaseOrderPDF: React.FC<PurchaseOrderPDFProps> = ({ po, items, s
               style={styles.logo} 
             />
             <View style={styles.companyDetails}>
-              <Text style={[styles.companyName, { color: primaryColor }]}>{companyNameTh}</Text>
-              <Text style={{ fontSize: 9, fontWeight: 'bold', color: '#475569', marginBottom: 2 }}>{companyNameEn}</Text>
-              {companyAddress ? <Text style={styles.companyAddress}>{companyAddress}</Text> : null}
+              <Text style={[styles.companyName, { color: primaryColor }]}>{companyNameTh ? `${companyNameTh} ` : ''}</Text>
+              <Text style={{ fontSize: 9, fontWeight: 'bold', color: '#475569', marginBottom: 2 }}>{`${companyNameEn} `}</Text>
+              {companyAddress ? <Text style={styles.companyAddress}>{`${companyAddress} `}</Text> : null}
               <Text style={styles.companyAddress}>
                 {[taxId ? `เลขประจำตัวผู้เสียภาษี: ${taxId}` : null, phone ? `โทร: ${phone}` : null].filter(Boolean).join(' | ')}
               </Text>
@@ -289,7 +293,7 @@ export const PurchaseOrderPDF: React.FC<PurchaseOrderPDFProps> = ({ po, items, s
             <Text style={styles.sectionHeading}>ข้อมูลผู้ขาย / SUPPLIER INFORMATION</Text>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>ชื่อผู้ขาย:</Text>
-              <Text style={[styles.infoValue, { fontWeight: 'bold' }]}>{supplier?.name || '-'}</Text>
+              <Text style={[styles.infoValue, { fontWeight: 'bold' }]}>{supplier?.name ? `${supplier.name} ` : '-'}</Text>
             </View>
             {supplier?.code && (
               <View style={styles.infoRow}>
@@ -299,7 +303,7 @@ export const PurchaseOrderPDF: React.FC<PurchaseOrderPDFProps> = ({ po, items, s
             )}
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>ที่อยู่:</Text>
-              <Text style={styles.infoValue}>{supplier?.address || '-'}</Text>
+              <Text style={styles.infoValue}>{supplier?.address ? `${supplier.address} ` : '-'}</Text>
             </View>
             {supplier?.tax_id && (
               <View style={styles.infoRow}>
@@ -340,11 +344,13 @@ export const PurchaseOrderPDF: React.FC<PurchaseOrderPDFProps> = ({ po, items, s
               <Text style={styles.infoLabel}>สถานที่ส่งของ:</Text>
               <View style={{ width: '65%' }}>
                 <Text style={[styles.infoValue, { width: '100%', fontWeight: 'bold' }]}>
-                  {companyNameTh}
+                  {companyNameTh ? `${companyNameTh} ` : ''}
                 </Text>
-                <Text style={{ fontSize: 7, color: '#475569', marginTop: 1, lineHeight: 1.3 }}>
-                  {companyAddress}
-                </Text>
+                {companyAddress ? (
+                  <Text style={{ fontSize: 7.5, color: '#475569', marginTop: 1, lineHeight: 1.3 }}>
+                    {`${companyAddress} `}
+                  </Text>
+                ) : null}
               </View>
             </View>
             <View style={styles.infoRow}>
