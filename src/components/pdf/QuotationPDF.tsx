@@ -304,13 +304,13 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
         {/* Summary */}
         <View style={styles.summaryContainer} wrap={false}>
           <View style={styles.notesBox}>
-            <Text style={{fontWeight: 'bold', marginBottom: 5}}>หมายเหตุ / เงื่อนไข (Remarks / Conditions):</Text>
-            <Text>{quotation.notes || '-'}</Text>
+            <Text style={{ fontWeight: 'bold', marginBottom: 5 }}>หมายเหตุ / เงื่อนไข (Remarks / Conditions): </Text>
+            <Text style={{ fontSize: 8.5, lineHeight: 1.4, paddingRight: 10 }}>{quotation.notes ? `${quotation.notes} ` : '- '}</Text>
           </View>
           
           <View style={styles.totalsBox}>
             <View style={styles.totalRow}>
-              <Text>รวมเป็นเงิน (Subtotal)</Text>
+              <Text>รวมเป็นเงิน (Subtotal) </Text>
               <Text>{subtotal.toLocaleString('th-TH', {minimumFractionDigits: 2})}</Text>
             </View>
             
@@ -321,7 +321,7 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
                   <Text>- {discountAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})}</Text>
                 </View>
                 <View style={styles.totalRow}>
-                  <Text>หลังหักส่วนลด (After Discount)</Text>
+                  <Text>หลังหักส่วนลด (After Discount) </Text>
                   <Text>{(subtotal - discountAmount).toLocaleString('th-TH', {minimumFractionDigits: 2})}</Text>
                 </View>
               </>
@@ -329,24 +329,22 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
 
             {quotation.has_vat && (
               <View style={styles.totalRow}>
-                <Text style={{ paddingLeft: 4 }}>VAT 7%</Text>
+                <Text style={{ paddingLeft: 4 }}>VAT 7% </Text>
                 <Text>{vatAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})}</Text>
               </View>
             )}
             
             <View style={{...styles.totalRow, borderTopWidth: 1, borderTopColor: '#eee', marginTop: 4, paddingTop: 4}}>
-              <Text style={styles.boldText}>จำนวนเงินรวม (Total Amount)</Text>
+              <Text style={styles.boldText}>จำนวนเงินรวม (Total Amount) </Text>
               <Text style={styles.boldText}>{grandTotal.toLocaleString('th-TH', {minimumFractionDigits: 2})}</Text>
             </View>
 
             {quotation.has_wht && (
               <View style={styles.totalRow}>
-                <Text style={{ color: '#d32f2f', paddingLeft: 4 }}>WHT 3% (หัก ณ ที่จ่าย)</Text>
+                <Text style={{ color: '#d32f2f', paddingLeft: 4 }}>WHT 3% (หัก ณ ที่จ่าย) </Text>
                 <Text>- {whtAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})}</Text>
               </View>
             )}
-            
-
           </View>
         </View>
 
@@ -354,20 +352,20 @@ export const QuotationPDF: React.FC<QuotationPDFProps> = ({ quotation, items, cu
         <View style={styles.footer}>
           <View style={styles.signatureBox}>
             <View style={styles.signatureLine}></View>
-            <Text>ผู้เสนอราคา</Text>
-            <Text style={{ fontSize: 8, color: '#777' }}>(Prepared By)</Text>
+            <Text>ผู้เสนอราคา </Text>
+            <Text style={{ fontSize: 8, color: '#777' }}>(Prepared By) </Text>
             <Text style={{color: '#777', marginTop: 3}}>วันที่ _____/_____/_____</Text>
           </View>
           <View style={styles.signatureBox}>
             <View style={styles.signatureLine}></View>
-            <Text>ผู้อนุมัติ</Text>
-            <Text style={{ fontSize: 8, color: '#777' }}>(Approved By)</Text>
+            <Text>ผู้อนุมัติ </Text>
+            <Text style={{ fontSize: 8, color: '#777' }}>(Approved By) </Text>
             <Text style={{color: '#777', marginTop: 3}}>วันที่ _____/_____/_____</Text>
           </View>
           <View style={styles.signatureBox}>
             <View style={styles.signatureLine}></View>
-            <Text>ผู้สั่งซื้อ / ยืนยันสั่งซื้อ</Text>
-            <Text style={{ fontSize: 8, color: '#777' }}>(Accepted By)</Text>
+            <Text>ผู้สั่งซื้อ / ยืนยันสั่งซื้อ </Text>
+            <Text style={{ fontSize: 8, color: '#777' }}>(Accepted By) </Text>
             <Text style={{color: '#777', marginTop: 3}}>วันที่ _____/_____/_____</Text>
           </View>
         </View>

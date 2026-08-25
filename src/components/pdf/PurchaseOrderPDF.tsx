@@ -473,20 +473,20 @@ export const PurchaseOrderPDF: React.FC<PurchaseOrderPDFProps> = ({ po, items, s
         <View style={styles.footer}>
           <View style={styles.signatureBox}>
             <View style={styles.signatureLine}></View>
-            <Text style={styles.signatureTitle}>ผู้จัดทำ / ผู้สั่งซื้อ</Text>
-            <Text style={styles.signatureSubtitle}>(Prepared By / Purchaser)</Text>
+            <Text style={styles.signatureTitle}>ผู้จัดทำ / ผู้สั่งซื้อ </Text>
+            <Text style={styles.signatureSubtitle}>(Prepared By / Purchaser) </Text>
             <Text style={styles.signatureDate}>วันที่ _____/_____/_____</Text>
           </View>
           <View style={styles.signatureBox}>
             <View style={styles.signatureLine}></View>
-            <Text style={styles.signatureTitle}>ผู้อนุมัติสั่งซื้อ</Text>
-            <Text style={styles.signatureSubtitle}>(Authorized Signature)</Text>
+            <Text style={styles.signatureTitle}>ผู้อนุมัติสั่งซื้อ </Text>
+            <Text style={styles.signatureSubtitle}>(Authorized Signature) </Text>
             <Text style={styles.signatureDate}>วันที่ _____/_____/_____</Text>
           </View>
           <View style={styles.signatureBox}>
             <View style={styles.signatureLine}></View>
-            <Text style={styles.signatureTitle}>ผู้ขาย / ยืนยันการสั่งซื้อ</Text>
-            <Text style={styles.signatureSubtitle}>(Confirmed By Supplier)</Text>
+            <Text style={styles.signatureTitle}>ผู้ขาย / ยืนยันการสั่งซื้อ </Text>
+            <Text style={styles.signatureSubtitle}>(Confirmed By Supplier) </Text>
             <Text style={styles.signatureDate}>วันที่ _____/_____/_____</Text>
           </View>
         </View>
