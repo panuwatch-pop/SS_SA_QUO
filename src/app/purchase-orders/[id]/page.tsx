@@ -6,7 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useCompany } from '@/context/CompanyContext';
 import { 
   ArrowLeft, Download, Mail, MessageCircle, Edit, CheckCircle2, Clock, 
-  Truck, AlertCircle, PackageCheck, Receipt, DollarSign, Plus, Eye 
+  Truck, AlertCircle, PackageCheck, Receipt, DollarSign, Plus, Eye, Copy, Trash2 
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -469,6 +469,25 @@ export default function PurchaseOrderDetailPage() {
     }
   };
 
+  const handleDeletePO = async () => {
+    if (confirm(`คุณต้องการลบใบสั่งซื้อ "${po.po_number}" ใช่หรือไม่?`)) {
+      try {
+        const { error } = await supabase
+          .from('purchase_orders')
+          .delete()
+          .eq('id', po.id);
+
+        if (error) throw error;
+
+        alert('ลบใบสั่งซื้อสำเร็จ');
+        router.push('/purchase-orders');
+      } catch (error: any) {
+        console.error('Error deleting purchase order:', error);
+        alert(`เกิดข้อผิดพลาดในการลบ: ${error.message}`);
+      }
+    }
+  };
+
   if (authLoading || loading) return <div className="loading-screen">กำลังโหลดข้อมูล...</div>;
   if (!po) return <div className="loading-screen">ไม่พบข้อมูลใบสั่งซื้อ</div>;
 
@@ -675,11 +694,19 @@ export default function PurchaseOrderDetailPage() {
             <h3>จัดการใบสั่งซื้อ</h3>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', margin: '1rem 0' }}>
-              {po.status === 'draft' && (
-                <Link href={`/purchase-orders/${id}/edit`} className="btn btn-outline" style={{ display: 'flex', justifyContent: 'center' }}>
-                  <Edit size={16} style={{ marginRight: '0.5rem' }} /> แก้ไขข้อมูลใบสั่งซื้อ
-                </Link>
-              )}
+              <Link href={`/purchase-orders/${id}/edit`} className="btn btn-outline" style={{ display: 'flex', justifyContent: 'center' }}>
+                <Edit size={16} style={{ marginRight: '0.5rem' }} /> แก้ไขข้อมูลใบสั่งซื้อ
+              </Link>
+              <Link href={`/purchase-orders/new?cloneId=${id}`} className="btn btn-outline" style={{ display: 'flex', justifyContent: 'center' }}>
+                <Copy size={16} style={{ marginRight: '0.5rem' }} /> คัดลอก (ทำซ้ำ Duplicate)
+              </Link>
+              <button 
+                className="btn btn-outline" 
+                onClick={handleDeletePO}
+                style={{ display: 'flex', justifyContent: 'center', color: 'var(--error-color)', borderColor: 'var(--error-color)' }}
+              >
+                <Trash2 size={16} style={{ marginRight: '0.5rem' }} /> ลบใบสั่งซื้อนี้
+              </button>
             </div>
 
             <div className="status-updater">

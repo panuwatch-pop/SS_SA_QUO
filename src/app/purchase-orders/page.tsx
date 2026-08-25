@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { useCompany } from '@/context/CompanyContext';
-import { Plus, Search, ArrowLeft, FileText, Eye, Edit2, Trash2, CheckCircle2, Clock, Truck, AlertCircle, Filter } from 'lucide-react';
+import { Plus, Search, ArrowLeft, FileText, Eye, Edit2, Trash2, CheckCircle2, Clock, Truck, AlertCircle, Filter, Copy } from 'lucide-react';
 import Link from 'next/link';
 
 interface PurchaseOrder {
@@ -263,20 +263,19 @@ export default function PurchaseOrdersPage() {
                       {getStatusBadge(po.status)}
                     </td>
                     <td>
-                      <div className="action-buttons" style={{ justifyContent: 'center' }}>
+                      <div className="action-buttons" style={{ justifyContent: 'center', gap: '0.25rem' }}>
                         <Link href={`/purchase-orders/${po.id}`} className="btn-icon" title="ดูรายละเอียด / พิมพ์ / รับของ">
                           <Eye size={18} />
                         </Link>
-                        {po.status === 'draft' && (
-                          <>
-                            <Link href={`/purchase-orders/${po.id}/edit`} className="btn-icon" title="แก้ไข">
-                              <Edit2 size={18} />
-                            </Link>
-                            <button className="btn-icon text-error" title="ลบ" onClick={() => handleDelete(po.id, po.po_number)}>
-                              <Trash2 size={18} />
-                            </button>
-                          </>
-                        )}
+                        <Link href={`/purchase-orders/new?cloneId=${po.id}`} className="btn-icon" title="คัดลอก / ทำซ้ำ (Duplicate)">
+                          <Copy size={18} />
+                        </Link>
+                        <Link href={`/purchase-orders/${po.id}/edit`} className="btn-icon" title="แก้ไข">
+                          <Edit2 size={18} />
+                        </Link>
+                        <button className="btn-icon text-error" title="ลบ" onClick={() => handleDelete(po.id, po.po_number)}>
+                          <Trash2 size={18} />
+                        </button>
                       </div>
                     </td>
                   </tr>

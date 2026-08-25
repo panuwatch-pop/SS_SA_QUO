@@ -48,6 +48,7 @@ function NewPurchaseOrderContent() {
   const searchParams = useSearchParams();
   const preSelectedSupplierId = searchParams.get('supplierId');
   const fromQuotationId = searchParams.get('quotationId');
+  const cloneId = searchParams.get('cloneId');
 
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -105,7 +106,39 @@ function NewPurchaseOrderContent() {
         }
       }
 
-      // 5. If converted from Quotation, populate items
+      // 5. If duplicating from an existing PO (cloneId)
+      if (cloneId) {
+        const { data: clonePO } = await supabase
+          .from('purchase_orders')
+          .select('*, purchase_order_items(*, products(*))')
+          .eq('id', cloneId)
+          .single();
+
+        if (clonePO) {
+          if (clonePO.supplier_id) setSelectedSupplierId(clonePO.supplier_id);
+          if (clonePO.credit_terms) setCreditTerms(clonePO.credit_terms);
+          if (clonePO.global_discount_percent !== undefined) setGlobalDiscountPercent(clonePO.global_discount_percent);
+          if (clonePO.has_vat !== undefined) setIncludeVat(clonePO.has_vat);
+          if (clonePO.has_wht !== undefined) setIncludeWht(clonePO.has_wht);
+          if (clonePO.wht_percent !== undefined) setWhtPercent(clonePO.wht_percent);
+          if (clonePO.notes) setNotes(clonePO.notes);
+
+          if (clonePO.purchase_order_items && clonePO.purchase_order_items.length > 0) {
+            const duplicatedItems = clonePO.purchase_order_items.map((it: any) => ({
+              product_id: it.product_id,
+              product_name: it.products?.name || '',
+              description: it.description || '',
+              quantity: Number(it.quantity) || 1,
+              unit_cost: Number(it.unit_cost) || 0,
+              discount: Number(it.discount) || 0,
+              total: Number(it.total) || 0
+            }));
+            setItems(duplicatedItems);
+          }
+        }
+      }
+
+      // 6. If converted from Quotation, populate items
       if (fromQuotationId) {
         const { data: qData } = await supabase
           .from('quotations')
