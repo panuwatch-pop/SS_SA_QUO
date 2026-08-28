@@ -160,6 +160,9 @@ export default function Dashboard() {
             <Link href="/quotations" className="nav-link">
               <FileText size={18} className="nav-icon" /> <span>ใบเสนอราคา</span>
             </Link>
+            <Link href="/delivery-orders" className="nav-link">
+              <Truck size={18} className="nav-icon" /> <span>ใบส่งของชั่วคราว (DO)</span>
+            </Link>
             <Link href="/catalogs" className="nav-link">
               <BookOpen size={18} className="nav-icon" /> <span>แคตตาล็อก</span>
             </Link>

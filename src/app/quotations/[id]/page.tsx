@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { useCompany } from '@/context/CompanyContext';
-import { ArrowLeft, Download, Send, Printer, FileText, CheckCircle, XCircle, Search, MessageCircle, Mail, X, ShoppingCart, Edit, Plus, History, Layers, Copy } from 'lucide-react';
+import { ArrowLeft, Download, Send, Printer, FileText, CheckCircle, XCircle, Search, MessageCircle, Mail, X, ShoppingCart, Edit, Plus, History, Layers, Copy, Truck } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { PDFDownloadLink } from '@react-pdf/renderer';
@@ -481,6 +481,9 @@ export default function QuotationDetailPage() {
               </Link>
               <Link href={`/quotations/new?cloneId=${id}`} className="btn btn-outline" style={{ display: 'flex', justifyContent: 'center' }}>
                 <Copy size={16} style={{ marginRight: '0.5rem' }} /> คัดลอก (ทำซ้ำใบใหม่)
+              </Link>
+              <Link href={`/delivery-orders/new?quotationId=${id}`} className="btn btn-outline" style={{ display: 'flex', justifyContent: 'center', borderColor: '#2563eb', color: '#2563eb' }}>
+                <Truck size={16} style={{ marginRight: '0.5rem' }} /> ออกใบส่งของชั่วคราว (DO)
               </Link>
               <Link href={`/purchase-orders/new?quotationId=${id}`} className="btn btn-outline" style={{ display: 'flex', justifyContent: 'center', borderColor: '#059669', color: '#059669' }}>
                 <ShoppingCart size={16} style={{ marginRight: '0.5rem' }} /> ออกใบสั่งซื้อ PO จากใบนี้
