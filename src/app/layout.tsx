@@ -16,8 +16,14 @@ import { AuthProvider } from "@/context/AuthContext";
 import { CompanyProvider } from "@/context/CompanyContext";
 
 export const metadata: Metadata = {
-  title: "Quotation & Catalog System",
-  description: "Web-based quotation and product catalog system",
+  title: "ระบบใบเสนอราคา (Quotation & ERP)",
+  description: "Web-based quotation, PO, inventory and delivery order system",
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({
