@@ -170,18 +170,43 @@ export default function SearchableSelect({ options, value, onChange, placeholder
           right: 0;
           z-index: 50;
           margin-top: 4px;
-          max-height: 300px;
+          max-height: 340px;
           display: flex;
           flex-direction: column;
           overflow: hidden;
           background: var(--glass-bg, #ffffff);
-          box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+          box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+          border: 1px solid var(--border-color, #cbd5e1);
+          border-radius: 8px;
         }
         
         .searchable-dropdown-list {
-          overflow-y: auto;
-          max-height: 250px;
+          overflow-y: scroll;
+          max-height: 270px;
           -webkit-overflow-scrolling: touch;
+          scrollbar-width: thin;
+          scrollbar-color: var(--primary-color, #2563eb) #f1f5f9;
+        }
+
+        /* Prominent Custom Scrollbar / Slider */
+        .searchable-dropdown-list::-webkit-scrollbar {
+          width: 8px;
+          display: block;
+        }
+
+        .searchable-dropdown-list::-webkit-scrollbar-track {
+          background: #f1f5f9;
+          border-radius: 4px;
+          margin: 4px 0;
+        }
+
+        .searchable-dropdown-list::-webkit-scrollbar-thumb {
+          background: var(--primary-color, #2563eb);
+          border-radius: 4px;
+        }
+
+        .searchable-dropdown-list::-webkit-scrollbar-thumb:hover {
+          background: #1d4ed8;
         }
 
         .searchable-option {
@@ -190,11 +215,11 @@ export default function SearchableSelect({ options, value, onChange, placeholder
           border-bottom: 1px solid rgba(128,128,128,0.1);
           display: flex;
           flex-direction: column;
-          transition: background 0.2s;
+          transition: background 0.15s ease;
         }
         
         .searchable-option:hover {
-          background: rgba(128,128,128,0.1) !important;
+          background: rgba(37, 99, 235, 0.08) !important;
         }
 
         /* Mobile & Tablet Modal Mode */

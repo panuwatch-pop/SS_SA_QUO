@@ -156,3 +156,28 @@ select.input-field option {
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out forwards;
 }
+
+/* Custom Scrollbars & Slider Bar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color, #2563eb);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-light, #1d4ed8);
+}
+
+[data-company="Shinwa Anzen"] ::-webkit-scrollbar-thumb {
+  background: #1e3a8a;
+}
+
