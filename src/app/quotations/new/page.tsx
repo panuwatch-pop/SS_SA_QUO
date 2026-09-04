@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { supabase, fetchAllProducts } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { useCompany } from '@/context/CompanyContext';
-import { Plus, Trash2, ArrowLeft, Save } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, Save, X, AlertCircle } from 'lucide-react';
 import SearchableSelect from '@/components/SearchableSelect';
 import FormattedNumberInput from '@/components/FormattedNumberInput';
 import Link from 'next/link';
@@ -57,6 +57,8 @@ function NewQuotationContent() {
   const [includeVat, setIncludeVat] = useState(true);
   const [includeWht, setIncludeWht] = useState(false);
   
+  const [currentQuotationId, setCurrentQuotationId] = useState<string | null>(null);
+  const [showCloseModal, setShowCloseModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(true);
 
@@ -226,47 +228,86 @@ function NewQuotationContent() {
     setLoading(true);
     try {
       const finalQuotationNumber = quotationNumber.trim() || await generateQuotationNumber();
+      let targetId = currentQuotationId;
 
-      // Insert Quotation
-      const { data: qtData, error: qtError } = await supabase
-        .from('quotations')
-        .insert([{
-          quotation_number: finalQuotationNumber,
-          customer_id: selectedCustomerId,
-          company_name: company,
-          project_name: projectName || null,
-          status: 'draft',
-          total_amount: netPayable,
-          global_discount_percent: globalDiscountPercent,
-          has_vat: includeVat,
-          has_wht: includeWht,
-          notes: notes
-        }])
-        .select()
-        .single();
+      if (!targetId) {
+        // Insert Quotation for the first time
+        const { data: qtData, error: qtError } = await supabase
+          .from('quotations')
+          .insert([{
+            quotation_number: finalQuotationNumber,
+            customer_id: selectedCustomerId,
+            company_name: company,
+            project_name: projectName || null,
+            status: 'draft',
+            total_amount: netPayable,
+            global_discount_percent: globalDiscountPercent,
+            has_vat: includeVat,
+            has_wht: includeWht,
+            notes: notes
+          }])
+          .select()
+          .single();
 
-      if (qtError) throw qtError;
+        if (qtError) throw qtError;
+        targetId = qtData.id;
+        setCurrentQuotationId(qtData.id);
+        setQuotationNumber(finalQuotationNumber);
 
-      // Insert Items
-      const itemsToInsert = items.map(item => ({
-        quotation_id: qtData.id,
-        product_id: item.product_id,
-        description: item.description || null,
-        quantity: item.quantity,
-        unit_price: item.unit_price,
-        discount: item.discount,
-        total: item.total
-      }));
+        // Insert Items
+        const itemsToInsert = items.map(item => ({
+          quotation_id: qtData.id,
+          product_id: item.product_id,
+          description: item.description || null,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          discount: item.discount,
+          total: item.total
+        }));
 
-      const { error: itemsError } = await supabase
-        .from('quotation_items')
-        .insert(itemsToInsert);
+        const { error: itemsError } = await supabase
+          .from('quotation_items')
+          .insert(itemsToInsert);
 
-      if (itemsError) throw itemsError;
+        if (itemsError) throw itemsError;
 
-      alert('บันทึกใบเสนอราคาเรียบร้อยแล้ว');
-      localStorage.removeItem(`quotation_draft_${company}`);
-      router.push(`/quotations`);
+        localStorage.removeItem(`quotation_draft_${company}`);
+        window.history.replaceState(null, '', `/quotations/${targetId}/edit`);
+      } else {
+        // Subsequent save on the same quotation
+        const { error: qtError } = await supabase
+          .from('quotations')
+          .update({
+            quotation_number: finalQuotationNumber,
+            customer_id: selectedCustomerId,
+            project_name: projectName || null,
+            total_amount: netPayable,
+            global_discount_percent: globalDiscountPercent,
+            has_vat: includeVat,
+            has_wht: includeWht,
+            notes: notes
+          })
+          .eq('id', targetId);
+
+        if (qtError) throw qtError;
+
+        await supabase.from('quotation_items').delete().eq('quotation_id', targetId);
+
+        const itemsToInsert = items.map(item => ({
+          quotation_id: targetId,
+          product_id: item.product_id,
+          description: item.description || null,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          discount: item.discount,
+          total: item.total
+        }));
+
+        const { error: itemsError } = await supabase.from('quotation_items').insert(itemsToInsert);
+        if (itemsError) throw itemsError;
+      }
+
+      alert('บันทึกข้อมูลใบเสนอราคาเรียบร้อยแล้ว (คุณสามารถแก้ไขข้อมูลต่อและกดบันทึกได้เรื่อยๆ)');
 
     } catch (error: any) {
       console.error('Save error:', error);
@@ -296,21 +337,35 @@ function NewQuotationContent() {
     <div className="page-container animate-fade-in" data-company={company}>
       <header className="page-header">
         <div className="header-left">
-          <Link href="/quotations" className="btn-icon">
+          <button 
+            type="button" 
+            className="btn-icon" 
+            onClick={() => setShowCloseModal(true)}
+            title="ปิดหน้านี้ / ย้อนกลับ"
+          >
             <ArrowLeft size={20} />
-          </Link>
+          </button>
           <div>
             <h1>สร้างใบเสนอราคาใหม่</h1>
-            <p className="subtitle">บริษัท {company}</p>
+            <p className="subtitle">บริษัท {company} {currentQuotationId ? '• บันทึกแล้ว' : ''}</p>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '1rem' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <button className="btn btn-outline" onClick={handleClearDraft} disabled={loading} style={{ borderColor: '#ef4444', color: '#ef4444' }}>
-            ล้างข้อมูล (เริ่มใหม่)
+            ล้างข้อมูล
           </button>
           <button className="btn btn-primary" onClick={handleSave} disabled={loading}>
-            <Save size={20} style={{ marginRight: '0.5rem' }} /> 
+            <Save size={18} style={{ marginRight: '0.5rem' }} /> 
             {loading ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}
+          </button>
+          <button 
+            type="button" 
+            className="btn btn-outline" 
+            onClick={() => setShowCloseModal(true)} 
+            disabled={loading}
+            style={{ borderColor: '#64748b', color: '#475569', display: 'flex', alignItems: 'center' }}
+          >
+            <X size={18} style={{ marginRight: '0.35rem' }} /> ปิดหน้านี้
           </button>
         </div>
       </header>
@@ -542,6 +597,40 @@ function NewQuotationContent() {
           </div>
         </div>
       </div>
+
+      {/* Confirmation Modal before closing */}
+      {showCloseModal && (
+        <div className="modal-backdrop">
+          <div className="glass-panel modal-card animate-scale-up" style={{ maxWidth: '440px', textAlign: 'center', padding: '2rem' }}>
+            <AlertCircle size={48} style={{ color: '#f59e0b', margin: '0 auto 1rem' }} />
+            <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', fontWeight: 'bold' }}>ยืนยันการปิดหน้านี้</h3>
+            <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.5rem' }}>
+              คุณต้องการปิดหน้านี้และกลับไปยังหน้ารายการใบเสนอราคาใช่หรือไม่?<br />
+              <span style={{ fontSize: '0.85rem', color: '#ef4444' }}>* กรุณาตรวจสอบว่าได้กดบันทึกข้อมูลล่าสุดแล้วก่อนปิด</span>
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+              <button 
+                type="button"
+                className="btn btn-outline" 
+                onClick={() => setShowCloseModal(false)}
+              >
+                ยกเลิก / ทำงานต่อ
+              </button>
+              <button 
+                type="button"
+                className="btn btn-primary" 
+                onClick={() => {
+                  setShowCloseModal(false);
+                  router.push('/quotations');
+                }}
+                style={{ backgroundColor: '#ef4444', borderColor: '#ef4444' }}
+              >
+                ยืนยันปิดหน้านี้
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style jsx>{`
         .page-container { padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; }

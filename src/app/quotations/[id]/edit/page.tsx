@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase, fetchAllProducts } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { useCompany } from '@/context/CompanyContext';
-import { Plus, Trash2, ArrowLeft, Save } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, Save, X, AlertCircle } from 'lucide-react';
 import SearchableSelect from '@/components/SearchableSelect';
 import FormattedNumberInput from '@/components/FormattedNumberInput';
 import Link from 'next/link';
@@ -55,6 +55,7 @@ export default function EditQuotationPage() {
   const [globalDiscountPercent, setGlobalDiscountPercent] = useState(0);
   const [includeVat, setIncludeVat] = useState(true);
   const [includeWht, setIncludeWht] = useState(false);
+  const [showCloseModal, setShowCloseModal] = useState(false);
   
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(true);
@@ -330,9 +331,8 @@ export default function EditQuotationPage() {
 
         if (itemsError) throw itemsError;
 
-        alert('แก้ไขใบเสนอราคาเรียบร้อยแล้ว');
         localStorage.removeItem(`quotation_draft_edit_${id}`);
-        router.push(`/quotations/${id}`);
+        alert('บันทึกการแก้ไขใบเสนอราคาเรียบร้อยแล้ว (คุณสามารถแก้ไขข้อมูลต่อและกดบันทึกได้เรื่อยๆ)');
       }
 
     } catch (error: any) {
@@ -356,15 +356,20 @@ export default function EditQuotationPage() {
     <div className="page-container animate-fade-in" data-company={company}>
       <header className="page-header">
         <div className="header-left">
-          <Link href={`/quotations/${id}`} className="btn-icon">
+          <button 
+            type="button" 
+            className="btn-icon" 
+            onClick={() => setShowCloseModal(true)}
+            title="ปิดหน้านี้ / ย้อนกลับ"
+          >
             <ArrowLeft size={20} />
-          </Link>
+          </button>
           <div>
             <h1>แก้ไขใบเสนอราคา</h1>
             <p className="subtitle">เอกสารเลขที่ {quotationNumber} • บริษัท {company}</p>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <button className="btn btn-outline" onClick={handleClearDraft} disabled={loading} style={{ borderColor: '#ef4444', color: '#ef4444' }}>
             คืนค่าเดิม
           </button>
@@ -381,6 +386,15 @@ export default function EditQuotationPage() {
           >
             <Plus size={18} style={{ marginRight: '0.5rem' }} /> 
             {loading ? 'กำลังสร้าง Revision...' : 'บันทึกเป็น Revision ใหม่ (เก็บใบเดิม)'}
+          </button>
+          <button 
+            type="button" 
+            className="btn btn-outline" 
+            onClick={() => setShowCloseModal(true)} 
+            disabled={loading}
+            style={{ borderColor: '#64748b', color: '#475569', display: 'flex', alignItems: 'center' }}
+          >
+            <X size={18} style={{ marginRight: '0.35rem' }} /> ปิดหน้านี้
           </button>
         </div>
       </header>
@@ -609,6 +623,40 @@ export default function EditQuotationPage() {
           </div>
         </div>
       </div>
+
+      {/* Confirmation Modal before closing */}
+      {showCloseModal && (
+        <div className="modal-backdrop">
+          <div className="glass-panel modal-card animate-scale-up" style={{ maxWidth: '440px', textAlign: 'center', padding: '2rem' }}>
+            <AlertCircle size={48} style={{ color: '#f59e0b', margin: '0 auto 1rem' }} />
+            <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', fontWeight: 'bold' }}>ยืนยันการปิดหน้านี้</h3>
+            <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.5rem' }}>
+              คุณต้องการปิดหน้านี้และกลับไปยังหน้ารายละเอียดใบเสนอราคาใช่หรือไม่?<br />
+              <span style={{ fontSize: '0.85rem', color: '#ef4444' }}>* กรุณาตรวจสอบว่าได้กดบันทึกข้อมูลล่าสุดแล้วก่อนปิด</span>
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+              <button 
+                type="button"
+                className="btn btn-outline" 
+                onClick={() => setShowCloseModal(false)}
+              >
+                ยกเลิก / ทำงานต่อ
+              </button>
+              <button 
+                type="button"
+                className="btn btn-primary" 
+                onClick={() => {
+                  setShowCloseModal(false);
+                  router.push(`/quotations/${id}`);
+                }}
+                style={{ backgroundColor: '#ef4444', borderColor: '#ef4444' }}
+              >
+                ยืนยันปิดหน้านี้
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style jsx>{`
         .page-container { padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; }

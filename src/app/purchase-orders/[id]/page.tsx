@@ -182,15 +182,8 @@ export default function PurchaseOrderDetailPage() {
         />
       ).toBlob();
 
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = `${po.po_number}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const { savePdfBlob } = await import('@/lib/fileSave');
+      await savePdfBlob(blob, `${po.po_number}.pdf`);
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('เกิดข้อผิดพลาดในการสร้าง PDF');

@@ -146,14 +146,8 @@ export default function DeliveryOrderDetailPage() {
         />
       ).toBlob();
       
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${order.do_number}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      const { savePdfBlob } = await import('@/lib/fileSave');
+      await savePdfBlob(blob, `${order.do_number}.pdf`);
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('เกิดข้อผิดพลาดในการสร้างไฟล์ PDF');

@@ -134,15 +134,8 @@ export default function QuotationDetailPage() {
         />
       ).toBlob();
 
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = `${quotation.quotation_number}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const { savePdfBlob } = await import('@/lib/fileSave');
+      await savePdfBlob(blob, `${quotation.quotation_number}.pdf`);
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('เกิดข้อผิดพลาดในการสร้าง PDF');
