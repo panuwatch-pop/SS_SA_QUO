@@ -265,17 +265,22 @@ export default function Dashboard() {
             </div>
           </Link>
           <Link href="/quotations" className="stat-card glass-panel click-card">
-            <div className="icon-wrapper"><FileText size={28} /></div>
+            <div className="icon-wrapper"><FileText size={24} /></div>
             <div className="stat-info">
               <h3>ใบเสนอราคา ({selectedMonth === 'all' ? 'ทั้งปี' : 'เดือนนี้'})</h3>
               <p className="stat-number">{loadingStats ? '-' : totalQuotations}</p>
             </div>
           </Link>
-          <div className="stat-card glass-panel">
-            <div className="icon-wrapper"><DollarSign size={28} /></div>
+          <div 
+            className="stat-card glass-panel" 
+            title={loadingStats ? '' : `฿${totalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})}`}
+          >
+            <div className="icon-wrapper"><DollarSign size={24} /></div>
             <div className="stat-info">
               <h3>ยอดเสนอราคารวม</h3>
-              <p className="stat-number text-primary">{loadingStats ? '-' : `฿${totalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})}`}</p>
+              <p className="stat-number money text-primary">
+                {loadingStats ? '-' : `฿${totalAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})}`}
+              </p>
             </div>
           </div>
         </div>
@@ -287,7 +292,7 @@ export default function Dashboard() {
         <div className="dashboard-grid">
           <Link href="/suppliers" className="stat-card glass-panel click-card">
             <div className="icon-wrapper" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#2563eb' }}>
-              <Truck size={28} />
+              <Truck size={24} />
             </div>
             <div className="stat-info">
               <h3>ซัพพลายเออร์</h3>
@@ -297,7 +302,7 @@ export default function Dashboard() {
 
           <Link href="/purchase-orders" className="stat-card glass-panel click-card">
             <div className="icon-wrapper" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#059669' }}>
-              <ShoppingCart size={28} />
+              <ShoppingCart size={24} />
             </div>
             <div className="stat-info">
               <h3>รอรับสินค้าเข้าคลัง</h3>
@@ -309,7 +314,7 @@ export default function Dashboard() {
 
           <Link href="/inventory" className="stat-card glass-panel click-card">
             <div className="icon-wrapper" style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#d97706' }}>
-              <Layers size={28} />
+              <Layers size={24} />
             </div>
             <div className="stat-info">
               <h3>สินค้าสต็อกต่ำ</h3>
@@ -319,13 +324,17 @@ export default function Dashboard() {
             </div>
           </Link>
 
-          <Link href="/supplier-bills" className="stat-card glass-panel click-card">
+          <Link 
+            href="/supplier-bills" 
+            className="stat-card glass-panel click-card"
+            title={loadingStats ? '' : `฿${stats.unpaidBillsAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})}`}
+          >
             <div className="icon-wrapper" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#dc2626' }}>
-              <Receipt size={28} />
+              <Receipt size={24} />
             </div>
             <div className="stat-info">
               <h3>ยอดค้างจ่าย Supplier</h3>
-              <p className="stat-number" style={{ fontSize: '1.3rem', color: '#dc2626' }}>
+              <p className="stat-number money" style={{ color: '#dc2626' }}>
                 {loadingStats ? '-' : `฿${stats.unpaidBillsAmount.toLocaleString('th-TH', {minimumFractionDigits: 2})}`}
               </p>
             </div>
@@ -630,18 +639,20 @@ export default function Dashboard() {
           box-shadow: 0 10px 25px rgba(0,0,0,0.06);
         }
         .stat-card {
-          padding: 1.25rem 1.5rem;
+          padding: 1.15rem 1.25rem;
           display: flex;
           align-items: center;
-          gap: 1.25rem;
+          gap: 1rem;
           background: #ffffff;
           border: 1px solid #e2e8f0;
           border-radius: 12px;
           box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+          min-width: 0;
+          overflow: hidden;
         }
         .icon-wrapper {
-          width: 52px;
-          height: 52px;
+          width: 48px;
+          height: 48px;
           border-radius: 12px;
           background: rgba(37, 99, 235, 0.08);
           color: #2563eb;
@@ -650,16 +661,33 @@ export default function Dashboard() {
           justify-content: center;
           flex-shrink: 0;
         }
+        .stat-info {
+          flex: 1;
+          min-width: 0;
+          overflow: hidden;
+        }
         .stat-info h3 {
           font-size: 0.88rem;
           font-weight: 600;
           color: #64748b;
           margin-bottom: 0.25rem;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
         .stat-number {
-          font-size: 1.6rem;
+          font-size: 1.5rem;
           font-weight: 800;
           color: #0f172a;
+          line-height: 1.2;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .stat-number.money {
+          font-size: clamp(1.05rem, 1.35vw, 1.28rem);
+          letter-spacing: -0.01em;
+          font-variant-numeric: tabular-nums;
         }
         .stat-unit {
           font-size: 0.88rem;
