@@ -79,7 +79,7 @@ export default function QuotationsPage() {
 
   const handleQuickStatusChange = async (quotationId: string, newStatus: string) => {
     // Optimistic UI update
-    setQuotations(prev => prev.map(q => q.id === quotationId ? { ...q, status: newStatus } : q));
+    setQuotations((prev: Quotation[]) => prev.map(q => q.id === quotationId ? { ...q, status: newStatus } : q));
     const { error } = await supabase
       .from('quotations')
       .update({ status: newStatus })

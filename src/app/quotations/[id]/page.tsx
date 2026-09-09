@@ -107,7 +107,7 @@ export default function QuotationDetailPage() {
   const handleUpdateStatus = async (newStatus: string) => {
     if (!quotation || newStatus === quotation.status) return;
     setUpdatingStatus(true);
-    setQuotation(prev => prev ? { ...prev, status: newStatus } : prev);
+    setQuotation((prev: any) => prev ? { ...prev, status: newStatus } : prev);
 
     const { error } = await supabase
       .from('quotations')
