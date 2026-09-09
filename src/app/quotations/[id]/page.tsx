@@ -399,23 +399,27 @@ export default function QuotationDetailPage() {
               <thead>
                 <tr>
                   <th style={{ width: '5%' }}>ลำดับ</th>
-                  <th style={{ width: '45%' }}>รายการสินค้า</th>
-                  <th style={{ width: '15%' }}>จำนวน</th>
-                  <th style={{ width: '15%' }}>ราคา/หน่วย</th>
-                  <th style={{ width: '20%', textAlign: 'right' }}>จำนวนเงิน</th>
+                  <th style={{ width: '38%', textAlign: 'left', paddingLeft: '1rem' }}>รายการสินค้า</th>
+                  <th style={{ width: '12%' }}>จำนวน</th>
+                  <th style={{ width: '15%', textAlign: 'right' }}>ราคา/หน่วย</th>
+                  <th style={{ width: '13%', textAlign: 'right' }}>ส่วนลด</th>
+                  <th style={{ width: '17%', textAlign: 'right' }}>จำนวนเงิน</th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((item, index) => (
                   <tr key={index}>
                     <td style={{ textAlign: 'center' }}>{index + 1}</td>
-                    <td>
-                      <div>{item.products?.name}</div>
+                    <td style={{ paddingLeft: '1rem' }}>
+                      <div style={{ fontWeight: 500 }}>{item.products?.name}</div>
                       {item.description && <div style={{ fontSize: '0.85rem', color: '#555', marginTop: '4px', whiteSpace: 'pre-wrap' }}>{item.description}</div>}
                       {item.products?.product_code && <div style={{ fontSize: '0.8rem', color: 'gray' }}>{item.products.product_code}</div>}
                     </td>
                     <td style={{ textAlign: 'center' }}>{item.quantity} {item.products?.unit}</td>
-                    <td style={{ textAlign: 'center' }}>{Number(item.unit_price).toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
+                    <td style={{ textAlign: 'right' }}>{Number(item.unit_price).toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
+                    <td style={{ textAlign: 'right', color: Number(item.discount) > 0 ? 'var(--error-color)' : 'inherit' }}>
+                      {Number(item.discount) > 0 ? Number(item.discount).toLocaleString('th-TH', {minimumFractionDigits: 2}) : '-'}
+                    </td>
                     <td style={{ textAlign: 'right' }}>{Number(item.total).toLocaleString('th-TH', {minimumFractionDigits: 2})}</td>
                   </tr>
                 ))}
@@ -427,9 +431,10 @@ export default function QuotationDetailPage() {
                 <strong>หมายเหตุ/เงื่อนไข:</strong>
                 <p>{quotation.notes || '-'}</p>
               </div>
-              <div className="preview-totals" style={{ width: '300px' }}>
+              <div className="preview-totals" style={{ width: '320px' }}>
                 {(() => {
                   const subtotal = items.reduce((sum, item) => sum + Number(item.total), 0);
+                  const totalItemDiscount = items.reduce((sum, item) => sum + (Number(item.discount) || 0), 0);
                   const discountAmount = (subtotal * (quotation.global_discount_percent || 0)) / 100;
                   const afterDiscount = subtotal - discountAmount;
                   const vatAmount = quotation.has_vat ? afterDiscount * 0.07 : 0;
@@ -443,6 +448,13 @@ export default function QuotationDetailPage() {
                         <span>รวมเป็นเงิน:</span>
                         <span>{subtotal.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท</span>
                       </div>
+                      
+                      {totalItemDiscount > 0 && (
+                        <div className="total-line" style={{ color: 'var(--error-color)', fontSize: '0.9rem' }}>
+                          <span>(ส่วนลดรายการสินค้ารวม):</span>
+                          <span>- {totalItemDiscount.toLocaleString('th-TH', {minimumFractionDigits: 2})} บาท</span>
+                        </div>
+                      )}
                       
                       {quotation.global_discount_percent > 0 && (
                         <>
