@@ -33,6 +33,7 @@ export default function QuotationDetailPage() {
   const [emailSending, setEmailSending] = useState(false);
   const [emailData, setEmailData] = useState({ to: '', subject: '', message: '' });
   const [revisions, setRevisions] = useState<any[]>([]);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
 
   useEffect(() => {
     if (user && id) {
@@ -100,6 +101,23 @@ export default function QuotationDetailPage() {
       alert('ไม่พบข้อมูลใบเสนอราคา หรือเกิดข้อผิดพลาด');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdateStatus = async (newStatus: string) => {
+    if (!quotation || newStatus === quotation.status) return;
+    setUpdatingStatus(true);
+    setQuotation(prev => prev ? { ...prev, status: newStatus } : prev);
+
+    const { error } = await supabase
+      .from('quotations')
+      .update({ status: newStatus })
+      .eq('id', quotation.id);
+
+    setUpdatingStatus(false);
+    if (error) {
+      alert('เกิดข้อผิดพลาดในการเปลี่ยนสถานะ');
+      fetchQuotationDetails();
     }
   };
 
@@ -322,7 +340,18 @@ export default function QuotationDetailPage() {
             <p className="subtitle">ออกโดยบริษัท {quotation.company_name === 'SST' ? 'SST (Thailand) Co.,Ltd.' : 'Shinwa Anzen Co.,Ltd.'}</p>
           </div>
           <div style={{ marginLeft: '1rem' }}>
-            {getStatusBadge(quotation.status)}
+            <select
+              className={`badge-select badge-${quotation.status === 'approved' ? 'success' : quotation.status === 'rejected' ? 'error' : quotation.status === 'revised' ? 'revised' : quotation.status}`}
+              value={quotation.status}
+              onChange={(e) => handleUpdateStatus(e.target.value)}
+              title="คลิกเพื่อเปลี่ยนสถานะได้ทันที"
+            >
+              <option value="draft">⚪ ฉบับร่าง</option>
+              <option value="sent">🔵 ส่งให้ลูกค้าแล้ว</option>
+              <option value="approved">🟢 ลูกค้ายืนยันแล้ว</option>
+              <option value="rejected">🔴 ยกเลิก/ปฏิเสธ</option>
+              {quotation.status === 'revised' && <option value="revised">🟣 ฉบับแก้ไขแล้ว (Revised)</option>}
+            </select>
           </div>
         </div>
         
@@ -484,21 +513,45 @@ export default function QuotationDetailPage() {
             </div>
 
             <div className="status-updater">
-              <label className="label">เปลี่ยนสถานะ</label>
-              <select className="input-field" value={quotation.status} onChange={async (e) => {
-                const newStatus = e.target.value;
-                const { error } = await supabase.from('quotations').update({ status: newStatus }).eq('id', quotation.id);
-                if (!error) {
-                  setQuotation({...quotation, status: newStatus});
-                  alert('เปลี่ยนสถานะสำเร็จ');
-                }
-              }}>
-                <option value="draft">ฉบับร่าง (Draft)</option>
-                <option value="sent">ส่งให้ลูกค้าแล้ว (Sent)</option>
-                <option value="approved">ลูกค้ายืนยันแล้ว (Approved)</option>
-                <option value="rejected">ยกเลิก/ปฏิเสธ (Rejected)</option>
-                <option value="revised">มีฉบับใหม่กว่า (Revised)</option>
-              </select>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
+                <label className="label" style={{ marginBottom: 0, fontWeight: 700 }}>สถานะใบเสนอราคา</label>
+                {updatingStatus && <span style={{ fontSize: '0.75rem', color: 'var(--primary-color)' }}>กำลังอัปเดต...</span>}
+              </div>
+              <div className="status-button-grid">
+                {[
+                  { id: 'draft', label: 'ฉบับร่าง (Draft)', color: '#475569', activeBg: '#f1f5f9' },
+                  { id: 'sent', label: 'ส่งแล้ว (Sent)', color: '#2563eb', activeBg: '#eff6ff' },
+                  { id: 'approved', label: 'ลูกค้ายืนยัน (Approved)', color: '#059669', activeBg: '#ecfdf5' },
+                  { id: 'rejected', label: 'ยกเลิก/ปฏิเสธ (Rejected)', color: '#dc2626', activeBg: '#fef2f2' },
+                ].map((st) => {
+                  const isActive = quotation.status === st.id;
+                  return (
+                    <button
+                      key={st.id}
+                      type="button"
+                      onClick={() => handleUpdateStatus(st.id)}
+                      disabled={updatingStatus}
+                      className={`status-pill-btn ${isActive ? 'active' : ''}`}
+                      style={{
+                        backgroundColor: isActive ? st.activeBg : '#ffffff',
+                        color: isActive ? st.color : '#64748b',
+                        borderColor: isActive ? st.color : '#e2e8f0',
+                        fontWeight: isActive ? '700' : '500',
+                      }}
+                    >
+                      <span className="dot" style={{ backgroundColor: st.color }}></span>
+                      {st.label}
+                      {isActive && <span style={{ marginLeft: 'auto', fontWeight: 'bold' }}>✓</span>}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {quotation.status === 'revised' && (
+                <div style={{ marginTop: '0.6rem', padding: '0.5rem', background: '#e0e7ff', borderRadius: '6px', color: '#3730a3', fontSize: '0.8rem', textAlign: 'center', fontWeight: 'bold' }}>
+                  🟣 ฉบับนี้ถูกสร้างเป็น Revision ใหม่แล้ว
+                </div>
+              )}
             </div>
 
             <hr style={{ margin: '1.5rem 0', borderColor: 'rgba(0,0,0,0.1)' }} />
@@ -669,6 +722,75 @@ export default function QuotationDetailPage() {
         [data-company="Shinwa Anzen"] .side-panel h3 { color: var(--secondary-color); }
         
         .status-updater { margin-bottom: 1rem; }
+        
+        .status-button-grid {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .status-pill-btn {
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+          padding: 0.6rem 0.85rem;
+          border-radius: 8px;
+          border: 1.5px solid #e2e8f0;
+          background: #ffffff;
+          font-size: 0.85rem;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          text-align: left;
+          width: 100%;
+          font-family: inherit;
+        }
+
+        .status-pill-btn:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+
+        .status-pill-btn.active {
+          box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .status-pill-btn .dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
+
+        .badge-select {
+          appearance: none;
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          padding: 0.35rem 1.65rem 0.35rem 0.75rem;
+          border-radius: 6px;
+          font-size: 0.8rem;
+          font-weight: 700;
+          border: 1px solid transparent;
+          cursor: pointer;
+          outline: none;
+          font-family: inherit;
+          background-repeat: no-repeat;
+          background-position: right 0.45rem center;
+          background-size: 10px;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+          transition: all 0.15s ease;
+        }
+
+        .badge-select:hover {
+          filter: brightness(0.96);
+          box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .badge-select option {
+          background-color: #ffffff;
+          color: #1e293b;
+          font-weight: 500;
+          padding: 6px;
+        }
         
         .info-box { font-size: 0.85rem; color: var(--text-light); line-height: 1.6; }
 

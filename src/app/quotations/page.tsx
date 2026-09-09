@@ -77,6 +77,20 @@ export default function QuotationsPage() {
     }
   };
 
+  const handleQuickStatusChange = async (quotationId: string, newStatus: string) => {
+    // Optimistic UI update
+    setQuotations(prev => prev.map(q => q.id === quotationId ? { ...q, status: newStatus } : q));
+    const { error } = await supabase
+      .from('quotations')
+      .update({ status: newStatus })
+      .eq('id', quotationId);
+
+    if (error) {
+      alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+      fetchQuotations();
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'draft':
@@ -169,7 +183,22 @@ export default function QuotationsPage() {
                     <td style={{ fontWeight: 'bold' }}>
                       {quote.total_amount.toLocaleString('th-TH', { minimumFractionDigits: 2 })}
                     </td>
-                    <td>{getStatusBadge(quote.status)}</td>
+                    <td>
+                      <div className="status-selector-wrapper" onClick={(e) => e.stopPropagation()}>
+                        <select 
+                          className={`badge-select badge-${quote.status === 'approved' ? 'success' : quote.status === 'rejected' ? 'error' : quote.status === 'revised' ? 'revised' : quote.status}`}
+                          value={quote.status}
+                          onChange={(e) => handleQuickStatusChange(quote.id, e.target.value)}
+                          title="คลิกเพื่อเปลี่ยนสถานะได้ทันที"
+                        >
+                          <option value="draft">⚪ ฉบับร่าง</option>
+                          <option value="sent">🔵 ส่งแล้ว</option>
+                          <option value="approved">🟢 อนุมัติแล้ว</option>
+                          <option value="rejected">🔴 ปฏิเสธ</option>
+                          {quote.status === 'revised' && <option value="revised">🟣 ฉบับแก้ไขแล้ว (Revised)</option>}
+                        </select>
+                      </div>
+                    </td>
                     <td className="actions-cell">
                       <Link href={`/quotations/new?cloneId=${quote.id}`} className="btn-icon bg-white" title="ทำซ้ำ (Duplicate)">
                         <Copy size={18} />
@@ -237,6 +266,42 @@ export default function QuotationsPage() {
         [data-company="Shinwa Anzen"] .badge-success { background: rgba(16, 185, 129, 0.3); color: #6ee7b7; }
         .badge-error { background: rgba(239, 68, 68, 0.2); color: #dc2626; }
         [data-company="Shinwa Anzen"] .badge-error { background: rgba(239, 68, 68, 0.3); color: #fca5a5; }
+        .badge-revised { background: #e0e7ff; color: #3730a3; }
+
+        .status-selector-wrapper {
+          display: inline-block;
+        }
+
+        .badge-select {
+          appearance: none;
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          padding: 0.35rem 1.65rem 0.35rem 0.75rem;
+          border-radius: 6px;
+          font-size: 0.78rem;
+          font-weight: 700;
+          border: 1px solid transparent;
+          cursor: pointer;
+          outline: none;
+          font-family: inherit;
+          background-repeat: no-repeat;
+          background-position: right 0.45rem center;
+          background-size: 10px;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+          transition: all 0.15s ease;
+        }
+
+        .badge-select:hover {
+          filter: brightness(0.96);
+          box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .badge-select option {
+          background-color: #ffffff;
+          color: #1e293b;
+          font-weight: 500;
+          padding: 6px;
+        }
       `}</style>
     </div>
   );
