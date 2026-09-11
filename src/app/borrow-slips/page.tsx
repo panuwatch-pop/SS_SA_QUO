@@ -318,14 +318,14 @@ export default function BorrowSlipsPage() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th style={{ width: '14%' }}>เลขที่ใบยืม</th>
+                  <th style={{ width: '13%' }}>เลขที่ใบยืม</th>
                   <th style={{ width: '22%' }}>ผู้ยืม / หน่วยงาน</th>
-                  <th style={{ width: '12%' }}>วันที่ยืม</th>
-                  <th style={{ width: '14%' }}>กำหนดส่งคืน</th>
-                  <th style={{ width: '14%' }}>วัตถุประสงค์</th>
-                  <th style={{ width: '10%', textAlign: 'center' }}>จำนวนชิ้น</th>
-                  <th style={{ width: '12%', textAlign: 'center' }}>สถานะ</th>
-                  <th style={{ width: '12%', textAlign: 'center' }}>จัดการ</th>
+                  <th style={{ width: '11%' }}>วันที่ยืม</th>
+                  <th style={{ width: '13%' }}>กำหนดส่งคืน</th>
+                  <th style={{ width: '13%' }}>วัตถุประสงค์</th>
+                  <th style={{ width: '13%', textAlign: 'center' }}>ความคืบหน้าการส่งคืน</th>
+                  <th style={{ width: '11%', textAlign: 'center' }}>สถานะ</th>
+                  <th style={{ width: '14%', textAlign: 'center' }}>จัดการ</th>
                 </tr>
               </thead>
               <tbody>
@@ -333,77 +333,90 @@ export default function BorrowSlipsPage() {
                   const overdue = isOverdue(slip.expected_return_date, slip.status);
                   const totalItemsQty = slip.borrow_slip_items?.reduce((sum: number, i: any) => sum + Number(i.quantity || 0), 0) || 0;
                   const totalReturnedQty = slip.borrow_slip_items?.reduce((sum: number, i: any) => sum + Number(i.returned_quantity || 0), 0) || 0;
+                  const remainingQty = Math.max(0, totalItemsQty - totalReturnedQty);
 
                   return (
-                    <tr key={slip.id} style={{ backgroundColor: overdue ? '#fff5f5' : 'inherit' }}>
+                    <tr key={slip.id} className={overdue ? 'row-overdue' : ''}>
                       <td>
-                        <Link href={`/borrow-slips/${slip.id}`} style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>
+                        <Link href={`/borrow-slips/${slip.id}`} className="slip-link">
                           {slip.borrow_number}
                         </Link>
                         {slip.project_name && (
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-light)', marginTop: '2px' }}>
+                          <div className="sub-text">
                             {slip.project_name}
                           </div>
                         )}
                       </td>
                       <td>
-                        <div style={{ fontWeight: 500 }}>{slip.borrower_name}</div>
+                        <div style={{ fontWeight: 600, color: '#1e293b' }}>{slip.borrower_name}</div>
                         {slip.contact_person && (
-                          <div style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>
-                            ติดต่อ: {slip.contact_person} {slip.borrower_phone ? `(${slip.borrower_phone})` : ''}
+                          <div className="sub-text">
+                            ผู้ติดต่อ: {slip.contact_person} {slip.borrower_phone ? `(${slip.borrower_phone})` : ''}
                           </div>
                         )}
                       </td>
-                      <td style={{ fontSize: '0.9rem' }}>
+                      <td style={{ fontSize: '0.88rem', color: '#475569' }}>
                         {slip.borrow_date ? new Date(slip.borrow_date).toLocaleDateString('th-TH') : '-'}
                       </td>
                       <td>
-                        <span style={{ 
-                          fontSize: '0.9rem', 
+                        <div style={{ 
+                          fontSize: '0.88rem', 
                           fontWeight: overdue ? 'bold' : 'normal',
-                          color: overdue ? '#b91c1c' : 'inherit' 
+                          color: overdue ? '#dc2626' : '#334155' 
                         }}>
                           {slip.expected_return_date ? new Date(slip.expected_return_date).toLocaleDateString('th-TH') : 'ตามตกลง'}
-                        </span>
+                        </div>
                         {overdue && (
-                          <div style={{ fontSize: '0.75rem', color: '#dc2626', fontWeight: 600 }}>
-                            เกินกำหนด!
-                          </div>
+                          <span className="overdue-chip">
+                            <AlertCircle size={10} /> เกินกำหนด
+                          </span>
                         )}
                       </td>
-                      <td style={{ fontSize: '0.85rem' }}>
-                        <span className="mini-badge" style={{ background: '#f1f5f9', color: '#334155' }}>
+                      <td>
+                        <span className="purpose-badge">
                           {slip.purpose || 'ยืมใช้งาน'}
                         </span>
                       </td>
-                      <td style={{ textAlign: 'center', fontSize: '0.85rem' }}>
-                        <span style={{ fontWeight: 'bold' }}>{totalItemsQty}</span>
-                        {totalReturnedQty > 0 && (
-                          <div style={{ fontSize: '0.75rem', color: '#16a34a' }}>
-                            คืนแล้ว {totalReturnedQty}
+                      <td style={{ textAlign: 'center' }}>
+                        {slip.status === 'returned' ? (
+                          <span className="progress-badge progress-done">
+                            <CheckCircle2 size={12} /> ครบ {totalItemsQty} ชิ้น
+                          </span>
+                        ) : totalReturnedQty > 0 ? (
+                          <div>
+                            <span className="progress-badge progress-partial">
+                              คืนแล้ว {totalReturnedQty}/{totalItemsQty}
+                            </span>
+                            <div style={{ fontSize: '0.72rem', color: '#b45309', marginTop: '2px', fontWeight: 500 }}>
+                              (ค้างคืน {remainingQty} ชิ้น)
+                            </div>
                           </div>
+                        ) : (
+                          <span className="progress-badge progress-pending">
+                            ยืม {totalItemsQty} ชิ้น
+                          </span>
                         )}
                       </td>
                       <td style={{ textAlign: 'center' }}>
                         {getStatusBadge(slip)}
                       </td>
                       <td>
-                        <div style={{ display: 'flex', gap: '0.35rem', justifyContent: 'center' }}>
-                          <Link href={`/borrow-slips/${slip.id}`} className="btn-icon" title="ดูเอกสาร / บันทึกรับคืน">
-                            <Eye size={16} />
+                        <div className="actions-cell">
+                          <Link href={`/borrow-slips/${slip.id}`} className="action-btn view" title="ดูเอกสาร / บันทึกรับคืน">
+                            <Eye size={15} />
                           </Link>
-                          <Link href={`/borrow-slips/${slip.id}/edit`} className="btn-icon" title="แก้ไขข้อมูล">
-                            <Edit2 size={16} />
+                          <Link href={`/borrow-slips/${slip.id}/edit`} className="action-btn edit" title="แก้ไขข้อมูล">
+                            <Edit2 size={15} />
                           </Link>
-                          <Link href={`/borrow-slips/new?cloneId=${slip.id}`} className="btn-icon" title="คัดลอก (ทำซ้ำใบใหม่)">
-                            <Copy size={16} />
+                          <Link href={`/borrow-slips/new?cloneId=${slip.id}`} className="action-btn copy" title="คัดลอก (ทำซ้ำใบใหม่)">
+                            <Copy size={15} />
                           </Link>
                           <button 
-                            className="btn-icon delete-btn" 
+                            className="action-btn delete" 
                             onClick={() => handleDelete(slip.id, slip.borrow_number)}
                             title="ลบใบยืมสินค้า"
                           >
-                            <Trash2 size={16} />
+                            <Trash2 size={15} />
                           </button>
                         </div>
                       </td>
@@ -415,6 +428,172 @@ export default function BorrowSlipsPage() {
           </div>
         )}
       </div>
+
+      <style jsx>{`
+        .sub-text {
+          font-size: 0.78rem;
+          color: #64748b;
+          margin-top: 2px;
+        }
+
+        .slip-link {
+          font-weight: 700;
+          color: #002266;
+          text-decoration: none;
+          display: inline-block;
+          letter-spacing: 0.2px;
+        }
+
+        .slip-link:hover {
+          color: #0284c7;
+          text-decoration: underline;
+        }
+
+        .row-overdue {
+          background-color: #fff8f8 !important;
+        }
+
+        .row-overdue:hover {
+          background-color: #fee2e2 !important;
+        }
+
+        .overdue-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.2rem;
+          font-size: 0.7rem;
+          font-weight: 700;
+          background-color: #fee2e2;
+          color: #dc2626;
+          padding: 0.15rem 0.4rem;
+          border-radius: 4px;
+          margin-top: 3px;
+        }
+
+        .purpose-badge {
+          display: inline-block;
+          font-size: 0.78rem;
+          background: #f1f5f9;
+          color: #334155;
+          padding: 0.25rem 0.55rem;
+          border-radius: 6px;
+          border: 1px solid #e2e8f0;
+          max-width: 140px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .progress-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.25rem;
+          font-size: 0.78rem;
+          font-weight: 600;
+          padding: 0.25rem 0.6rem;
+          border-radius: 9999px;
+        }
+
+        .progress-done {
+          background-color: #dcfce7;
+          color: #15803d;
+          border: 1px solid #86efac;
+        }
+
+        .progress-partial {
+          background-color: #fef3c7;
+          color: #92400e;
+          border: 1px solid #fcd34d;
+        }
+
+        .progress-pending {
+          background-color: #e2e8f0;
+          color: #475569;
+          border: 1px solid #cbd5e1;
+        }
+
+        .actions-cell {
+          display: flex;
+          gap: 0.35rem;
+          justify-content: center;
+          align-items: center;
+        }
+
+        .action-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 28px;
+          height: 28px;
+          border-radius: 6px;
+          border: 1px solid #e2e8f0;
+          background: #ffffff;
+          color: #475569;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          text-decoration: none;
+        }
+
+        .action-btn:hover {
+          transform: translateY(-1px);
+        }
+
+        .action-btn.view:hover {
+          background: #e0f2fe;
+          color: #0284c7;
+          border-color: #7dd3fc;
+        }
+
+        .action-btn.edit:hover {
+          background: #fef3c7;
+          color: #d97706;
+          border-color: #fcd34d;
+        }
+
+        .action-btn.copy:hover {
+          background: #f1f5f9;
+          color: #002266;
+          border-color: #94a3b8;
+        }
+
+        .action-btn.delete {
+          color: #94a3b8;
+        }
+
+        .action-btn.delete:hover {
+          background: #fee2e2;
+          color: #dc2626;
+          border-color: #fca5a5;
+        }
+
+        .status-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.3rem;
+          padding: 0.25rem 0.65rem;
+          border-radius: 9999px;
+          font-size: 0.78rem;
+          font-weight: 600;
+        }
+
+        .status-draft {
+          background-color: #f1f5f9;
+          color: #64748b;
+          border: 1px solid #cbd5e1;
+        }
+
+        .status-received {
+          background-color: #dcfce7;
+          color: #15803d;
+          border: 1px solid #86efac;
+        }
+
+        .status-cancelled {
+          background-color: #f1f5f9;
+          color: #94a3b8;
+          border: 1px solid #e2e8f0;
+        }
+      `}</style>
     </div>
   );
 }

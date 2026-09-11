@@ -681,31 +681,87 @@ function NewBorrowSlipContent() {
               rows={4}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
+              style={{ width: '100%', lineHeight: '1.5' }}
             />
           </div>
 
-          <div className="totals-card" style={{ width: '320px', padding: '1.25rem', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
-              <span style={{ color: 'var(--text-light)' }}>จำนวนชิ้นรวม:</span>
-              <span style={{ fontWeight: 'bold' }}>{totalQuantity} รายการ</span>
+          <div className="totals-card">
+            <div className="summary-row">
+              <span className="summary-label">จำนวนชิ้นรวม:</span>
+              <span className="summary-val">{totalQuantity} รายการ</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
-              <span style={{ color: 'var(--text-light)' }}>มูลค่าประเมินรวม:</span>
-              <span style={{ fontWeight: 'bold' }}>{totalValue.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</span>
+            <div className="summary-row">
+              <span className="summary-label">มูลค่าประเมินรวม:</span>
+              <span className="summary-val">{totalValue.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</span>
             </div>
             {depositAmount > 0 && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.6rem', color: '#059669' }}>
+              <div className="summary-row deposit-row">
                 <span>เงินมัดจำ:</span>
-                <span style={{ fontWeight: 'bold' }}>{depositAmount.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</span>
+                <span className="summary-val">{depositAmount.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</span>
               </div>
             )}
-            <div style={{ borderTop: '2px solid #002266', paddingTop: '0.75rem', marginTop: '0.5rem', display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ fontWeight: 'bold', color: '#002266' }}>สถานะเริ่มต้น:</span>
-              <span className="mini-badge badge-sent">อยู่ระหว่างการยืม</span>
+            <div className="summary-footer">
+              <span style={{ fontWeight: 700, color: '#002266' }}>สถานะเริ่มต้น:</span>
+              <span className="status-pill-init">อยู่ระหว่างการยืม</span>
             </div>
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .totals-card {
+          width: 320px;
+          padding: 1.25rem;
+          background: #f8fafc;
+          border-radius: 10px;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .summary-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 0.65rem;
+          font-size: 0.9rem;
+        }
+
+        .summary-label {
+          color: #64748b;
+        }
+
+        .summary-val {
+          font-weight: 700;
+          color: #1e293b;
+        }
+
+        .deposit-row {
+          color: #059669;
+        }
+
+        .deposit-row .summary-val {
+          color: #059669;
+        }
+
+        .summary-footer {
+          border-top: 2px solid #002266;
+          padding-top: 0.85rem;
+          margin-top: 0.65rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .status-pill-init {
+          background-color: #e0f2fe;
+          color: #0369a1;
+          border: 1px solid #7dd3fc;
+          padding: 0.25rem 0.65rem;
+          border-radius: 9999px;
+          font-size: 0.78rem;
+          font-weight: 600;
+        }
+      `}</style>
     </div>
   );
 }

@@ -405,19 +405,19 @@ export default function BorrowSlipDetailPage() {
                 <img 
                   src={company === 'SST' ? '/sst-logo.jpg' : '/shinwa-logo.jpg'} 
                   alt={company} 
-                  style={{ width: '60px', height: '60px', objectFit: 'contain' }}
+                  style={{ width: '64px', height: '64px', objectFit: 'contain' }}
                 />
                 <div>
-                  <h2 style={{ fontSize: '1.25rem', color: 'var(--primary-color)', margin: 0 }}>
+                  <h2 style={{ fontSize: '1.25rem', color: '#002266', margin: 0, fontWeight: 'bold' }}>
                     {companyProfile?.full_name || (company === 'SST' ? 'บริษัท เอสเอสที (ประเทศไทย) จำกัด' : 'บริษัท ชินวา อันเซ็น จำกัด')}
                   </h2>
-                  <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '2px' }}>
+                  <p style={{ fontSize: '0.85rem', color: '#475569', marginTop: '2px', fontWeight: 'bold' }}>
                     {company === 'SST' ? 'SST (Thailand) Co., Ltd.' : 'Shinwa Anzen Co., Ltd.'}
                   </p>
-                  <p style={{ fontSize: '0.8rem', color: '#444', margin: '2px 0 0 0', lineHeight: 1.3 }}>
+                  <p style={{ fontSize: '0.8rem', color: '#475569', margin: '3px 0 0 0', lineHeight: 1.3 }}>
                     {companyProfile?.address || ''}
                   </p>
-                  <p style={{ fontSize: '0.75rem', color: '#666', margin: '2px 0 0 0' }}>
+                  <p style={{ fontSize: '0.75rem', color: '#64748b', margin: '2px 0 0 0' }}>
                     {[
                       companyProfile?.tax_id ? `เลขผู้เสียภาษี: ${companyProfile.tax_id}` : null,
                       companyProfile?.phone ? `โทร: ${companyProfile.phone}` : null
@@ -427,49 +427,103 @@ export default function BorrowSlipDetailPage() {
               </div>
 
               <div className="document-info" style={{ textAlign: 'right' }}>
-                <h1 style={{ fontSize: '1.5rem', color: 'var(--primary-color)', margin: 0 }}>ใบยืมสินค้า</h1>
-                <p style={{ fontSize: '0.85rem', color: '#666', margin: '0 0 0.5rem 0', fontWeight: 'bold' }}>GOODS LOAN / BORROW SLIP</p>
-                <p style={{ margin: '2px 0', fontSize: '0.9rem' }}>เลขที่: <strong>{slip.borrow_number}</strong></p>
-                <p style={{ margin: '2px 0', fontSize: '0.9rem' }}>
-                  วันที่ยืม: {slip.borrow_date ? new Date(slip.borrow_date).toLocaleDateString('th-TH') : new Date(slip.created_at).toLocaleDateString('th-TH')}
+                <h1 style={{ fontSize: '1.6rem', color: '#002266', margin: 0, fontWeight: 'bold' }}>ใบยืมสินค้า</h1>
+                <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '0 0 0.5rem 0', fontWeight: 'bold' }}>GOODS LOAN / BORROW SLIP</p>
+                <p style={{ margin: '2px 0', fontSize: '0.9rem' }}>เลขที่: <strong style={{ color: '#002266' }}>{slip.borrow_number}</strong></p>
+                <p style={{ margin: '2px 0', fontSize: '0.85rem', color: '#475569' }}>
+                  วันที่ยืม: <strong>{slip.borrow_date ? new Date(slip.borrow_date).toLocaleDateString('th-TH') : new Date(slip.created_at).toLocaleDateString('th-TH')}</strong>
                 </p>
-                <p style={{ margin: '2px 0', fontSize: '0.9rem', color: isOverdue(slip.expected_return_date, slip.status) ? '#dc2626' : 'inherit' }}>
-                  กำหนดส่งคืน: <strong>{slip.expected_return_date ? new Date(slip.expected_return_date).toLocaleDateString('th-TH') : 'ตามตกลง'}</strong>
+                <p style={{ margin: '2px 0', fontSize: '0.85rem', color: isOverdue(slip.expected_return_date, slip.status) ? '#dc2626' : '#475569' }}>
+                  กำหนดส่งคืน: <strong style={{ color: isOverdue(slip.expected_return_date, slip.status) ? '#dc2626' : '#002266' }}>
+                    {slip.expected_return_date ? new Date(slip.expected_return_date).toLocaleDateString('th-TH') : 'ตามตกลง'}
+                  </strong>
                 </p>
                 {slip.actual_return_date && (
-                  <p style={{ margin: '2px 0', fontSize: '0.9rem', color: '#16a34a' }}>
-                    วันที่ส่งคืนจริง: <strong>{new Date(slip.actual_return_date).toLocaleDateString('th-TH')}</strong>
+                  <p style={{ margin: '2px 0', fontSize: '0.85rem', color: '#16a34a' }}>
+                    ส่งคืนจริง: <strong>{new Date(slip.actual_return_date).toLocaleDateString('th-TH')}</strong>
                   </p>
                 )}
               </div>
             </div>
 
-            {/* Borrower & Loan Details Box */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '1.5rem', margin: '1.5rem 0' }}>
-              <div className="preview-customer" style={{ padding: '1rem', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0', margin: 0 }}>
-                <h3 style={{ fontSize: '0.95rem', color: 'var(--primary-color)', borderBottom: '1px solid #cbd5e1', paddingBottom: '0.4rem', marginBottom: '0.6rem' }}>
-                  ข้อมูลผู้ยืม / BORROWER
+            {/* Status Summary Banner */}
+            {slip.status === 'returned' ? (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '0.75rem',
+                backgroundColor: '#ecfdf5', border: '1.5px solid #a7f3d0',
+                color: '#065f46', padding: '0.85rem 1.25rem', borderRadius: '8px',
+                marginBottom: '1.5rem', fontSize: '0.95rem', fontWeight: 600
+              }}>
+                <CheckCircle2 size={20} color="#059669" />
+                <span>สินค้าส่งคืนครบถ้วนแล้ว {slip.actual_return_date ? `(เมื่อวันที่ ${new Date(slip.actual_return_date).toLocaleDateString('th-TH')})` : ''}</span>
+              </div>
+            ) : isOverdue(slip.expected_return_date, slip.status) ? (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '0.75rem',
+                backgroundColor: '#fef2f2', border: '1.5px solid #fecaca',
+                color: '#991b1b', padding: '0.85rem 1.25rem', borderRadius: '8px',
+                marginBottom: '1.5rem', fontSize: '0.95rem', fontWeight: 600
+              }}>
+                <AlertCircle size={20} color="#dc2626" />
+                <span>⚠️ เกินกำหนดส่งคืน! (กำหนดคืน: {slip.expected_return_date ? new Date(slip.expected_return_date).toLocaleDateString('th-TH') : '-'}) กรุณาติดตามการส่งคืน</span>
+              </div>
+            ) : slip.status === 'partially_returned' ? (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '0.75rem',
+                backgroundColor: '#fffbeb', border: '1.5px solid #fde68a',
+                color: '#92400e', padding: '0.85rem 1.25rem', borderRadius: '8px',
+                marginBottom: '1.5rem', fontSize: '0.95rem', fontWeight: 600
+              }}>
+                <RefreshCw size={20} color="#d97706" />
+                <span>ส่งคืนแล้วบางส่วน ({totalReturnedQty} จาก {totalBorrowQty} ชิ้น) — ยังคงค้างคืนอีก {remainingQty} ชิ้น</span>
+              </div>
+            ) : (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '0.75rem',
+                backgroundColor: '#eff6ff', border: '1.5px solid #bfdbfe',
+                color: '#1e40af', padding: '0.85rem 1.25rem', borderRadius: '8px',
+                marginBottom: '1.5rem', fontSize: '0.95rem', fontWeight: 600
+              }}>
+                <Clock size={20} color="#2563eb" />
+                <span>อยู่ระหว่างการยืมสินค้า (กำหนดส่งคืน: {slip.expected_return_date ? new Date(slip.expected_return_date).toLocaleDateString('th-TH') : 'ตามตกลง'})</span>
+              </div>
+            )}
+
+            {/* Borrower & Loan Details Cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '1.25rem', marginBottom: '1.5rem' }}>
+              <div style={{ padding: '1rem 1.25rem', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <h3 style={{ fontSize: '0.9rem', color: '#002266', borderBottom: '1.5px solid #cbd5e1', paddingBottom: '0.4rem', marginBottom: '0.6rem', fontWeight: 700 }}>
+                  ข้อมูลผู้ยืม (BORROWER INFORMATION)
                 </h3>
-                <p><strong>ชื่อผู้ยืม / หน่วยงาน:</strong> {slip.borrower_name}</p>
-                {slip.borrower_address && <p><strong>ที่อยู่ / สถานที่:</strong> {slip.borrower_address}</p>}
-                <p><strong>ผู้ติดต่อ / ผู้รับมอบ:</strong> {slip.contact_person || '-'}</p>
-                <p><strong>เบอร์โทรศัพท์:</strong> {slip.borrower_phone || '-'}</p>
-                {slip.borrower_email && <p><strong>อีเมล:</strong> {slip.borrower_email}</p>}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.85rem' }}>
+                  <p style={{ margin: 0 }}><strong>ชื่อผู้ยืม / หน่วยงาน:</strong> {slip.borrower_name}</p>
+                  {slip.borrower_address && <p style={{ margin: 0 }}><strong>ที่อยู่ / สถานที่:</strong> {slip.borrower_address}</p>}
+                  <p style={{ margin: 0 }}><strong>ผู้ติดต่อ / ผู้รับมอบ:</strong> {slip.contact_person || '-'}</p>
+                  <p style={{ margin: 0 }}><strong>เบอร์โทรศัพท์:</strong> {slip.borrower_phone || '-'}</p>
+                  {slip.borrower_email && <p style={{ margin: 0 }}><strong>อีเมล:</strong> {slip.borrower_email}</p>}
+                </div>
               </div>
 
-              <div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
-                <h3 style={{ fontSize: '0.95rem', color: 'var(--primary-color)', borderBottom: '1px solid #cbd5e1', paddingBottom: '0.4rem', marginBottom: '0.6rem' }}>
-                  รายละเอียดการยืม / LOAN DETAILS
+              <div style={{ padding: '1rem 1.25rem', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <h3 style={{ fontSize: '0.9rem', color: '#002266', borderBottom: '1.5px solid #cbd5e1', paddingBottom: '0.4rem', marginBottom: '0.6rem', fontWeight: 700 }}>
+                  รายละเอียดการยืม (LOAN DETAILS)
                 </h3>
-                <p><strong>วัตถุประสงค์:</strong> <span className="mini-badge" style={{ background: '#e0f2fe', color: '#0369a1' }}>{slip.purpose || 'ยืมใช้งานชั่วคราว'}</span></p>
-                {slip.project_name && <p><strong>โปรเจกต์:</strong> {slip.project_name}</p>}
-                {slip.location && <p><strong>สถานที่นำไปใช้:</strong> {slip.location}</p>}
-                <p>
-                  <strong>สถานะส่งคืน:</strong> {' '}
-                  <span style={{ fontWeight: 'bold', color: slip.status === 'returned' ? '#16a34a' : remainingQty > 0 ? '#ea580c' : 'inherit' }}>
-                    {slip.status === 'returned' ? 'คืนครบถ้วนแล้ว' : `ยังค้างคืนอีก ${remainingQty} ชิ้น`}
-                  </span>
-                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.85rem' }}>
+                  <p style={{ margin: 0 }}>
+                    <strong>วัตถุประสงค์:</strong> {' '}
+                    <span style={{ backgroundColor: '#e0f2fe', color: '#0369a1', padding: '0.15rem 0.5rem', borderRadius: '6px', fontWeight: 600, fontSize: '0.8rem' }}>
+                      {slip.purpose || 'ยืมใช้งานชั่วคราว'}
+                    </span>
+                  </p>
+                  {slip.project_name && <p style={{ margin: 0 }}><strong>โปรเจกต์:</strong> {slip.project_name}</p>}
+                  {slip.location && <p style={{ margin: 0 }}><strong>สถานที่นำไปใช้:</strong> {slip.location}</p>}
+                  <p style={{ margin: 0 }}>
+                    <strong>สถานะส่งคืน:</strong> {' '}
+                    <span style={{ fontWeight: 'bold', color: slip.status === 'returned' ? '#16a34a' : remainingQty > 0 ? '#ea580c' : 'inherit' }}>
+                      {slip.status === 'returned' ? '✓ คืนครบถ้วนแล้ว' : `ยังค้างคืนอีก ${remainingQty} ชิ้น`}
+                    </span>
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -477,43 +531,74 @@ export default function BorrowSlipDetailPage() {
             <table className="preview-table">
               <thead>
                 <tr>
-                  <th style={{ width: '5%' }}>ลำดับ</th>
-                  <th style={{ width: '30%', textAlign: 'left', paddingLeft: '1rem' }}>รายการสินค้า</th>
-                  <th style={{ width: '18%' }}>Serial Number / S/N</th>
-                  <th style={{ width: '10%', textAlign: 'center' }}>จำนวนที่ยืม</th>
-                  <th style={{ width: '10%', textAlign: 'center' }}>คืนแล้ว</th>
-                  <th style={{ width: '10%', textAlign: 'center' }}>คงเหลือ</th>
-                  <th style={{ width: '17%', textAlign: 'right' }}>มูลค่าประเมิน</th>
+                  <th style={{ width: '6%' }}>ลำดับ</th>
+                  <th style={{ width: '36%', textAlign: 'left', paddingLeft: '1rem' }}>รายการสินค้า</th>
+                  <th style={{ width: '18%' }}>Serial Number (S/N)</th>
+                  <th style={{ width: '12%', textAlign: 'center' }}>จำนวนที่ยืม</th>
+                  <th style={{ width: '14%', textAlign: 'center' }}>สถานะส่งคืน</th>
+                  <th style={{ width: '14%', textAlign: 'right', paddingRight: '1rem' }}>มูลค่าประเมิน</th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((item, index) => {
                   const rem = Math.max(0, Number(item.quantity) - Number(item.returned_quantity || 0));
+                  const ret = Number(item.returned_quantity || 0);
+                  const isFullyReturned = rem === 0;
+
                   return (
-                    <tr key={index}>
+                    <tr key={index} style={{ backgroundColor: isFullyReturned ? '#f0fdf4' : 'inherit' }}>
                       <td style={{ textAlign: 'center' }}>{index + 1}</td>
                       <td style={{ paddingLeft: '1rem' }}>
-                        <div style={{ fontWeight: 500 }}>{item.products?.name || item.product_name || 'สินค้า'}</div>
+                        <div style={{ fontWeight: 600, color: '#0f172a' }}>{item.products?.name || item.product_name || 'สินค้า'}</div>
                         {item.description && (
-                          <div style={{ fontSize: '0.8rem', color: '#555', marginTop: '2px' }}>{item.description}</div>
+                          <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '2px', whiteSpace: 'pre-wrap' }}>{item.description}</div>
                         )}
                         {item.condition_notes && (
-                          <div style={{ fontSize: '0.75rem', color: '#0284c7', marginTop: '2px' }}>สภาพ: {item.condition_notes}</div>
+                          <div style={{ fontSize: '0.75rem', color: '#0284c7', marginTop: '3px' }}>
+                            สภาพ: <em>{item.condition_notes}</em>
+                          </div>
                         )}
                       </td>
                       <td style={{ textAlign: 'center', fontFamily: 'monospace', fontSize: '0.85rem' }}>
-                        {item.serial_number || '-'}
+                        {item.serial_number ? (
+                          <span style={{ background: '#f1f5f9', padding: '0.2rem 0.5rem', borderRadius: '4px', border: '1px solid #e2e8f0' }}>
+                            {item.serial_number}
+                          </span>
+                        ) : (
+                          <span style={{ color: '#94a3b8' }}>-</span>
+                        )}
                       </td>
                       <td style={{ textAlign: 'center', fontWeight: 'bold' }}>
-                        {item.quantity} {item.products?.unit || ''}
+                        {item.quantity} {item.products?.unit || 'ชิ้น'}
                       </td>
-                      <td style={{ textAlign: 'center', color: Number(item.returned_quantity) > 0 ? '#16a34a' : '#94a3b8', fontWeight: 500 }}>
-                        {item.returned_quantity || 0}
+                      <td style={{ textAlign: 'center' }}>
+                        {isFullyReturned ? (
+                          <span style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
+                            backgroundColor: '#dcfce7', color: '#15803d', fontSize: '0.75rem',
+                            fontWeight: 'bold', padding: '0.25rem 0.55rem', borderRadius: '12px'
+                          }}>
+                            <CheckCircle2 size={13} /> คืนครบแล้ว
+                          </span>
+                        ) : ret > 0 ? (
+                          <span style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
+                            backgroundColor: '#fef3c7', color: '#92400e', fontSize: '0.75rem',
+                            fontWeight: 'bold', padding: '0.25rem 0.55rem', borderRadius: '12px'
+                          }}>
+                            คืนแล้ว {ret} / ค้าง {rem}
+                          </span>
+                        ) : (
+                          <span style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
+                            backgroundColor: '#e0f2fe', color: '#0369a1', fontSize: '0.75rem',
+                            fontWeight: 'bold', padding: '0.25rem 0.55rem', borderRadius: '12px'
+                          }}>
+                            ค้างส่งคืน {rem} ชิ้น
+                          </span>
+                        )}
                       </td>
-                      <td style={{ textAlign: 'center', color: rem > 0 ? '#ea580c' : '#16a34a', fontWeight: 'bold' }}>
-                        {rem === 0 ? <CheckCircle2 size={16} style={{ display: 'inline', color: '#16a34a' }} /> : rem}
-                      </td>
-                      <td style={{ textAlign: 'right' }}>
+                      <td style={{ textAlign: 'right', paddingRight: '1rem', fontWeight: 500 }}>
                         {Number(item.total || (item.quantity * item.unit_price)).toLocaleString('th-TH', { minimumFractionDigits: 2 })}
                       </td>
                     </tr>
@@ -525,8 +610,8 @@ export default function BorrowSlipDetailPage() {
             {/* Summary & Signatures */}
             <div className="preview-summary" style={{ marginTop: '1.5rem' }}>
               <div className="preview-notes" style={{ flex: 1.2 }}>
-                <strong>เงื่อนไข & ข้อกำหนดการยืมสินค้า:</strong>
-                <p style={{ whiteSpace: 'pre-line', fontSize: '0.85rem', color: '#475569', marginTop: '0.5rem' }}>
+                <strong style={{ color: '#002266' }}>เงื่อนไข & ข้อกำหนดการยืมสินค้า:</strong>
+                <p style={{ whiteSpace: 'pre-line', fontSize: '0.85rem', color: '#475569', marginTop: '0.5rem', lineHeight: 1.5 }}>
                   {slip.notes || '-'}
                 </p>
               </div>
@@ -560,29 +645,29 @@ export default function BorrowSlipDetailPage() {
             </div>
 
             {/* 3 Signature Blocks */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem', marginTop: '3rem', paddingTop: '1.5rem', borderTop: '1px dashed #ccc' }}>
-              <div style={{ textAlign: 'center', padding: '1rem', border: '1px solid #e2e8f0', borderRadius: '6px' }}>
-                <p style={{ fontWeight: 'bold', fontSize: '0.85rem', margin: '0 0 2.5rem 0' }}>ผู้ยืมสินค้า (Borrower)</p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.25rem', marginTop: '2.5rem', paddingTop: '1.5rem', borderTop: '1px dashed #cbd5e1' }}>
+              <div style={{ textAlign: 'center', padding: '1rem', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#f8fafc' }}>
+                <p style={{ fontWeight: 'bold', fontSize: '0.85rem', margin: '0 0 2.5rem 0', color: '#002266' }}>ผู้ยืมสินค้า (Borrower)</p>
                 <p style={{ margin: '0', borderTop: '1px solid #94a3b8', paddingTop: '0.4rem', fontSize: '0.8rem' }}>
                   ( {slip.borrower_name} )
                 </p>
-                <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: 'gray' }}>วันที่: ...... / ...... / ..........</p>
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>วันที่: ...... / ...... / ..........</p>
               </div>
 
-              <div style={{ textAlign: 'center', padding: '1rem', border: '1px solid #e2e8f0', borderRadius: '6px' }}>
-                <p style={{ fontWeight: 'bold', fontSize: '0.85rem', margin: '0 0 2.5rem 0' }}>ผู้ส่งมอบ / ผู้อนุมัติ</p>
+              <div style={{ textAlign: 'center', padding: '1rem', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#f8fafc' }}>
+                <p style={{ fontWeight: 'bold', fontSize: '0.85rem', margin: '0 0 2.5rem 0', color: '#002266' }}>ผู้ส่งมอบ / ผู้อนุมัติ</p>
                 <p style={{ margin: '0', borderTop: '1px solid #94a3b8', paddingTop: '0.4rem', fontSize: '0.8rem' }}>
                   ( .................................................... )
                 </p>
-                <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: 'gray' }}>วันที่: ...... / ...... / ..........</p>
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>วันที่: ...... / ...... / ..........</p>
               </div>
 
-              <div style={{ textAlign: 'center', padding: '1rem', border: '1px solid #e2e8f0', borderRadius: '6px' }}>
-                <p style={{ fontWeight: 'bold', fontSize: '0.85rem', margin: '0 0 2.5rem 0' }}>ผู้ตรวจสอบรับคืน</p>
+              <div style={{ textAlign: 'center', padding: '1rem', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#f8fafc' }}>
+                <p style={{ fontWeight: 'bold', fontSize: '0.85rem', margin: '0 0 2.5rem 0', color: '#002266' }}>ผู้ตรวจสอบรับคืน</p>
                 <p style={{ margin: '0', borderTop: '1px solid #94a3b8', paddingTop: '0.4rem', fontSize: '0.8rem' }}>
                   ( .................................................... )
                 </p>
-                <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: 'gray' }}>
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>
                   วันที่รับคืน: {slip.actual_return_date ? new Date(slip.actual_return_date).toLocaleDateString('th-TH') : '...... / ...... / ..........'}
                 </p>
               </div>
@@ -600,35 +685,34 @@ export default function BorrowSlipDetailPage() {
             <p style={{ fontSize: '0.8rem', color: 'var(--text-light)', marginBottom: '0.75rem' }}>
               คลิกเพื่อปรับสถานะได้ทันที:
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              <button 
-                className="btn btn-outline" 
-                style={{ justifyContent: 'flex-start', background: slip.status === 'borrowed' ? '#e0f2fe' : 'inherit' }}
-                onClick={() => handleUpdateStatus('borrowed')}
-              >
-                <Clock size={16} style={{ marginRight: '0.5rem', color: '#0369a1' }} /> อยู่ระหว่างยืม
-              </button>
-              <button 
-                className="btn btn-outline" 
-                style={{ justifyContent: 'flex-start', background: slip.status === 'partially_returned' ? '#fef3c7' : 'inherit' }}
-                onClick={() => handleUpdateStatus('partially_returned')}
-              >
-                <RefreshCw size={16} style={{ marginRight: '0.5rem', color: '#92400e' }} /> คืนบางส่วน
-              </button>
-              <button 
-                className="btn btn-outline" 
-                style={{ justifyContent: 'flex-start', background: slip.status === 'returned' ? '#dcfce7' : 'inherit' }}
-                onClick={() => handleUpdateStatus('returned')}
-              >
-                <CheckCircle2 size={16} style={{ marginRight: '0.5rem', color: '#15803d' }} /> คืนครบแล้ว
-              </button>
-              <button 
-                className="btn btn-outline" 
-                style={{ justifyContent: 'flex-start', background: slip.status === 'cancelled' ? '#fee2e2' : 'inherit' }}
-                onClick={() => handleUpdateStatus('cancelled')}
-              >
-                <XCircle size={16} style={{ marginRight: '0.5rem', color: '#dc2626' }} /> ยกเลิกเอกสาร
-              </button>
+            <div className="status-button-grid">
+              {[
+                { id: 'borrowed', label: 'อยู่ระหว่างยืม', icon: Clock, color: '#0369a1', bg: '#e0f2fe' },
+                { id: 'partially_returned', label: 'คืนบางส่วน', icon: RefreshCw, color: '#92400e', bg: '#fef3c7' },
+                { id: 'returned', label: 'คืนครบแล้ว', icon: CheckCircle2, color: '#15803d', bg: '#dcfce7' },
+                { id: 'draft', label: 'ฉบับร่าง', icon: Clock, color: '#475569', bg: '#f1f5f9' },
+                { id: 'cancelled', label: 'ยกเลิก', icon: XCircle, color: '#dc2626', bg: '#fee2e2' },
+              ].map(st => {
+                const Icon = st.icon;
+                const isActive = slip.status === st.id;
+                return (
+                  <button
+                    key={st.id}
+                    className={`status-pill-btn ${isActive ? 'active' : ''}`}
+                    onClick={() => handleUpdateStatus(st.id)}
+                    style={{
+                      borderColor: isActive ? st.color : '#e2e8f0',
+                      backgroundColor: isActive ? st.bg : '#ffffff',
+                      color: isActive ? st.color : '#334155',
+                      fontWeight: isActive ? 700 : 500
+                    }}
+                  >
+                    <Icon size={15} style={{ color: st.color }} />
+                    <span>{st.label}</span>
+                    {isActive && <CheckCircle2 size={14} style={{ marginLeft: 'auto', color: st.color }} />}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -863,6 +947,205 @@ export default function BorrowSlipDetailPage() {
         </div>
       )}
 
+      <style jsx>{`
+        .page-container {
+          padding: 1.5rem 2rem;
+          max-width: 1300px;
+          margin: 0 auto;
+        }
+
+        .page-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1.5rem;
+          flex-wrap: wrap;
+          gap: 1rem;
+        }
+
+        .header-left {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+        }
+
+        .header-actions {
+          display: flex;
+          gap: 0.5rem;
+          flex-wrap: wrap;
+        }
+
+        .preview-container {
+          display: flex;
+          gap: 1.5rem;
+          align-items: flex-start;
+        }
+
+        @media (max-width: 1024px) {
+          .preview-container {
+            flex-direction: column;
+          }
+          .sidebar-actions {
+            width: 100% !important;
+          }
+        }
+
+        .document-preview {
+          flex: 1;
+          background-color: #ffffff;
+          border-radius: 12px;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+          padding: 2.5rem 3rem;
+          color: #1e293b;
+          font-family: 'Sarabun', sans-serif;
+        }
+
+        .document-paper {
+          max-width: 860px;
+          margin: 0 auto;
+        }
+
+        .preview-header {
+          display: flex;
+          justify-content: space-between;
+          border-bottom: 2px solid #002266;
+          padding-bottom: 1.5rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .preview-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 1.75rem;
+          border-radius: 8px;
+          overflow: hidden;
+          border: 1px solid #e2e8f0;
+        }
+
+        .preview-table th {
+          background-color: #002266;
+          color: #ffffff;
+          padding: 0.75rem;
+          font-size: 0.85rem;
+          font-weight: 600;
+          letter-spacing: 0.3px;
+        }
+
+        .preview-table td {
+          padding: 0.75rem;
+          border-bottom: 1px solid #f1f5f9;
+          font-size: 0.9rem;
+        }
+
+        .preview-table tr:nth-child(even) {
+          background-color: #f8fafc;
+        }
+
+        .preview-table tr:hover {
+          background-color: #f1f5f9;
+        }
+
+        .preview-summary {
+          display: flex;
+          justify-content: space-between;
+          gap: 1.5rem;
+          margin-top: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+          .preview-summary {
+            flex-direction: column;
+          }
+          .preview-totals {
+            width: 100% !important;
+          }
+          .document-preview {
+            padding: 1.5rem;
+          }
+        }
+
+        .preview-notes {
+          flex: 1.2;
+          padding: 1.25rem;
+          background: #f8fafc;
+          border-radius: 8px;
+          border: 1px solid #e2e8f0;
+        }
+
+        .preview-totals {
+          width: 320px;
+          padding: 1.25rem;
+          background: #f8fafc;
+          border-radius: 8px;
+          border: 1px solid #e2e8f0;
+        }
+
+        .total-line {
+          display: flex;
+          justify-content: space-between;
+          padding: 0.35rem 0;
+          font-size: 0.9rem;
+        }
+
+        .grand-total {
+          font-size: 1.25rem;
+          font-weight: bold;
+          color: #002266;
+        }
+
+        .side-panel {
+          padding: 1.25rem;
+          background: #ffffff;
+          border-radius: 12px;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .side-panel h3 {
+          font-size: 0.95rem;
+          font-weight: bold;
+          margin-bottom: 0.75rem;
+          color: #002266;
+        }
+
+        .status-button-grid {
+          display: flex;
+          flex-direction: column;
+          gap: 0.45rem;
+        }
+
+        .status-pill-btn {
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+          padding: 0.55rem 0.85rem;
+          border-radius: 8px;
+          border: 1.5px solid #e2e8f0;
+          background: #ffffff;
+          font-size: 0.85rem;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          text-align: left;
+          width: 100%;
+          font-family: inherit;
+        }
+
+        .status-pill-btn:hover {
+          transform: translateX(2px);
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .status-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+          padding: 0.3rem 0.75rem;
+          border-radius: 9999px;
+          font-size: 0.8rem;
+          font-weight: 600;
+        }
+      `}</style>
     </div>
   );
 }
