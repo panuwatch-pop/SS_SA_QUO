@@ -7,7 +7,7 @@ export interface VersionRelease {
   changes: string[];
 }
 
-export const APP_VERSION = '1.2.0';
+export const APP_VERSION = '1.2.1';
 export const APP_NAME = 'Quotation & ERP System';
 export const APP_RELEASE_DATE = '2026-09-11';
 
@@ -18,6 +18,19 @@ export const APP_RELEASE_DATE = '2026-09-11';
  * - Patch (1.2.X): การปรับปรุง แก้ไขบั๊ก หรือปรับแต่งการแสดงผล
  */
 export const VERSION_HISTORY: VersionRelease[] = [
+  {
+    version: '1.2.1',
+    type: 'patch',
+    date: '2026-09-11',
+    title: 'ปรับปรุง UI หน้าใบยืมสินค้าให้ตรงตามมาตรฐานใบเสนอราคาและใบส่งสินค้า',
+    description: 'ปรับโครงสร้างหน้ารายการ หน้าสร้าง และหน้าแก้ไขใบยืมสินค้าให้เป็นสไตล์เดียวกัน ใช้งานง่าย สะอาดตา และมีระบบยืนยันก่อนปิดหน้า',
+    changes: [
+      'ปรับปรุงหน้ารายการใบยืมสินค้า (/borrow-slips): KPI Cards, ตัวกรองค้นหา/สถานะ/เดือน, ตารางข้อมูลพร้อมปุ่มเปลี่ยนสถานะในคลิกเดียว',
+      'ปรับปรุงหน้าสร้างใบยืมสินค้า (/borrow-slips/new): ฟอร์ม 2 คอลัมน์ (ข้อมูลผู้ยืม / กำหนดเวลาและเงื่อนไข), ตารางเลือกสินค้าพร้อม S/N และกล่องสรุปยอด',
+      'ปรับปรุงหน้าแก้ไขใบยืมสินค้า (/borrow-slips/[id]/edit): สอดคล้องกับหน้าสร้าง รองรับการแก้ไขรายการสินค้า จำนวนคืน และสถานะ',
+      'เพิ่มหน้าต่างยืนยัน (Close Confirmation Modal) ก่อนปิดหน้าฟอร์มเพื่อป้องกันข้อมูลที่กรอกสูญหาย'
+    ]
+  },
   {
     version: '1.2.0',
     type: 'minor',

@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { supabase, fetchAllProducts } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { useCompany } from '@/context/CompanyContext';
-import { Plus, Trash2, ArrowLeft, Save, FileText, Search, Clock, Calendar, CheckCircle2 } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, Save, FileText, Search, Clock, Calendar, CheckCircle2, AlertCircle, X } from 'lucide-react';
 import SearchableSelect from '@/components/SearchableSelect';
 import FormattedNumberInput from '@/components/FormattedNumberInput';
 import Link from 'next/link';
@@ -53,6 +53,7 @@ function NewBorrowSlipContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(true);
+  const [showCloseModal, setShowCloseModal] = useState(false);
 
   // Form State
   const [borrowNumber, setBorrowNumber] = useState('');
@@ -352,330 +353,359 @@ function NewBorrowSlipContent() {
 
   return (
     <div className="page-container animate-fade-in" data-company={company}>
+      {/* Header matching Quotations & DO */}
       <header className="page-header">
         <div className="header-left">
-          <Link href="/borrow-slips" className="btn-icon">
+          <button 
+            type="button" 
+            className="btn-icon" 
+            onClick={() => setShowCloseModal(true)}
+            title="ปิดหน้านี้ / ย้อนกลับ"
+          >
             <ArrowLeft size={20} />
-          </Link>
+          </button>
           <div>
-            <h1>สร้างใบยืมสินค้า</h1>
+            <h1>สร้างใบยืมสินค้า (New Goods Loan)</h1>
             <p className="subtitle">
-              {fromQuotationId ? 'สร้างจากใบเสนอราคา' : 'บันทึกการยืมอุปกรณ์และสินค้าเพื่อทดลองใช้หรือจัดแสดง'}
+              {fromQuotationId ? '📦 ดึงข้อมูลจากใบเสนอราคา' : '📦 ออกใบยืมสินค้าเพื่อทดลองใช้หรือจัดแสดง'} • บริษัท {company}
             </p>
           </div>
         </div>
-        <div className="header-actions">
+
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <button 
+            type="button"
             className="btn btn-outline" 
             onClick={() => handleSave('draft')}
             disabled={loading}
+            style={{ borderColor: '#64748b', color: '#475569' }}
           >
             บันทึกเป็นฉบับร่าง
           </button>
           <button 
+            type="button"
             className="btn btn-primary" 
             onClick={() => handleSave('borrowed')}
             disabled={loading}
           >
             <Save size={18} style={{ marginRight: '0.5rem' }} /> 
-            {loading ? 'กำลังบันทึก...' : 'บันทึกการยืมสินค้า'}
+            {loading ? 'กำลังบันทึก...' : 'บันทึกใบยืมสินค้า'}
+          </button>
+          <button 
+            type="button" 
+            className="btn btn-outline" 
+            onClick={() => setShowCloseModal(true)} 
+            disabled={loading}
+            style={{ borderColor: '#64748b', color: '#475569', display: 'flex', alignItems: 'center' }}
+          >
+            <X size={18} style={{ marginRight: '0.35rem' }} /> ปิดหน้านี้
           </button>
         </div>
       </header>
 
-      {/* Main Grid Form */}
-      <div className="form-grid">
-        
-        {/* Borrower & Document Info */}
-        <div className="glass-panel section-panel">
-          <h2 className="section-title">ข้อมูลเอกสาร & ผู้ยืมสินค้า</h2>
+      {/* Main Form Layout */}
+      <div className="form-layout">
+        {/* Top 2 Cards: Customer & Loan Terms */}
+        <div className="form-grid-top">
           
-          <div className="input-group" style={{ marginBottom: '1rem' }}>
-            <label className="label">เลขที่ใบยืมสินค้า (Auto-generated)</label>
-            <input 
-              type="text" 
-              className="input-field" 
-              value={borrowNumber}
-              onChange={(e) => setBorrowNumber(e.target.value)}
-              placeholder="LN-SST-XXXXXX"
-              style={{ fontWeight: 'bold', letterSpacing: '0.5px' }}
-            />
-          </div>
+          {/* Card 1: Customer & Borrower Info */}
+          <div className="glass-panel form-card">
+            <h2 className="card-title">1. ข้อมูลผู้ยืมและสถานที่ส่งมอบ</h2>
+            
+            <div className="form-group" style={{ marginBottom: '1rem' }}>
+              <label className="label">เลือกลูกค้าในระบบ (เพื่อดึงข้อมูลอัตโนมัติ)</label>
+              <SearchableSelect
+                options={customers.map(c => ({
+                  id: c.id,
+                  label: c.name,
+                  subLabel: c.customer_code ? `รหัส: ${c.customer_code} ${c.phone ? '| โทร: ' + c.phone : ''}` : c.phone
+                }))}
+                value={selectedCustomerId}
+                onChange={handleCustomerSelect}
+                placeholder="-- ค้นหาหรือเลือกลูกค้าในระบบ --"
+              />
+            </div>
 
-          <div className="input-group" style={{ marginBottom: '1rem' }}>
-            <label className="label">เลือกลูกค้าในระบบ (ถ้ามี เพื่อดึงข้อมูลอัตโนมัติ)</label>
-            <SearchableSelect
-              options={customers.map(c => ({
-                id: c.id,
-                label: c.name,
-                subLabel: c.customer_code ? `รหัส: ${c.customer_code} ${c.phone ? '| โทร: ' + c.phone : ''}` : c.phone
-              }))}
-              value={selectedCustomerId}
-              onChange={handleCustomerSelect}
-              placeholder="-- ค้นหาหรือเลือกลูกค้า / บริษัท --"
-            />
-          </div>
-
-          <div className="input-group" style={{ marginBottom: '1rem' }}>
-            <label className="label">ชื่อผู้ยืม / บริษัท / หน่วยงาน <span style={{ color: 'red' }}>*</span></label>
-            <input 
-              type="text" 
-              className="input-field" 
-              value={borrowerName}
-              onChange={(e) => setBorrowerName(e.target.value)}
-              placeholder="เช่น บจก. เอบีซี หรือ นายสมศักดิ์ ขยันยิ่ง"
-              required
-            />
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-            <div className="input-group">
-              <label className="label">ผู้ติดต่อ / ผู้รับมอบ</label>
+            <div className="form-group" style={{ marginBottom: '1rem' }}>
+              <label className="label">ชื่อผู้ยืม / บริษัท / หน่วยงาน <span style={{ color: 'red' }}>*</span></label>
               <input 
                 type="text" 
                 className="input-field" 
-                value={contactPerson}
-                onChange={(e) => setContactPerson(e.target.value)}
-                placeholder="ชื่อ-นามสกุล ผู้ติดต่อ"
+                value={borrowerName}
+                onChange={(e) => setBorrowerName(e.target.value)}
+                placeholder="เช่น บจก. เอบีซี หรือ นายสมศักดิ์ ขยันยิ่ง"
+                required
               />
             </div>
-            <div className="input-group">
-              <label className="label">เบอร์โทรศัพท์</label>
+
+            <div className="form-row-2" style={{ marginBottom: '1rem' }}>
+              <div className="form-group">
+                <label className="label">ผู้ติดต่อ / ผู้รับมอบ</label>
+                <input 
+                  type="text" 
+                  className="input-field" 
+                  value={contactPerson}
+                  onChange={(e) => setContactPerson(e.target.value)}
+                  placeholder="ชื่อ-นามสกุล ผู้ติดต่อ"
+                />
+              </div>
+              <div className="form-group">
+                <label className="label">เบอร์โทรศัพท์</label>
+                <input 
+                  type="text" 
+                  className="input-field" 
+                  value={borrowerPhone}
+                  onChange={(e) => setBorrowerPhone(e.target.value)}
+                  placeholder="08X-XXX-XXXX"
+                />
+              </div>
+            </div>
+
+            <div className="form-group" style={{ marginBottom: '1rem' }}>
+              <label className="label">อีเมล</label>
+              <input 
+                type="email" 
+                className="input-field" 
+                value={borrowerEmail}
+                onChange={(e) => setBorrowerEmail(e.target.value)}
+                placeholder="borrower@example.com"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="label">ที่อยู่ / สถานที่ส่งมอบสินค้า</label>
+              <textarea 
+                className="input-field" 
+                rows={2}
+                value={borrowerAddress}
+                onChange={(e) => setBorrowerAddress(e.target.value)}
+                placeholder="ที่อยู่หรือสถานที่สำหรับส่งมอบ/ใช้งาน"
+              />
+            </div>
+          </div>
+
+          {/* Card 2: Loan Conditions & Schedule */}
+          <div className="glass-panel form-card">
+            <h2 className="card-title">2. กำหนดเวลาและเงื่อนไขการยืม</h2>
+
+            <div className="form-group" style={{ marginBottom: '1rem' }}>
+              <label className="label">เลขที่ใบยืมสินค้า (Auto-generated)</label>
               <input 
                 type="text" 
                 className="input-field" 
-                value={borrowerPhone}
-                onChange={(e) => setBorrowerPhone(e.target.value)}
-                placeholder="08X-XXX-XXXX"
+                value={borrowNumber}
+                onChange={(e) => setBorrowNumber(e.target.value)}
+                placeholder="LN-SST-XXXXXX"
+                style={{ fontWeight: 'bold', letterSpacing: '0.5px' }}
               />
             </div>
-          </div>
 
-          <div className="input-group" style={{ marginBottom: '1rem' }}>
-            <label className="label">อีเมล</label>
-            <input 
-              type="email" 
-              className="input-field" 
-              value={borrowerEmail}
-              onChange={(e) => setBorrowerEmail(e.target.value)}
-              placeholder="borrower@example.com"
-            />
-          </div>
+            <div className="form-row-2" style={{ marginBottom: '1rem' }}>
+              <div className="form-group">
+                <label className="label">วันที่ยืมสินค้า <span style={{ color: 'red' }}>*</span></label>
+                <input 
+                  type="date" 
+                  className="input-field" 
+                  value={borrowDate}
+                  onChange={(e) => setBorrowDate(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label className="label" style={{ color: '#dc2626', fontWeight: 'bold' }}>
+                  กำหนดส่งคืน (Due Date) <span style={{ color: 'red' }}>*</span>
+                </label>
+                <input 
+                  type="date" 
+                  className="input-field" 
+                  value={expectedReturnDate}
+                  onChange={(e) => setExpectedReturnDate(e.target.value)}
+                  style={{ borderColor: '#fca5a5' }}
+                  required
+                />
+              </div>
+            </div>
 
-          <div className="input-group">
-            <label className="label">ที่อยู่ / สถานที่ส่งมอบสินค้า</label>
-            <textarea 
-              className="input-field" 
-              rows={2}
-              value={borrowerAddress}
-              onChange={(e) => setBorrowerAddress(e.target.value)}
-              placeholder="ที่อยู่หรือสถานที่สำหรับส่งมอบ/ใช้งาน"
-            />
+            <div className="form-group" style={{ marginBottom: '1rem' }}>
+              <label className="label">วัตถุประสงค์ในการยืม</label>
+              <select 
+                className="input-field"
+                value={purpose}
+                onChange={(e) => setPurpose(e.target.value)}
+              >
+                <option value="ทดลองใช้งาน (Demo)">🔍 ทดลองใช้งานก่อนตัดสินใจซื้อ (Demo)</option>
+                <option value="นำไปจัดแสดง (Event / Exhibition)">🎪 นำไปจัดแสดงสินค้า (Event / Exhibition)</option>
+                <option value="สำรองใช้งานระหว่างซ่อม">🛠️ สำรองใช้งานระหว่างส่งซ่อม/เคลม</option>
+                <option value="ยืมใช้งานชั่วคราว">⏱️ ยืมใช้งานในไซต์งานชั่วคราว</option>
+                <option value="อื่นๆ">✏️ อื่นๆ (ระบุเอง)</option>
+              </select>
+            </div>
+
+            {purpose === 'อื่นๆ' && (
+              <div className="form-group" style={{ marginBottom: '1rem' }}>
+                <label className="label">ระบุวัตถุประสงค์</label>
+                <input 
+                  type="text" 
+                  className="input-field" 
+                  value={customPurpose}
+                  onChange={(e) => setCustomPurpose(e.target.value)}
+                  placeholder="ระบุเหตุผลในการยืมสินค้า..."
+                />
+              </div>
+            )}
+
+            <div className="form-row-2" style={{ marginBottom: '1rem' }}>
+              <div className="form-group">
+                <label className="label">ชื่อโครงการ / โครงการ</label>
+                <input 
+                  type="text" 
+                  className="input-field" 
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
+                  placeholder="เช่น โรงงานบางพลี เฟส 2"
+                />
+              </div>
+              <div className="form-group">
+                <label className="label">สถานที่นำไปใช้งาน</label>
+                <input 
+                  type="text" 
+                  className="input-field" 
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="เช่น แผนกความปลอดภัย โรงงาน 1"
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="label">เงินมัดจำสินค้า (บาท) - ถ้ามี</label>
+              <FormattedNumberInput
+                className="input-field"
+                value={depositAmount}
+                onChange={(val) => setDepositAmount(val)}
+                placeholder="0.00"
+              />
+            </div>
           </div>
         </div>
 
-        {/* Loan Conditions & Dates */}
-        <div className="glass-panel section-panel">
-          <h2 className="section-title">กำหนดเวลา & วัตถุประสงค์การยืม</h2>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-            <div className="input-group">
-              <label className="label">วันที่ยืมสินค้า <span style={{ color: 'red' }}>*</span></label>
-              <input 
-                type="date" 
-                className="input-field" 
-                value={borrowDate}
-                onChange={(e) => setBorrowDate(e.target.value)}
-              />
+        {/* Items Section */}
+        <div className="glass-panel form-card items-panel" style={{ marginTop: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <div>
+              <h2 className="card-title" style={{ margin: 0 }}>3. รายการสินค้าที่ยืม (Loan Items)</h2>
+              <p style={{ color: 'var(--text-light)', fontSize: '0.82rem', margin: '4px 0 0 0' }}>
+                ระบุรายการสินค้า พร้อม Serial Number (ถ้ามี) และราคาประเมินสำหรับกรณีชดใช้ความเสียหาย
+              </p>
             </div>
-            <div className="input-group">
-              <label className="label" style={{ color: '#b91c1c', fontWeight: 'bold' }}>กำหนดส่งคืน <span style={{ color: 'red' }}>*</span></label>
-              <input 
-                type="date" 
-                className="input-field" 
-                value={expectedReturnDate}
-                onChange={(e) => setExpectedReturnDate(e.target.value)}
-                style={{ borderColor: '#fca5a5' }}
-              />
-            </div>
+            <button type="button" className="btn btn-outline" onClick={addItem}>
+              <Plus size={16} style={{ marginRight: '0.35rem' }} /> + เพิ่มรายการสินค้า
+            </button>
           </div>
 
-          <div className="input-group" style={{ marginBottom: '1rem' }}>
-            <label className="label">วัตถุประสงค์ในการยืม</label>
-            <select 
-              className="input-field"
-              value={purpose}
-              onChange={(e) => setPurpose(e.target.value)}
-            >
-              <option value="ทดลองใช้งาน (Demo)">🔍 ทดลองใช้งานก่อนตัดสินใจซื้อ (Demo)</option>
-              <option value="นำไปจัดแสดง (Event / Exhibition)">🎪 นำไปจัดแสดงสินค้า (Event / Exhibition)</option>
-              <option value="สำรองใช้งานระหว่างซ่อม">🛠️ สำรองใช้งานระหว่างส่งซ่อม/เคลม</option>
-              <option value="ยืมใช้งานชั่วคราว">⏱️ ยืมใช้งานในไซต์งานชั่วคราว</option>
-              <option value="อื่นๆ">✏️ อื่นๆ (ระบุเอง)</option>
-            </select>
-          </div>
-
-          {purpose === 'อื่นๆ' && (
-            <div className="input-group" style={{ marginBottom: '1rem' }}>
-              <label className="label">ระบุวัตถุประสงค์</label>
-              <input 
-                type="text" 
-                className="input-field" 
-                value={customPurpose}
-                onChange={(e) => setCustomPurpose(e.target.value)}
-                placeholder="ระบุเหตุผลในการยืมสินค้า..."
-              />
-            </div>
-          )}
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-            <div className="input-group">
-              <label className="label">โปรเจกต์ / โครงการ</label>
-              <input 
-                type="text" 
-                className="input-field" 
-                value={projectName}
-                onChange={(e) => setProjectName(e.target.value)}
-                placeholder="เช่น โรงงานบางพลี เฟส 2"
-              />
-            </div>
-            <div className="input-group">
-              <label className="label">สถานที่นำไปใช้งาน</label>
-              <input 
-                type="text" 
-                className="input-field" 
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="เช่น แผนกความปลอดภัย โรงงาน 1"
-              />
-            </div>
-          </div>
-
-          <div className="input-group">
-            <label className="label">เงินมัดจำ (บาท) - ถ้ามี</label>
-            <FormattedNumberInput
-              className="input-field"
-              value={depositAmount}
-              onChange={(val) => setDepositAmount(val)}
-              placeholder="0.00"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Items Section */}
-      <div className="glass-panel section-panel items-panel" style={{ marginTop: '1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <div>
-            <h2 className="section-title" style={{ marginBottom: '0.2rem' }}>รายการสินค้าที่ยืม</h2>
-            <p style={{ color: 'var(--text-light)', fontSize: '0.85rem' }}>
-              ระบุรายการสินค้า พร้อม Serial Number (ถ้ามี) และราคาประเมินสำหรับกรณีชดใช้ความเสียหาย
-            </p>
-          </div>
-          <button className="btn btn-outline" onClick={addItem}>
-            <Plus size={16} style={{ marginRight: '0.5rem' }} /> เพิ่มรายการสินค้า
-          </button>
-        </div>
-
-        <div className="table-responsive">
-          <table className="items-table">
-            <thead>
-              <tr>
-                <th style={{ width: '4%' }}>ลำดับ</th>
-                <th style={{ width: '32%' }}>สินค้า</th>
-                <th style={{ width: '18%' }}>Serial Number / รหัสเครื่อง</th>
-                <th style={{ width: '10%' }}>จำนวน</th>
-                <th style={{ width: '14%' }}>มูลค่าประเมิน/หน่วย</th>
-                <th style={{ width: '14%' }}>รวมมูลค่า</th>
-                <th style={{ width: '5%' }}></th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item, index) => (
-                <tr key={index}>
-                  <td style={{ textAlign: 'center' }}>{index + 1}</td>
-                  <td>
-                    <SearchableSelect
-                      options={products.map(p => ({
-                        id: p.id,
-                        label: p.name,
-                        subLabel: p.product_code ? `รหัส: ${p.product_code} | ราคา: ฿${p.price}` : `ราคา: ฿${p.price}`
-                      }))}
-                      value={item.product_id}
-                      onChange={(value) => updateItem(index, 'product_id', value)}
-                      placeholder="-- เลือกสินค้าในระบบ --"
-                    />
-                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                      <input 
-                        type="text"
-                        className="input-field"
-                        style={{ fontSize: '0.85rem', padding: '0.35rem 0.6rem' }}
-                        placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"
-                        value={item.description || ''}
-                        onChange={(e) => updateItem(index, 'description', e.target.value)}
-                      />
-                      <input 
-                        type="text"
-                        className="input-field"
-                        style={{ fontSize: '0.85rem', padding: '0.35rem 0.6rem', width: '45%' }}
-                        placeholder="สภาพสินค้าก่อนยืม"
-                        value={item.condition_notes || ''}
-                        onChange={(e) => updateItem(index, 'condition_notes', e.target.value)}
-                      />
-                    </div>
-                  </td>
-                  <td>
-                    <input 
-                      type="text"
-                      className="input-field"
-                      placeholder="เช่น SN-2026-001"
-                      value={item.serial_number || ''}
-                      onChange={(e) => updateItem(index, 'serial_number', e.target.value)}
-                      style={{ fontFamily: 'monospace' }}
-                    />
-                  </td>
-                  <td>
-                    <FormattedNumberInput 
-                      className="input-field" 
-                      value={item.quantity || 1}
-                      onChange={(val) => updateItem(index, 'quantity', val)}
-                      allowDecimals={false}
-                      style={{ textAlign: 'center' }}
-                    />
-                  </td>
-                  <td>
-                    <FormattedNumberInput 
-                      className="input-field" 
-                      value={item.unit_price || 0}
-                      onChange={(val) => updateItem(index, 'unit_price', val)}
-                      allowDecimals={true}
-                      style={{ textAlign: 'right' }}
-                    />
-                  </td>
-                  <td style={{ textAlign: 'right', fontWeight: 'bold' }}>
-                    {item.total.toLocaleString('th-TH', { minimumFractionDigits: 2 })}
-                  </td>
-                  <td style={{ textAlign: 'center' }}>
-                    {items.length > 1 && (
-                      <button 
-                        className="btn-icon delete-btn" 
-                        onClick={() => removeItem(index)}
-                        title="ลบรายการนี้"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    )}
-                  </td>
+          <div className="table-responsive">
+            <table className="items-table">
+              <thead>
+                <tr>
+                  <th style={{ width: '4%', textAlign: 'center' }}>ลำดับ</th>
+                  <th style={{ width: '34%' }}>สินค้า / รายละเอียด *</th>
+                  <th style={{ width: '18%' }}>Serial Number / รหัสเครื่อง</th>
+                  <th style={{ width: '10%', textAlign: 'center' }}>จำนวนยืม</th>
+                  <th style={{ width: '14%', textAlign: 'right' }}>มูลค่าประเมิน/หน่วย</th>
+                  <th style={{ width: '15%', textAlign: 'right' }}>รวมมูลค่า (บาท)</th>
+                  <th style={{ width: '5%', textAlign: 'center' }}></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {items.map((item, index) => (
+                  <tr key={index}>
+                    <td style={{ textAlign: 'center', color: 'var(--text-light)', paddingTop: '0.85rem' }}>
+                      {index + 1}
+                    </td>
+                    <td>
+                      <SearchableSelect
+                        options={products.map(p => ({
+                          id: p.id,
+                          label: p.name,
+                          subLabel: p.product_code ? `รหัส: ${p.product_code} | ราคา: ฿${p.price}` : `ราคา: ฿${p.price}`
+                        }))}
+                        value={item.product_id}
+                        onChange={(value) => updateItem(index, 'product_id', value)}
+                        placeholder="-- เลือกสินค้าในระบบ --"
+                      />
+                      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.4rem' }}>
+                        <input 
+                          type="text"
+                          className="input-field"
+                          style={{ fontSize: '0.82rem', padding: '0.35rem 0.5rem' }}
+                          placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"
+                          value={item.description || ''}
+                          onChange={(e) => updateItem(index, 'description', e.target.value)}
+                        />
+                        <input 
+                          type="text"
+                          className="input-field"
+                          style={{ fontSize: '0.82rem', padding: '0.35rem 0.5rem', width: '45%' }}
+                          placeholder="สภาพก่อนยืม (เช่น สมบูรณ์)"
+                          value={item.condition_notes || ''}
+                          onChange={(e) => updateItem(index, 'condition_notes', e.target.value)}
+                        />
+                      </div>
+                    </td>
+                    <td>
+                      <input 
+                        type="text"
+                        className="input-field"
+                        placeholder="เช่น SN-2026-001"
+                        value={item.serial_number || ''}
+                        onChange={(e) => updateItem(index, 'serial_number', e.target.value)}
+                        style={{ fontFamily: 'monospace', fontSize: '0.88rem' }}
+                      />
+                    </td>
+                    <td>
+                      <FormattedNumberInput 
+                        className="input-field" 
+                        value={item.quantity || 1}
+                        onChange={(val) => updateItem(index, 'quantity', val)}
+                        allowDecimals={false}
+                        style={{ textAlign: 'center', fontWeight: 'bold' }}
+                      />
+                    </td>
+                    <td>
+                      <FormattedNumberInput 
+                        className="input-field" 
+                        value={item.unit_price || 0}
+                        onChange={(val) => updateItem(index, 'unit_price', val)}
+                        allowDecimals={true}
+                        style={{ textAlign: 'right' }}
+                      />
+                    </td>
+                    <td style={{ textAlign: 'right', fontWeight: 'bold', paddingTop: '0.85rem' }}>
+                      {item.total.toLocaleString('th-TH', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td style={{ textAlign: 'center', paddingTop: '0.75rem' }}>
+                      {items.length > 1 && (
+                        <button 
+                          type="button"
+                          className="btn-icon text-error" 
+                          onClick={() => removeItem(index)}
+                          title="ลบรายการนี้"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        {/* Summary & Notes Section */}
-        <div className="summary-section" style={{ marginTop: '1.5rem', display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-          <div className="notes-card" style={{ flex: 1, minWidth: '320px' }}>
-            <label className="label">ข้อกำหนด & เงื่อนไขการยืมสินค้า</label>
+        {/* Bottom Section: Notes & Totals */}
+        <div className="form-grid-bottom" style={{ marginTop: '1.5rem' }}>
+          <div className="glass-panel form-card">
+            <h2 className="card-title">ข้อกำหนด & เงื่อนไขการยืมสินค้า (Terms & Conditions)</h2>
             <textarea 
               className="input-field" 
               rows={4}
@@ -685,45 +715,214 @@ function NewBorrowSlipContent() {
             />
           </div>
 
-          <div className="totals-card">
-            <div className="summary-row">
-              <span className="summary-label">จำนวนชิ้นรวม:</span>
+          <div className="glass-panel form-card totals-card">
+            <div className="total-row">
+              <span className="summary-label">จำนวนชิ้นที่ยืมรวม:</span>
               <span className="summary-val">{totalQuantity} รายการ</span>
             </div>
-            <div className="summary-row">
-              <span className="summary-label">มูลค่าประเมินรวม:</span>
+            <div className="total-row">
+              <span className="summary-label">มูลค่าประเมินรวมทั้งสิ้น:</span>
               <span className="summary-val">{totalValue.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</span>
             </div>
             {depositAmount > 0 && (
-              <div className="summary-row deposit-row">
-                <span>เงินมัดจำ:</span>
+              <div className="total-row deposit-row">
+                <span>เงินมัดจำ (Deposit):</span>
                 <span className="summary-val">{depositAmount.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</span>
               </div>
             )}
-            <div className="summary-footer">
-              <span style={{ fontWeight: 700, color: '#002266' }}>สถานะเริ่มต้น:</span>
-              <span className="status-pill-init">อยู่ระหว่างการยืม</span>
+            <div className="grand-total-row">
+              <span style={{ fontWeight: 700, color: 'var(--primary-color)' }}>สถานะเริ่มต้น:</span>
+              <span className="status-pill-init">🔵 อยู่ระหว่างการยืม</span>
             </div>
           </div>
         </div>
+
+        {/* Bottom Action Bar */}
+        <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+          <button 
+            type="button"
+            className="btn btn-outline" 
+            onClick={() => setShowCloseModal(true)}
+          >
+            ยกเลิก
+          </button>
+          <button 
+            type="button"
+            className="btn btn-primary" 
+            onClick={() => handleSave('borrowed')}
+            disabled={loading} 
+            style={{ padding: '0.75rem 2rem', fontSize: '1rem' }}
+          >
+            <Save size={18} style={{ marginRight: '0.5rem' }} /> 
+            {loading ? 'กำลังบันทึก...' : 'บันทึกใบยืมสินค้า'}
+          </button>
+        </div>
       </div>
 
+      {/* Confirmation Modal before closing */}
+      {showCloseModal && (
+        <div className="modal-backdrop">
+          <div className="glass-panel modal-card animate-scale-up" style={{ maxWidth: '440px', textAlign: 'center', padding: '2rem' }}>
+            <AlertCircle size={48} style={{ color: '#f59e0b', margin: '0 auto 1rem' }} />
+            <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', fontWeight: 'bold' }}>ยืนยันการปิดหน้านี้</h3>
+            <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.5rem' }}>
+              คุณต้องการปิดหน้านี้และกลับไปยังหน้ารายการใบยืมสินค้าใช่หรือไม่?<br />
+              <span style={{ fontSize: '0.85rem', color: '#ef4444' }}>* กรุณาตรวจสอบว่าได้กดบันทึกข้อมูลล่าสุดแล้วก่อนปิด</span>
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+              <button 
+                type="button"
+                className="btn btn-outline" 
+                onClick={() => setShowCloseModal(false)}
+              >
+                ยกเลิก / ทำงานต่อ
+              </button>
+              <button 
+                type="button"
+                className="btn btn-primary" 
+                onClick={() => {
+                  setShowCloseModal(false);
+                  router.push('/borrow-slips');
+                }}
+                style={{ backgroundColor: '#ef4444', borderColor: '#ef4444' }}
+              >
+                ยืนยันปิดหน้านี้
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style jsx>{`
-        .totals-card {
-          width: 320px;
-          padding: 1.25rem;
-          background: #f8fafc;
-          border-radius: 10px;
-          border: 1px solid #e2e8f0;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        .page-container {
+          padding: 2rem;
+          max-width: 1280px;
+          margin: 0 auto;
+          width: 100%;
         }
 
-        .summary-row {
+        .page-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 0.65rem;
+          margin-bottom: 2rem;
+        }
+
+        .header-left {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+        }
+
+        .subtitle {
+          color: var(--text-light);
           font-size: 0.9rem;
+          margin-top: 0.25rem;
+        }
+
+        .btn-icon {
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: var(--text-color);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0.5rem;
+          border-radius: 8px;
+          transition: background 0.2s;
+        }
+
+        .btn-icon:hover {
+          background: rgba(0,0,0,0.05);
+        }
+
+        .form-layout {
+          width: 100%;
+        }
+
+        .form-grid-top {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1.5rem;
+        }
+
+        @media (max-width: 900px) {
+          .form-grid-top {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .form-card {
+          padding: 1.5rem;
+        }
+
+        .card-title {
+          font-size: 1.1rem;
+          font-weight: 700;
+          color: var(--primary-color);
+          margin-bottom: 1.25rem;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+          padding-bottom: 0.5rem;
+        }
+
+        .form-row-2 {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1rem;
+        }
+
+        .items-panel {
+          margin-top: 1.5rem;
+        }
+
+        .items-table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+
+        .items-table th {
+          padding: 0.75rem;
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: var(--text-light);
+          border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+          background: rgba(0, 0, 0, 0.01);
+          text-align: left;
+        }
+
+        .items-table td {
+          padding: 0.75rem;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+          vertical-align: top;
+        }
+
+        .form-grid-bottom {
+          display: grid;
+          grid-template-columns: 1.3fr 1fr;
+          gap: 1.5rem;
+        }
+
+        @media (max-width: 800px) {
+          .form-grid-bottom {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .totals-card {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+        }
+
+        .total-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 0.95rem;
+          color: var(--text-color);
         }
 
         .summary-label {
@@ -743,10 +942,10 @@ function NewBorrowSlipContent() {
           color: #059669;
         }
 
-        .summary-footer {
-          border-top: 2px solid #002266;
+        .grand-total-row {
+          border-top: 2px solid var(--primary-color);
           padding-top: 0.85rem;
-          margin-top: 0.65rem;
+          margin-top: 0.5rem;
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -760,6 +959,31 @@ function NewBorrowSlipContent() {
           border-radius: 9999px;
           font-size: 0.78rem;
           font-weight: 600;
+        }
+
+        .text-error {
+          color: #ef4444;
+        }
+
+        .modal-backdrop {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
+          padding: 1rem;
+        }
+
+        .modal-card {
+          background: #ffffff;
+          border-radius: 12px;
+          width: 100%;
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
       `}</style>
     </div>
