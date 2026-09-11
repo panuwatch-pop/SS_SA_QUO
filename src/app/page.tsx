@@ -163,6 +163,9 @@ export default function Dashboard() {
             <Link href="/delivery-orders" className="nav-link">
               <Truck size={18} className="nav-icon" /> <span>ใบส่งของชั่วคราว (DO)</span>
             </Link>
+            <Link href="/borrow-slips" className="nav-link">
+              <Clock size={18} className="nav-icon" /> <span>ใบยืมสินค้า (Loan)</span>
+            </Link>
             <Link href="/catalogs" className="nav-link">
               <BookOpen size={18} className="nav-icon" /> <span>แคตตาล็อก</span>
             </Link>
