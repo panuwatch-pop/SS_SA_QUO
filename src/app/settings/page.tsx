@@ -4,8 +4,10 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { useCompany } from '@/context/CompanyContext';
-import { Save, Building2, ArrowLeft, Download, Upload, Database } from 'lucide-react';
+import { Save, Building2, ArrowLeft, Download, Upload, Database, Tag, Sparkles, Info } from 'lucide-react';
 import Link from 'next/link';
+import { APP_VERSION, APP_RELEASE_DATE, VERSION_HISTORY } from '@/config/version';
+import VersionModal from '@/components/VersionModal';
 
 interface CompanyProfile {
   id: string;
@@ -28,6 +30,7 @@ export default function SettingsPage() {
   // Backup / Restore state
   const [backupLoading, setBackupLoading] = useState(false);
   const [restoreLoading, setRestoreLoading] = useState(false);
+  const [showVersionModal, setShowVersionModal] = useState(false);
   const restoreInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -480,6 +483,58 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
+
+      {/* System Version & Changelog Section */}
+      <div className="glass-panel settings-container" style={{ marginTop: '2rem', padding: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
+          <div>
+            <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, color: 'var(--text-color)' }}>
+              <Tag size={24} color="var(--primary-color)" /> ข้อมูลเวอร์ชันระบบ (System Version & Changelog)
+            </h2>
+            <p style={{ color: 'var(--text-light)', marginTop: '0.25rem', fontSize: '0.9rem' }}>
+              เวอร์ชันปัจจุบัน: <strong style={{ color: 'var(--primary-color)' }}>v{APP_VERSION}</strong> (อัปเดตล่าสุด: {new Date(APP_RELEASE_DATE).toLocaleDateString('th-TH')})
+            </p>
+          </div>
+          <button 
+            type="button" 
+            className="btn btn-outline"
+            onClick={() => setShowVersionModal(true)}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+          >
+            <Sparkles size={16} /> ดูประวัติการอัปเกรดทั้งหมด
+          </button>
+        </div>
+
+        <div style={{ backgroundColor: 'rgba(0,0,0,0.02)', padding: '1.25rem', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', marginBottom: '0.75rem' }}>
+            <Info size={18} style={{ color: '#0284c7', flexShrink: 0, marginTop: '2px' }} />
+            <div style={{ fontSize: '0.85rem', color: '#475569' }}>
+              <strong>เกณฑ์การนับหมายเลขเวอร์ชัน (Semantic Versioning):</strong>
+              <div style={{ marginTop: '4px', lineHeight: 1.5 }}>
+                • <strong>Major (X.0.0):</strong> อัปเกรดใหญ่ เปลี่ยนแปลงโครงสร้างระบบหลัก<br/>
+                • <strong>Minor (1.X.0):</strong> อัปเกรดย่อย เพิ่มโมดูลหรือฟีเจอร์การทำงานใหม่ (เช่น ใบส่งของชั่วคราว, ใบยืมสินค้า)<br/>
+                • <strong>Patch (1.2.X):</strong> แก้ไขบั๊ก ปรับปรุงการคำนวณ หรือปรับแต่งความสะดวกในการใช้งาน
+              </div>
+            </div>
+          </div>
+
+          <div style={{ borderTop: '1px solid rgba(0,0,0,0.08)', paddingTop: '1rem', marginTop: '1rem' }}>
+            <h4 style={{ fontSize: '0.95rem', margin: '0 0 0.5rem 0' }}>
+              รายการอัปเกรดล่าสุดในเวอร์ชัน v{APP_VERSION} ({VERSION_HISTORY[0].title}):
+            </h4>
+            <ul style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '0.85rem', color: '#334155' }}>
+              {VERSION_HISTORY[0].changes.map((c, i) => (
+                <li key={i} style={{ marginBottom: '0.25rem' }}>{c}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <VersionModal 
+        isOpen={showVersionModal} 
+        onClose={() => setShowVersionModal(false)} 
+      />
 
       <style jsx>{`
         .page-container { padding: 2rem; max-width: 1000px; margin: 0 auto; width: 100%; }

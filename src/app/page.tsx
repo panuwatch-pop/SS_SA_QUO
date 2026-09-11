@@ -6,9 +6,11 @@ import { useAuth } from '@/context/AuthContext';
 import { useCompany } from '@/context/CompanyContext';
 import { 
   LogOut, Users, Package, FileText, Settings, DollarSign, BookOpen, 
-  Truck, ShoppingCart, Layers, Receipt, AlertTriangle, Clock, ArrowRight 
+  Truck, ShoppingCart, Layers, Receipt, AlertTriangle, Clock, ArrowRight, Tag 
 } from 'lucide-react';
 import Link from 'next/link';
+import { APP_VERSION } from '@/config/version';
+import VersionModal from '@/components/VersionModal';
 
 export default function Dashboard() {
   const { user, signOut, loading: authLoading } = useAuth();
@@ -28,6 +30,7 @@ export default function Dashboard() {
   const [purchaseOrdersList, setPurchaseOrdersList] = useState<any[]>([]);
   const [selectedMonth, setSelectedMonth] = useState('all');
   const [loadingStats, setLoadingStats] = useState(true);
+  const [showVersionModal, setShowVersionModal] = useState(false);
 
   useEffect(() => {
     if (user && company) {
@@ -137,7 +140,20 @@ export default function Dashboard() {
           </div>
           <div className="brand-info">
             <h2>{company}</h2>
-            <span className="brand-badge">Quotation & ERP</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '2px' }}>
+              <span className="brand-badge">Quotation & ERP</span>
+              <button 
+                onClick={() => setShowVersionModal(true)}
+                style={{
+                  background: 'rgba(0, 34, 102, 0.08)', border: '1px solid rgba(0, 34, 102, 0.2)',
+                  color: 'var(--primary-color)', borderRadius: '12px', padding: '0.1rem 0.45rem',
+                  fontSize: '0.7rem', fontWeight: 'bold', cursor: 'pointer'
+                }}
+                title="คลิกเพื่อดูประวัติการอัปเกรดเวอร์ชัน"
+              >
+                v{APP_VERSION}
+              </button>
+            </div>
           </div>
         </div>
         
@@ -211,6 +227,19 @@ export default function Dashboard() {
           <button className="btn logout-btn" onClick={signOut}>
             <LogOut size={16} /> <span>ออกจากระบบ</span>
           </button>
+
+          <div style={{ marginTop: '0.85rem', textAlign: 'center' }}>
+            <button
+              onClick={() => setShowVersionModal(true)}
+              style={{
+                background: 'none', border: 'none', color: 'var(--text-light)',
+                fontSize: '0.75rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.35rem'
+              }}
+              title="ดูรายการอัปเกรดระบบ"
+            >
+              <Tag size={12} /> เวอร์ชันระบบ <strong>v{APP_VERSION}</strong>
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -810,6 +839,11 @@ export default function Dashboard() {
           }
         }
       `}</style>
+
+      <VersionModal 
+        isOpen={showVersionModal} 
+        onClose={() => setShowVersionModal(false)} 
+      />
     </div>
   );
 }
