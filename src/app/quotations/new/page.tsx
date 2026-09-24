@@ -51,7 +51,9 @@ function NewQuotationContent() {
   const [quotationNumber, setQuotationNumber] = useState('');
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
   const [projectName, setProjectName] = useState('');
-  const [items, setItems] = useState<QuotationItem[]>([]);
+  const [items, setItems] = useState<QuotationItem[]>([
+    { product_id: '', product_name: '', quantity: 1, unit_price: 0, discount: 0, total: 0 }
+  ]);
   const [notes, setNotes] = useState('กำหนดยืนราคา 30 วัน นับจากวันที่เสนอราคา');
   const [globalDiscountPercent, setGlobalDiscountPercent] = useState(0);
   const [includeVat, setIncludeVat] = useState(true);
@@ -66,7 +68,7 @@ function NewQuotationContent() {
     if (user && company) {
       fetchMasterData();
     }
-  }, [user, company]);
+  }, [user, company, cloneId]);
 
   const fetchMasterData = async () => {
     setFetchingData(true);
@@ -88,13 +90,13 @@ function NewQuotationContent() {
       if (qData) {
         setSelectedCustomerId(qData.customer_id);
         setProjectName(qData.project_name || '');
-        setNotes(qData.notes || '');
+        setNotes(qData.notes || 'กำหนดยืนราคา 30 วัน นับจากวันที่เสนอราคา');
         setGlobalDiscountPercent(qData.global_discount_percent || 0);
-        setIncludeVat(qData.has_vat);
-        setIncludeWht(qData.has_wht);
+        setIncludeVat(qData.has_vat !== false);
+        setIncludeWht(qData.has_wht === true);
         
         const { data: iData } = await supabase.from('quotation_items').select('*, products(name)').eq('quotation_id', cloneId);
-        if (iData) {
+        if (iData && iData.length > 0) {
           setItems(iData.map((item: any) => ({
             product_id: item.product_id,
             product_name: item.products?.name || '',
@@ -104,45 +106,31 @@ function NewQuotationContent() {
             discount: item.discount,
             total: item.total
           })));
+        } else {
+          setItems([{ product_id: '', product_name: '', quantity: 1, unit_price: 0, discount: 0, total: 0 }]);
         }
       }
     } else {
-      // Try to load from draft
-      const draftStr = localStorage.getItem(`quotation_draft_${company}`);
-      if (draftStr) {
-        try {
-          const draft = JSON.parse(draftStr);
-          if (draft.selectedCustomerId) setSelectedCustomerId(draft.selectedCustomerId);
-          if (draft.projectName !== undefined) setProjectName(draft.projectName);
-          if (draft.items && Array.isArray(draft.items)) setItems(draft.items);
-          if (draft.notes !== undefined) setNotes(draft.notes);
-          if (draft.globalDiscountPercent !== undefined) setGlobalDiscountPercent(draft.globalDiscountPercent);
-          if (draft.includeVat !== undefined) setIncludeVat(draft.includeVat);
-          if (draft.includeWht !== undefined) setIncludeWht(draft.includeWht);
-        } catch (e) {
-          console.error('Failed to parse draft', e);
-        }
+      // Clear any legacy draft from localStorage to prevent old quotation data from appearing
+      try {
+        localStorage.removeItem(`quotation_draft_${company}`);
+        localStorage.removeItem('quotation_draft_SST');
+        localStorage.removeItem('quotation_draft_Shinwa Anzen');
+      } catch (e) {
+        // ignore
       }
+      setSelectedCustomerId('');
+      setProjectName('');
+      setItems([{ product_id: '', product_name: '', quantity: 1, unit_price: 0, discount: 0, total: 0 }]);
+      setNotes('กำหนดยืนราคา 30 วัน นับจากวันที่เสนอราคา');
+      setGlobalDiscountPercent(0);
+      setIncludeVat(true);
+      setIncludeWht(false);
+      setCurrentQuotationId(null);
     }
 
     setFetchingData(false);
   };
-
-  // Auto-save draft
-  useEffect(() => {
-    if (fetchingData || !company) return;
-    
-    const draftData = {
-      selectedCustomerId,
-      projectName,
-      items,
-      notes,
-      globalDiscountPercent,
-      includeVat,
-      includeWht,
-    };
-    localStorage.setItem(`quotation_draft_${company}`, JSON.stringify(draftData));
-  }, [selectedCustomerId, projectName, items, notes, globalDiscountPercent, includeVat, includeWht, company, fetchingData]);
 
   const generateQuotationNumber = async () => {
     const prefix = company === 'SST' ? 'SST-QT-' : 'SA-QT-';
@@ -271,8 +259,14 @@ function NewQuotationContent() {
 
         if (itemsError) throw itemsError;
 
-        localStorage.removeItem(`quotation_draft_${company}`);
-        window.history.replaceState(null, '', `/quotations/${targetId}/edit`);
+        try {
+          localStorage.removeItem(`quotation_draft_${company}`);
+          localStorage.removeItem('quotation_draft_SST');
+          localStorage.removeItem('quotation_draft_Shinwa Anzen');
+        } catch (e) {}
+
+        alert('บันทึกข้อมูลใบเสนอราคาเรียบร้อยแล้ว');
+        router.replace(`/quotations/${targetId}/edit`);
       } else {
         // Subsequent save on the same quotation
         const { error: qtError } = await supabase
@@ -305,9 +299,15 @@ function NewQuotationContent() {
 
         const { error: itemsError } = await supabase.from('quotation_items').insert(itemsToInsert);
         if (itemsError) throw itemsError;
-      }
 
-      alert('บันทึกข้อมูลใบเสนอราคาเรียบร้อยแล้ว (คุณสามารถแก้ไขข้อมูลต่อและกดบันทึกได้เรื่อยๆ)');
+        try {
+          localStorage.removeItem(`quotation_draft_${company}`);
+          localStorage.removeItem('quotation_draft_SST');
+          localStorage.removeItem('quotation_draft_Shinwa Anzen');
+        } catch (e) {}
+
+        alert('บันทึกการแก้ไขเรียบร้อยแล้ว');
+      }
 
     } catch (error: any) {
       console.error('Save error:', error);
@@ -319,14 +319,19 @@ function NewQuotationContent() {
 
   const handleClearDraft = () => {
     if (confirm('คุณต้องการล้างข้อมูลที่กรอกไว้ทั้งหมดและเริ่มใหม่ใช่หรือไม่?')) {
-      localStorage.removeItem(`quotation_draft_${company}`);
+      try {
+        localStorage.removeItem(`quotation_draft_${company}`);
+        localStorage.removeItem('quotation_draft_SST');
+        localStorage.removeItem('quotation_draft_Shinwa Anzen');
+      } catch (e) {}
       setSelectedCustomerId('');
       setProjectName('');
-      setItems([]);
+      setItems([{ product_id: '', product_name: '', quantity: 1, unit_price: 0, discount: 0, total: 0 }]);
       setNotes('กำหนดยืนราคา 30 วัน นับจากวันที่เสนอราคา');
       setGlobalDiscountPercent(0);
       setIncludeVat(true);
       setIncludeWht(false);
+      setCurrentQuotationId(null);
       generateQuotationNumber().then(setQuotationNumber);
     }
   };
@@ -621,6 +626,11 @@ function NewQuotationContent() {
                 className="btn btn-primary" 
                 onClick={() => {
                   setShowCloseModal(false);
+                  try {
+                    localStorage.removeItem(`quotation_draft_${company}`);
+                    localStorage.removeItem('quotation_draft_SST');
+                    localStorage.removeItem('quotation_draft_Shinwa Anzen');
+                  } catch (e) {}
                   router.push('/quotations');
                 }}
                 style={{ backgroundColor: '#ef4444', borderColor: '#ef4444' }}

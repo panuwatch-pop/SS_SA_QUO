@@ -7,9 +7,9 @@ export interface VersionRelease {
   changes: string[];
 }
 
-export const APP_VERSION = '1.2.1';
+export const APP_VERSION = '1.2.2';
 export const APP_NAME = 'Quotation & ERP System';
-export const APP_RELEASE_DATE = '2026-09-11';
+export const APP_RELEASE_DATE = '2026-09-24';
 
 /**
  * ประวัติการอัปเกรดระบบ (System Version History & Changelog)
@@ -18,6 +18,19 @@ export const APP_RELEASE_DATE = '2026-09-11';
  * - Patch (1.2.X): การปรับปรุง แก้ไขบั๊ก หรือปรับแต่งการแสดงผล
  */
 export const VERSION_HISTORY: VersionRelease[] = [
+  {
+    version: '1.2.2',
+    type: 'patch',
+    date: '2026-09-24',
+    title: 'แก้ไขปัญหาข้อมูลเดิมติดมาเมื่อกดสร้างใบเสนอราคาใหม่',
+    description: 'ปรับปรุงหน้าสร้างใบเสนอราคาใหม่ให้เริ่มต้นเป็นฟอร์มว่างเสมอ ป้องกันข้อมูลของใบเสนอราคาเดิมค้างในระบบ',
+    changes: [
+      'แก้ไขหน้าสร้างใบเสนอราคาใหม่ (/quotations/new) ให้เริ่มต้นเป็นฟอร์มว่างเสมอ พร้อมเลขเอกสารใหม่',
+      'ลบระบบ Auto-Save Draft ที่แอบบันทึกข้อมูลใบเดิมลงใน LocalStorage ของเบราว์เซอร์',
+      'เพิ่มการล้างข้อมูลแคชเก่าใน LocalStorage อัตโนมัติทันทีที่เข้าหน้าสร้างใหม่',
+      'ปรับปรุงขั้นตอนการบันทึก ให้เปลี่ยนเส้นทางไปยังหน้าแก้ไข (/quotations/[id]/edit) โดยสมบูรณ์'
+    ]
+  },
   {
     version: '1.2.1',
     type: 'patch',
