@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { useCompany } from '@/context/CompanyContext';
-import { Plus, Search, ArrowLeft, FileText, Trash2, Eye, Edit, Copy } from 'lucide-react';
+import { Plus, Search, ArrowLeft, FileText, Trash2, Eye, Edit, Copy, Download, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -28,8 +28,133 @@ export default function QuotationsPage() {
   const { company } = useCompany();
   const [quotations, setQuotations] = useState<Quotation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
+
+  const handleExportData = async () => {
+    try {
+      setExporting(true);
+      const targetCompany = company || 'SST';
+      const { data: fullQuotes, error } = await supabase
+        .from('quotations')
+        .select(`
+          *,
+          customers (*),
+          quotation_items (
+            *,
+            products (*)
+          )
+        `)
+        .eq('company_name', targetCompany)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      if (!fullQuotes || fullQuotes.length === 0) {
+        alert('ไม่พบข้อมูลใบเสนอราคาสำหรับส่งออก');
+        return;
+      }
+
+      // 1. Download JSON
+      const jsonBlob = new Blob([JSON.stringify(fullQuotes, null, 2)], { type: 'application/json' });
+      const jsonUrl = URL.createObjectURL(jsonBlob);
+      const jsonLink = document.createElement('a');
+      jsonLink.href = jsonUrl;
+      jsonLink.download = `quotations_${targetCompany}.json`;
+      document.body.appendChild(jsonLink);
+      jsonLink.click();
+      document.body.removeChild(jsonLink);
+
+      // 2. Download CSV
+      const rows: string[] = [];
+      const headers = [
+        'quotation_number', 'date', 'status', 'project_name',
+        'customer_code', 'customer_name', 'customer_tax_id', 'customer_address', 'customer_phone', 'contact_name',
+        'item_index', 'product_code', 'product_name', 'description', 'unit', 'quantity', 'unit_price', 'discount', 'item_total',
+        'subtotal', 'global_discount_percent', 'has_vat', 'has_wht', 'grand_total', 'notes'
+      ];
+      rows.push(headers.join(','));
+
+      const escapeCell = (v: any) => {
+        if (v === null || v === undefined) return '""';
+        const str = String(v).replace(/"/g, '""').replace(/\r\n|\n/g, ' ');
+        return `"${str}"`;
+      };
+
+      for (const q of fullQuotes) {
+        const cust = (q as any).customers || {};
+        const items = (q as any).quotation_items || [];
+        if (items.length === 0) {
+          rows.push([
+            escapeCell(q.quotation_number),
+            escapeCell(q.created_at ? q.created_at.split('T')[0] : ''),
+            escapeCell(q.status),
+            escapeCell(q.project_name || ''),
+            escapeCell(cust.customer_code || ''),
+            escapeCell(cust.name || ''),
+            escapeCell(cust.tax_id || ''),
+            escapeCell(cust.address || ''),
+            escapeCell(cust.phone || ''),
+            escapeCell(cust.contact_name || ''),
+            escapeCell(''), escapeCell(''), escapeCell(''), escapeCell(''), escapeCell(''),
+            escapeCell(''), escapeCell(''), escapeCell(''), escapeCell(''),
+            escapeCell(q.total_amount || 0),
+            escapeCell(q.global_discount_percent || 0),
+            escapeCell(q.has_vat ? 'true' : 'false'),
+            escapeCell(q.has_wht ? 'true' : 'false'),
+            escapeCell(q.total_amount || 0),
+            escapeCell(q.notes || '')
+          ].join(','));
+        } else {
+          let idx = 1;
+          for (const item of items) {
+            const prod = item.products || {};
+            rows.push([
+              escapeCell(q.quotation_number),
+              escapeCell(q.created_at ? q.created_at.split('T')[0] : ''),
+              escapeCell(q.status),
+              escapeCell(q.project_name || ''),
+              escapeCell(cust.customer_code || ''),
+              escapeCell(cust.name || ''),
+              escapeCell(cust.tax_id || ''),
+              escapeCell(cust.address || ''),
+              escapeCell(cust.phone || ''),
+              escapeCell(cust.contact_name || ''),
+              escapeCell(idx++),
+              escapeCell(prod.product_code || ''),
+              escapeCell(prod.name || ''),
+              escapeCell(item.description || prod.description || ''),
+              escapeCell(prod.unit || ''),
+              escapeCell(item.quantity || 1),
+              escapeCell(item.unit_price || 0),
+              escapeCell(item.discount || 0),
+              escapeCell(item.total || 0),
+              escapeCell(q.total_amount || 0),
+              escapeCell(q.global_discount_percent || 0),
+              escapeCell(q.has_vat ? 'true' : 'false'),
+              escapeCell(q.has_wht ? 'true' : 'false'),
+              escapeCell(q.total_amount || 0),
+              escapeCell(q.notes || '')
+            ].join(','));
+          }
+        }
+      }
+
+      const csvBlob = new Blob(['\ufeff' + rows.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+      const csvUrl = URL.createObjectURL(csvBlob);
+      const csvLink = document.createElement('a');
+      csvLink.href = csvUrl;
+      csvLink.download = `quotations_${targetCompany}.csv`;
+      document.body.appendChild(csvLink);
+      csvLink.click();
+      document.body.removeChild(csvLink);
+    } catch (err: any) {
+      console.error('Export error:', err);
+      alert('เกิดข้อผิดพลาดในการส่งออกข้อมูล: ' + err.message);
+    } finally {
+      setExporting(false);
+    }
+  };
 
   useEffect(() => {
     if (user && company) {
@@ -129,9 +254,22 @@ export default function QuotationsPage() {
             <p className="subtitle">ดูและจัดการใบเสนอราคาของบริษัท {company}</p>
           </div>
         </div>
-        <Link href="/quotations/new" className="btn btn-primary">
-          <Plus size={20} style={{ marginRight: '0.5rem' }} /> สร้างใบเสนอราคา
-        </Link>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <button 
+            type="button" 
+            className="btn btn-outline" 
+            onClick={handleExportData} 
+            disabled={exporting}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.8)' }}
+            title={`ส่งออกข้อมูลใบเสนอราคาทั้งหมดของ ${company} ในรูปแบบ JSON และ CSV`}
+          >
+            {exporting ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
+            <span>ส่งออกข้อมูล {company} (JSON / CSV)</span>
+          </button>
+          <Link href="/quotations/new" className="btn btn-primary">
+            <Plus size={20} style={{ marginRight: '0.5rem' }} /> สร้างใบเสนอราคา
+          </Link>
+        </div>
       </header>
 
       <div className="glass-panel content-panel">
